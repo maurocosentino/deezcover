@@ -9,8 +9,9 @@ import com.mauro.offlinefirst.domain.repository.SongRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
+import javax.inject.Inject
 
-class SongRepositoryImpl(
+class SongRepositoryImpl @Inject constructor(
     private val songDao: SongDao,
     private val remoteDataSource: RemoteDataSource
 ) : SongRepository {
