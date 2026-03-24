@@ -5,7 +5,7 @@ import androidx.room.RoomDatabase
 import com.mauro.offlinefirst.data.local.dao.SongDao
 import com.mauro.offlinefirst.data.local.entity.SongEntity
 
-@Database(entities =  [SongEntity::class], exportSchema = true, version = 1)
+@Database(entities =  [SongEntity::class], exportSchema = false, version = 1)
 abstract class AppDatabase : RoomDatabase(){
 
     abstract fun songDao(): SongDao
