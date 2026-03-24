@@ -1,3 +1,12 @@
 package com.mauro.offlinefirst.data.remote
 
-class RemoteDataSource()
+import com.mauro.offlinefirst.data.remote.api.MusicApiService
+import com.mauro.offlinefirst.data.remote.dto.SongDto
+
+class RemoteDataSource constructor(
+   private val apiService : MusicApiService,
+){
+    suspend fun fetchSongs(): List<SongDto>{
+        return apiService.getSongs()
+    }
+}

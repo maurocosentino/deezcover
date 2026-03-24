@@ -1,5 +1,28 @@
 package com.mauro.offlinefirst.data.mapper
 
-class SongMapper {
+import com.mauro.offlinefirst.data.local.entity.SongEntity
+import com.mauro.offlinefirst.data.remote.dto.SongDto
+import com.mauro.offlinefirst.domain.model.Song
 
+object SongMapper {
+    fun SongEntity.toDomain(): Song = Song(
+        id = id,
+        title = title,
+        artist = artist,
+        albumArt = albumArt,
+        durationMs = durationMs,
+        isAvailableOffline = isAvailableOffline
+    )
+
+    fun SongDto.toEntity(): SongEntity = SongEntity(
+        id = id,
+        title = title,
+        artist = artist,
+        albumArt = albumArt,
+        durationMs = durationMs,
+        isAvailableOffline = false,
+        lastUpdated = System.currentTimeMillis()
+    )
+
+    fun List<SongEntity>.toDomainList(): List<Song> = map { it.toDomain() }
 }
