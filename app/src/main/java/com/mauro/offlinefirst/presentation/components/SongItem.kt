@@ -11,8 +11,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun SongItem(song: Song) {
-    Card(modifier = Modifier.fillMaxWidth()) {
+fun SongItem(song: Song, modifier: Modifier = Modifier) {
+    Card(modifier = modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(text = song.title)
             Text(text = song.artist)
