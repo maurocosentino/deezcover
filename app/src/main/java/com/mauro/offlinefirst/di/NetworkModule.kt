@@ -14,7 +14,7 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
-    private const val BASE_URL = "https://mock.music.api/"
+    private const val BASE_URL = "https://api.deezer.com/"
 
     @Provides
     @Singleton
