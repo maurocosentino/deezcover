@@ -6,7 +6,7 @@ import com.mauro.offlinefirst.data.remote.dto.SongDto
 class RemoteDataSource constructor(
    private val apiService : MusicApiService,
 ){
-    suspend fun fetchSongs(): List<SongDto>{
-        return apiService.getSongs()
+    suspend fun fetchSongs(): List<SongDto> {
+        return apiService.getSongs().tracks
     }
 }
