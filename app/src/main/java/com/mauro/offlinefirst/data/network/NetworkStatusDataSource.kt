@@ -31,7 +31,6 @@ class NetworkStatusDataSource @Inject constructor(
 
         connectivityManager.registerDefaultNetworkCallback(callback)
 
-        // Emitir estado inicial
         val isCurrentlyConnected = connectivityManager
             .activeNetwork != null
         trySend(isCurrentlyConnected)

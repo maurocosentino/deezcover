@@ -50,6 +50,8 @@ dependencies {
 
     ksp(libs.androidx.room.compiler)
 
+    implementation(libs.coil.compose)
+
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
