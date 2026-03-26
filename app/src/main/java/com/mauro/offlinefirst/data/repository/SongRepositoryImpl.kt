@@ -37,33 +37,4 @@ class SongRepositoryImpl @Inject constructor(
             exception.printStackTrace()
         }
     }
-    override suspend fun insertTestSongs() {
-        val testSongs = listOf(
-            SongEntity(
-                id = "1",
-                title = "Bohemian Rhapsody",
-                artist = "Queen",
-                albumArt = "",
-                durationMs = 354000,
-                isAvailableOffline = true
-            ),
-            SongEntity(
-                id = "2",
-                title = "Hotel California",
-                artist = "Eagles",
-                albumArt = "",
-                durationMs = 391000,
-                isAvailableOffline = false
-            ),
-            SongEntity(
-                id = "3",
-                title = "Stairway to Heaven",
-                artist = "Led Zeppelin",
-                albumArt = "",
-                durationMs = 482000,
-                isAvailableOffline = false
-            )
-        )
-        songDao.upsertSongs(testSongs)
-    }
 }

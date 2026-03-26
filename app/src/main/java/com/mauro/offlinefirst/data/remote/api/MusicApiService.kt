@@ -1,9 +1,9 @@
 package com.mauro.offlinefirst.data.remote.api
-import com.mauro.offlinefirst.data.remote.dto.SongDto
+import com.mauro.offlinefirst.data.remote.dto.DeezerChartResponseDto
 import retrofit2.http.GET
 
 interface MusicApiService {
-    @GET("songs")
-    suspend fun getSongs(): List<SongDto>
+    @GET("chart/0/tracks")
+    suspend fun getSongs(): DeezerChartResponseDto
 }
 
