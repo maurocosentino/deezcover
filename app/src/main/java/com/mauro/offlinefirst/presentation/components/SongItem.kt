@@ -29,7 +29,11 @@ fun SongItem(song: Song, modifier: Modifier = Modifier) {
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.size(64.dp)
             )
-            Column(Modifier.padding(start = 12.dp)) {
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 12.dp)
+            ) {
                 Text(song.title)
                 Text(song.artist)
                 Text(formatDuration(song.durationMs))
