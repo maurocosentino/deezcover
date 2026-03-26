@@ -2,6 +2,7 @@ package com.mauro.offlinefirst.presentation.songlist
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mauro.offlinefirst.data.network.NetworkStatusDataSource
 import com.mauro.offlinefirst.domain.repository.SongRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,7 +14,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SongListViewModel @Inject constructor(
-    private val songRepository: SongRepository
+    private val songRepository: SongRepository,
+    private val networkStatusDataSource: NetworkStatusDataSource
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SongListUiState())
@@ -22,6 +24,15 @@ class SongListViewModel @Inject constructor(
     init {
         observeSongs()
         syncSongs()
+        observeConnectivity()
+    }
+
+    private fun observeConnectivity() {
+        viewModelScope.launch {
+            networkStatusDataSource.isConnected.collect { isConnected ->
+                _uiState.update { it.copy(isConnected = isConnected) }
+            }
+        }
     }
     private fun observeSongs() {
         viewModelScope.launch {
