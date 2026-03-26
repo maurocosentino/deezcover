@@ -15,11 +15,11 @@ object SongMapper {
     )
 
     fun SongDto.toEntity(): SongEntity = SongEntity(
-        id = id,
+        id = id.toString(),
         title = title,
-        artist = artist,
-        albumArt = albumArt,
-        durationMs = durationMs,
+        artist = artist.name,
+        albumArt = albumArt.coverMedium,
+        durationMs = duration * 1000L,
         isAvailableOffline = false,
         lastUpdated = System.currentTimeMillis()
     )
