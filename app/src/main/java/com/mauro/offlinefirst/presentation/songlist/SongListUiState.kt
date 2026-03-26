@@ -6,5 +6,6 @@ data class SongListUiState(
     val songs: List<Song> = emptyList(),
     val isLoading: Boolean = false,
     val isSyncing: Boolean = false,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val isConnected: Boolean = true
 )
