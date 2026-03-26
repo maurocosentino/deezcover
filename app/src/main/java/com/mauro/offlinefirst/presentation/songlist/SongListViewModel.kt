@@ -21,13 +21,7 @@ class SongListViewModel @Inject constructor(
 
     init {
         observeSongs()
-        insertTestSongs()
         syncSongs()
-    }
-    private fun insertTestSongs() {
-        viewModelScope.launch {
-            songRepository.insertTestSongs()
-        }
     }
     private fun observeSongs() {
         viewModelScope.launch {

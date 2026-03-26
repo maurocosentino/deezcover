@@ -7,5 +7,4 @@ import kotlinx.coroutines.flow.Flow
 interface SongRepository {
     fun observeSongs(): Flow<Result<List<Song>>>
     suspend fun syncSongs()
-    suspend fun insertTestSongs()
 }
