@@ -92,7 +92,7 @@ fun SongListScreen(
                             SongItem(
                                 song = song,
                                 onClick = { onSongClick(song.id) },
-                                modifier = Modifier.padding(
+                                modifier = Modifier.animateItem().padding(
                                     horizontal = 16.dp,
                                     vertical = 8.dp
                                 )
