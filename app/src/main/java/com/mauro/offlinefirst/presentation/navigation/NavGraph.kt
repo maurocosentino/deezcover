@@ -1,5 +1,10 @@
 package com.mauro.offlinefirst.presentation.navigation
 
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -15,7 +20,11 @@ fun NavGraph(navController: NavHostController) {
         navController = navController,
         startDestination = Screen.SongList.route
     ) {
-        composable(route = Screen.SongList.route) {
+        composable(
+            route = Screen.SongList.route,
+            enterTransition = { fadeIn(animationSpec = tween(300)) },
+            exitTransition = { fadeOut(animationSpec = tween(300)) }
+        )  {
             SongListScreen(
                 onSongClick = { songId ->
                     navController.navigate(
@@ -29,7 +38,19 @@ fun NavGraph(navController: NavHostController) {
             route = Screen.SongDetail.route,
             arguments = listOf(
                 navArgument("songId") { type = NavType.StringType }
-            )
+            ),
+            enterTransition = {
+                slideInHorizontally(
+                    initialOffsetX = { it },
+                    animationSpec = tween(300)
+                )
+            },
+            exitTransition = {
+                slideOutHorizontally(
+                    targetOffsetX = { it },
+                    animationSpec = tween(300)
+                )
+            }
         ) { backStackEntry ->
             val songId = backStackEntry.arguments?.getString("songId") ?: ""
             SongDetailScreen(
