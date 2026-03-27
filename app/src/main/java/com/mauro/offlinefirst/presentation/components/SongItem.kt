@@ -12,6 +12,7 @@ import com.mauro.offlinefirst.domain.model.Song
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
@@ -42,9 +43,20 @@ fun SongItem(
                     .weight(1f)
                     .padding(start = 12.dp)
             ) {
-                Text(song.title)
-                Text(song.artist)
-                Text(formatDuration(song.durationMs))
+                Text(
+                    text = song.title,
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Text(
+                    text = song.artist,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = formatDuration(song.durationMs),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         }
     }
