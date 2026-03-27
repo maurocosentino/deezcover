@@ -5,6 +5,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import com.mauro.offlinefirst.domain.model.Song
@@ -18,8 +19,15 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 @Composable
-fun SongItem(song: Song, modifier: Modifier = Modifier) {
-    Card(modifier) {
+fun SongItem(
+    song: Song,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        onClick = onClick,
+        modifier = modifier.fillMaxWidth()
+    ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             AsyncImage(
                 model = song.albumArt,

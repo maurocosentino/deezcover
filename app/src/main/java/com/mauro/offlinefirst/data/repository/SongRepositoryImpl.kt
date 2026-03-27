@@ -2,6 +2,7 @@ package com.mauro.offlinefirst.data.repository
 
 import com.mauro.offlinefirst.data.local.dao.SongDao
 import com.mauro.offlinefirst.data.local.entity.SongEntity
+import com.mauro.offlinefirst.data.mapper.SongMapper.toDomain
 import com.mauro.offlinefirst.data.mapper.SongMapper.toDomainList
 import com.mauro.offlinefirst.data.mapper.SongMapper.toEntity
 import com.mauro.offlinefirst.data.remote.RemoteDataSource
@@ -26,6 +27,13 @@ class SongRepositoryImpl @Inject constructor(
             .catch { exception ->
                 emit(Result.failure(exception))
             }
+    }
+
+    override fun observeSongById(songId: String): Flow<Song?> {
+        return songDao
+            .observeSongById(songId)
+            .map { entity -> entity?.toDomain() }
+            .catch { exception -> emit(null) }
     }
 
     override suspend fun syncSongs() {
