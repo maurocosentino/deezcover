@@ -6,5 +6,6 @@ data class Song(
     val artist: String,
     val albumArt: String,
     val durationMs: Long,
-    val isAvailableOffline: Boolean
+    val isAvailableOffline: Boolean,
+    val deezerUrl: String
 )

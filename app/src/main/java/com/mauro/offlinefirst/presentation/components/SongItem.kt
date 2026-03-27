@@ -87,15 +87,6 @@ fun SongItem(
                 )
             }
 
-            androidx.compose.material3.IconButton(
-                onClick = { /* play preview */ }
-            ) {
-                androidx.compose.material3.Icon(
-                    imageVector = Icons.Default.PlayArrow,
-                    contentDescription = "Play",
-                    tint = MaterialTheme.colorScheme.primary
-                )
-            }
         }
     }
 }
