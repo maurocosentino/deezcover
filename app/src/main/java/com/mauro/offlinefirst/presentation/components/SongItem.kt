@@ -87,7 +87,6 @@ fun SongItem(
                 )
             }
 
-            // 🔥 NUEVO: botón play (clave visual)
             androidx.compose.material3.IconButton(
                 onClick = { /* play preview */ }
             ) {
