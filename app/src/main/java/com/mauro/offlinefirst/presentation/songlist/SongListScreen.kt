@@ -25,6 +25,7 @@ import com.mauro.offlinefirst.presentation.components.SongItem
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SongListScreen(
+    onSongClick: (String) -> Unit,
     viewModel: SongListViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -70,6 +71,7 @@ fun SongListScreen(
                         ) { song ->
                             SongItem(
                                 song = song,
+                                onClick = { onSongClick(song.id) },
                                 modifier = Modifier.padding(
                                     horizontal = 16.dp,
                                     vertical = 8.dp
