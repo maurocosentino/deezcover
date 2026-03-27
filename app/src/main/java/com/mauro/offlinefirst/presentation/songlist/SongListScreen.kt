@@ -10,8 +10,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -29,8 +35,22 @@ fun SongListScreen(
     viewModel: SongListViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-
-    Column(modifier = Modifier.fillMaxSize()) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Offline First 🎵") },
+                actions = {
+                    IconButton(onClick = { viewModel.syncSongs() }) {
+                        Icon(
+                            imageVector = Icons.Default.Refresh,
+                            contentDescription = "Sincronizar"
+                        )
+                    }
+                }
+            )
+        }
+    ) { paddingValues ->
+    Column(modifier = Modifier.fillMaxSize().padding(paddingValues) ) {
         if (!uiState.isConnected) {
             Text(
                 text = "Sin conexión — mostrando datos locales",
@@ -72,7 +92,7 @@ fun SongListScreen(
                             SongItem(
                                 song = song,
                                 onClick = { onSongClick(song.id) },
-                                modifier = Modifier.padding(
+                                modifier = Modifier.animateItem().padding(
                                     horizontal = 16.dp,
                                     vertical = 8.dp
                                 )
@@ -83,4 +103,6 @@ fun SongListScreen(
             }
         }
     }
+}
+
 }
