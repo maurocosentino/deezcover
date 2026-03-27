@@ -6,6 +6,8 @@ import com.mauro.offlinefirst.data.mapper.SongMapper.toEntity
 import com.mauro.offlinefirst.data.remote.dto.DeezerAlbumDto
 import com.mauro.offlinefirst.data.remote.dto.DeezerArtistDto
 import com.mauro.offlinefirst.data.remote.dto.SongDto
+import junit.framework.TestCase.assertEquals
+import org.junit.Test
 
 class SongMapperTest {
 
