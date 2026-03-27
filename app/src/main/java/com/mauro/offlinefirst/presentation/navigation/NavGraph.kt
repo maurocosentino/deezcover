@@ -32,7 +32,10 @@ fun NavGraph(navController: NavHostController) {
             )
         ) { backStackEntry ->
             val songId = backStackEntry.arguments?.getString("songId") ?: ""
-            SongDetailScreen(songId = songId)
+            SongDetailScreen(
+                songId = songId,
+                onNavigateBack = { navController.popBackStack() }
+            )
         }
     }
 }
