@@ -45,4 +45,8 @@ class SongRepositoryImpl @Inject constructor(
             exception.printStackTrace()
         }
     }
+
+    override suspend fun saveAlbumTracks(tracks: List<SongEntity>) {
+        songDao.upsertSongs(tracks)
+    }
 }

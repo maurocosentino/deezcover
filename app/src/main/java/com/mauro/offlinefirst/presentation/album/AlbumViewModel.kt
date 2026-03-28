@@ -7,6 +7,7 @@ import com.mauro.offlinefirst.data.remote.RemoteDataSource
 import com.mauro.offlinefirst.data.mapper.SongMapper.toEntity
 import com.mauro.offlinefirst.domain.model.Song
 import com.mauro.offlinefirst.data.mapper.SongMapper.toDomain
+import com.mauro.offlinefirst.domain.repository.SongRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -24,6 +25,7 @@ data class AlbumUiState(
 @HiltViewModel
 class AlbumViewModel @Inject constructor(
     private val remoteDataSource: RemoteDataSource,
+    private val songRepository: SongRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -42,6 +44,7 @@ class AlbumViewModel @Inject constructor(
             try {
                 val tracks = remoteDataSource.fetchAlbumTracks(albumId)
                 val songs = tracks.map { it.toEntity().toDomain() }
+                songRepository.saveAlbumTracks(tracks.map { it.toEntity() })
                 _uiState.update {
                     it.copy(
                         songs = songs,
