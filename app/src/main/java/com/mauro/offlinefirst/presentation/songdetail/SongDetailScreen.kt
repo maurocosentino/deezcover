@@ -140,6 +140,11 @@ fun SongDetailScreen(
                             style = MaterialTheme.typography.headlineMedium,
                             color = Color.White
                         )
+                        Text(
+                            text = currentSong.albumTitle,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.White.copy(alpha = 0.5f)
+                        )
 
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
