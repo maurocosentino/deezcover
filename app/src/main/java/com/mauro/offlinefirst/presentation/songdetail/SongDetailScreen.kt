@@ -189,6 +189,19 @@ fun SongDetailScreen(
                                 .padding(horizontal = 24.dp)
                         )
                     }
+                    if (uiState.playerState == PlayerState.PLAYING ||
+                        uiState.playerState == PlayerState.PAUSED) {
+
+                        val remaining = (uiState.totalDurationMs - uiState.currentPositionMs)
+                            .coerceAtLeast(0L)
+
+                        Text(
+                            text = "0:${String.format("%02d", remaining / 1000)} restantes",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.White.copy(alpha = 0.6f),
+                            modifier = Modifier.padding(horizontal = 24.dp)
+                        )
+                    }
 
                     if (currentSong.deezerUrl.isNotEmpty()) {
                         DeezerButton(

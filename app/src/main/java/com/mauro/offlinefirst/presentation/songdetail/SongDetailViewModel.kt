@@ -11,6 +11,7 @@ import com.mauro.offlinefirst.data.network.NetworkStatusDataSource
 import com.mauro.offlinefirst.domain.repository.SongRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -65,6 +66,7 @@ class SongDetailViewModel @Inject constructor(
     init {
         observeSong()
         observeConnectivity()
+        startPositionTracking()
     }
 
     private fun observeSong() {
@@ -94,6 +96,22 @@ class SongDetailViewModel @Inject constructor(
         } else {
             if (player.isPlaying) player.pause()
             else player.play()
+        }
+    }
+
+    private fun startPositionTracking() {
+        viewModelScope.launch {
+            while (true) {
+                delay(500)
+                if (player.isPlaying) {
+                    _uiState.update {
+                        it.copy(
+                            currentPositionMs = player.currentPosition,
+                            totalDurationMs = player.duration.coerceAtLeast(0L)
+                        )
+                    }
+                }
+            }
         }
     }
 
