@@ -131,7 +131,7 @@ fun SongListScreen(
                     title = {
                         Column {
                             Text(
-                                text = "Offline First",
+                                text = "OfflineFirst",
                                 style = MaterialTheme.typography.titleLarge,
                                 color = Color.White,
                                 fontFamily = FontFamily.SansSerif,
