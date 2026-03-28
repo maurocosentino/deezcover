@@ -13,7 +13,8 @@ object SongMapper {
         albumArt = albumArt,
         durationMs = durationMs,
         isAvailableOffline = isAvailableOffline,
-        deezerUrl = deezerUrl
+        deezerUrl = deezerUrl,
+        previewUrl = previewUrl
     )
 
     fun SongDto.toEntity(): SongEntity = SongEntity(
@@ -24,7 +25,8 @@ object SongMapper {
         durationMs = duration * 1000L,
         isAvailableOffline = false,
         lastUpdated = System.currentTimeMillis(),
-        deezerUrl = link
+        deezerUrl = link,
+        previewUrl = previewUrl
     )
 
     fun List<SongEntity>.toDomainList(): List<Song> = map { it.toDomain() }

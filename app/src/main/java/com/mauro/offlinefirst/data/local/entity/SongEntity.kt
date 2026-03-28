@@ -13,6 +13,7 @@ data class SongEntity(
     val durationMs: Long,
     val isAvailableOffline: Boolean,
     val lastUpdated: Long = System.currentTimeMillis(),
-    val deezerUrl: String
+    val deezerUrl: String,
+    val previewUrl: String
 )
 
