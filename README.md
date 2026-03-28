@@ -35,7 +35,9 @@ Room updates → UI reacts automatically
 
 ## Preview
 
-![Demo](preview.gif)
+## Preview
+
+<img src="preview.gif" width="320" alt="Demo"/>
 
 
 ## Tech Stack
