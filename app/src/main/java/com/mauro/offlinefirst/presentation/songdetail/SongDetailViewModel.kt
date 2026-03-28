@@ -7,7 +7,11 @@ import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
+import com.mauro.offlinefirst.data.mapper.SongMapper.toDomain
+import com.mauro.offlinefirst.data.mapper.SongMapper.toEntity
 import com.mauro.offlinefirst.data.network.NetworkStatusDataSource
+import com.mauro.offlinefirst.data.remote.RemoteDataSource
+import com.mauro.offlinefirst.domain.model.Song
 import com.mauro.offlinefirst.domain.repository.SongRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -22,8 +26,9 @@ import javax.inject.Inject
 @HiltViewModel
 class SongDetailViewModel @Inject constructor(
     private val songRepository: SongRepository,
+    private val remoteDataSource: RemoteDataSource,  // ← nuevo
     savedStateHandle: SavedStateHandle,
-    private val networkStatusDataSource : NetworkStatusDataSource,
+    private val networkStatusDataSource: NetworkStatusDataSource,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -32,6 +37,7 @@ class SongDetailViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(SongDetailUiState())
     val uiState: StateFlow<SongDetailUiState> = _uiState.asStateFlow()
 
+    // ExoPlayer para el preview de la canción principal
     private val player = ExoPlayer.Builder(context).build().apply {
         addListener(object : Player.Listener {
             override fun onPlaybackStateChanged(playbackState: Int) {
@@ -51,11 +57,44 @@ class SongDetailViewModel @Inject constructor(
                     else -> Unit
                 }
             }
-
             override fun onIsPlayingChanged(isPlaying: Boolean) {
                 _uiState.update {
                     it.copy(
                         playerState = if (isPlaying) PlayerState.PLAYING
+                        else PlayerState.PAUSED
+                    )
+                }
+            }
+        })
+    }
+
+    // ExoPlayer para el álbum
+    private val albumPlayer = ExoPlayer.Builder(context).build().apply {
+        addListener(object : Player.Listener {
+            override fun onPlaybackStateChanged(playbackState: Int) {
+                when (playbackState) {
+                    Player.STATE_BUFFERING -> _uiState.update {
+                        it.copy(albumPlayerState = PlayerState.LOADING)
+                    }
+                    Player.STATE_READY -> _uiState.update {
+                        it.copy(
+                            albumPlayerState = if (isPlaying) PlayerState.PLAYING
+                            else PlayerState.PAUSED
+                        )
+                    }
+                    Player.STATE_ENDED -> _uiState.update {
+                        it.copy(
+                            albumPlayerState = PlayerState.IDLE,
+                            currentAlbumPlayingId = null
+                        )
+                    }
+                    else -> Unit
+                }
+            }
+            override fun onIsPlayingChanged(isPlaying: Boolean) {
+                _uiState.update {
+                    it.copy(
+                        albumPlayerState = if (isPlaying) PlayerState.PLAYING
                         else PlayerState.PAUSED
                     )
                 }
@@ -85,20 +124,6 @@ class SongDetailViewModel @Inject constructor(
         }
     }
 
-    fun togglePlayPause() {
-        val previewUrl = _uiState.value.song?.previewUrl ?: return
-
-        if (player.playbackState == Player.STATE_IDLE ||
-            player.playbackState == Player.STATE_ENDED) {
-            player.setMediaItem(MediaItem.fromUri(previewUrl))
-            player.prepare()
-            player.play()
-        } else {
-            if (player.isPlaying) player.pause()
-            else player.play()
-        }
-    }
-
     private fun startPositionTracking() {
         viewModelScope.launch {
             while (true) {
@@ -115,8 +140,65 @@ class SongDetailViewModel @Inject constructor(
         }
     }
 
+    fun togglePlayPause() {
+        val previewUrl = _uiState.value.song?.previewUrl ?: return
+        if (player.playbackState == Player.STATE_IDLE ||
+            player.playbackState == Player.STATE_ENDED) {
+            player.setMediaItem(MediaItem.fromUri(previewUrl))
+            player.prepare()
+            player.play()
+        } else {
+            if (player.isPlaying) player.pause()
+            else player.play()
+        }
+    }
+
+    fun toggleAlbumExpanded() {
+        val currentlyExpanded = _uiState.value.isAlbumExpanded
+        _uiState.update { it.copy(isAlbumExpanded = !currentlyExpanded) }
+        if (!currentlyExpanded && _uiState.value.albumSongs.isEmpty()) {
+            loadAlbumTracks()
+        }
+    }
+
+    private fun loadAlbumTracks() {
+        viewModelScope.launch {
+            val albumId = _uiState.value.song?.albumId ?: return@launch
+            val albumArt = _uiState.value.song?.albumArt ?: ""
+            _uiState.update { it.copy(isAlbumLoading = true) }
+            try {
+                val tracks = remoteDataSource.fetchAlbumTracks(albumId)
+                val entities = tracks.map {
+                    it.toEntity(isFromChart = false).copy(albumArt = albumArt)
+                }
+                songRepository.saveAlbumTracks(entities)
+                val songs = entities.map { it.toDomain() }
+                _uiState.update {
+                    it.copy(albumSongs = songs, isAlbumLoading = false)
+                }
+            } catch (exception: Exception) {
+                _uiState.update { it.copy(isAlbumLoading = false) }
+            }
+        }
+    }
+
+    fun toggleAlbumPlayPause(song: Song) {
+        val currentId = _uiState.value.currentAlbumPlayingId
+        if (currentId == song.id) {
+            if (albumPlayer.isPlaying) albumPlayer.pause()
+            else albumPlayer.play()
+        } else {
+            albumPlayer.stop()
+            albumPlayer.setMediaItem(MediaItem.fromUri(song.previewUrl))
+            albumPlayer.prepare()
+            albumPlayer.play()
+            _uiState.update { it.copy(currentAlbumPlayingId = song.id) }
+        }
+    }
+
     override fun onCleared() {
         super.onCleared()
         player.release()
+        albumPlayer.release()
     }
 }
