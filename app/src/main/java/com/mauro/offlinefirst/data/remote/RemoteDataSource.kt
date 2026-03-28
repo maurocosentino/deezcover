@@ -9,4 +9,8 @@ class RemoteDataSource constructor(
     suspend fun fetchSongs(): List<SongDto> {
         return apiService.getSongs().tracks
     }
+
+    suspend fun fetchAlbumTracks(albumId: String): List<SongDto> {
+        return apiService.getAlbumTracks(albumId).tracks
+    }
 }
