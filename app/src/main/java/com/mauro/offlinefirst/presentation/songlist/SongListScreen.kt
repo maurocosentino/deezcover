@@ -33,7 +33,9 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.filled.WifiOff
 import androidx.compose.material.icons.outlined.Refresh
+import androidx.compose.material.icons.outlined.Sync
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -160,7 +162,7 @@ fun SongListScreen(
                         }
                         IconButton(onClick = { viewModel.syncSongs() }) {
                             Icon(
-                                imageVector = Icons.Outlined.Refresh,
+                                imageVector = Icons.Outlined.Sync,
                                 contentDescription = "Sincronizar",
                                 tint = Color.White,
                                 modifier = if (uiState.isSyncing)
@@ -421,7 +423,7 @@ private fun OfflineBanner() {
             .padding(horizontal = 14.dp, vertical = 8.dp)
     ) {
         Icon(
-            imageVector = Icons.Default.Warning,
+            imageVector = Icons.Default.WifiOff,
             contentDescription = null,
             tint = Color.White.copy(alpha = 0.8f),
             modifier = Modifier.size(16.dp)
@@ -443,7 +445,7 @@ private fun EmptyState() {
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Icon(
-                imageVector = Icons.Outlined.Refresh,
+                imageVector = Icons.Outlined.Sync,
                 contentDescription = null,
                 tint = Color.White.copy(alpha = 0.4f),
                 modifier = Modifier
