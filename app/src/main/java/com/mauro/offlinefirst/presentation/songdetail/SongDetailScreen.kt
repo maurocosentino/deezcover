@@ -19,7 +19,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -49,6 +51,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.mauro.offlinefirst.ui.theme.DeezerColor
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.CircularProgressIndicator
 
 private val GradientTop = Color(0xFF01051C)
 private val GradientMiddle = Color(0xFF000000)
@@ -61,7 +65,8 @@ fun SongDetailScreen(
     onNavigateBack: () -> Unit,
     viewModel: SongDetailViewModel = hiltViewModel()
 ) {
-    val song by viewModel.song.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
+    val song = uiState.song
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
         rememberTopAppBarState()
     )
@@ -138,7 +143,7 @@ fun SongDetailScreen(
 
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
-                                imageVector = Icons.Default.PlayArrow,
+                                imageVector = Icons.Default.AccessTime,
                                 contentDescription = null,
                                 tint = Color.White.copy(alpha = 0.6f),
                                 modifier = Modifier.size(16.dp)
@@ -167,6 +172,17 @@ fun SongDetailScreen(
                                 )
                             }
                         }
+                    }
+
+                    if (currentSong.previewUrl.isNotEmpty()) {
+                        PreviewButton(
+                            playerState = uiState.playerState,
+                            isConnected = uiState.isConnected,
+                            onClick = { viewModel.togglePlayPause() },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 24.dp)
+                        )
                     }
 
                     if (currentSong.deezerUrl.isNotEmpty()) {
@@ -231,6 +247,60 @@ fun DeezerButton(
             text = "Escuchar en Deezer",
             style = MaterialTheme.typography.labelLarge
         )
+    }
+}
+@Composable
+fun PreviewButton(
+    playerState: PlayerState,
+    isConnected: Boolean,  // ← nuevo
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+){
+    Button(
+        onClick = onClick,
+        enabled = isConnected,
+        shape = RoundedCornerShape(50),
+        modifier = modifier,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color.White.copy(alpha = 0.15f),
+            contentColor = Color.White
+        )
+    ) {
+        when (playerState) {
+            PlayerState.LOADING -> {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(18.dp),
+                    color = Color.White,
+                    strokeWidth = 2.dp
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Cargando...")
+            }
+            PlayerState.PLAYING -> {
+                Icon(
+                    imageVector = Icons.Default.Pause,
+                    contentDescription = "Pausar"
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Pausar preview")
+            }
+            PlayerState.ERROR -> {
+                Icon(
+                    imageVector = Icons.Default.Warning,
+                    contentDescription = "Error"
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Error al reproducir")
+            }
+            else -> {
+                Icon(
+                    imageVector = Icons.Default.PlayArrow,
+                    contentDescription = "Reproducir"
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Preview 30s")
+            }
+        }
     }
 }
 
