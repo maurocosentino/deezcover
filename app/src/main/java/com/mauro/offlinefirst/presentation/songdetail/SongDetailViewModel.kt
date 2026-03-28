@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
+import com.mauro.offlinefirst.data.network.NetworkStatusDataSource
 import com.mauro.offlinefirst.domain.repository.SongRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -21,6 +22,7 @@ import javax.inject.Inject
 class SongDetailViewModel @Inject constructor(
     private val songRepository: SongRepository,
     savedStateHandle: SavedStateHandle,
+    private val networkStatusDataSource : NetworkStatusDataSource,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -62,12 +64,21 @@ class SongDetailViewModel @Inject constructor(
 
     init {
         observeSong()
+        observeConnectivity()
     }
 
     private fun observeSong() {
         viewModelScope.launch {
             songRepository.observeSongById(songId).collect { song ->
                 _uiState.update { it.copy(song = song) }
+            }
+        }
+    }
+
+    private fun observeConnectivity() {
+        viewModelScope.launch {
+            networkStatusDataSource.isConnected.collect { isConnected ->
+                _uiState.update { it.copy(isConnected = isConnected) }
             }
         }
     }
