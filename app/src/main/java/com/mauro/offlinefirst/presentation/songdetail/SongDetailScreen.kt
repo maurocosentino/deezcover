@@ -2,6 +2,7 @@ package com.mauro.offlinefirst.presentation.songdetail
 
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -53,6 +54,18 @@ import coil.compose.AsyncImage
 import com.mauro.offlinefirst.ui.theme.DeezerColor
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.foundation.Canvas
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.foundation.layout.height
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 
 private val GradientTop = Color(0xFF01051C)
 private val GradientMiddle = Color(0xFF000000)
@@ -178,7 +191,15 @@ fun SongDetailScreen(
                             }
                         }
                     }
-
+                    AnimatedVisibility(
+                        visible = uiState.playerState == PlayerState.PLAYING,
+                        enter = fadeIn(tween(300)),
+                        exit = fadeOut(tween(300))
+                    ) {
+                        AudioWaveform(
+                            color = Color.White
+                        )
+                    }
                     if (currentSong.previewUrl.isNotEmpty()) {
                         PreviewButton(
                             playerState = uiState.playerState,
@@ -321,7 +342,50 @@ fun PreviewButton(
         }
     }
 }
+@Composable
+fun AudioWaveform(
+    modifier: Modifier = Modifier,
+    color: Color = Color.White
+) {
+    val bars = 20
+    val animations = List(bars) { index ->
+        val infiniteTransition = rememberInfiniteTransition(label = "wave_$index")
+        infiniteTransition.animateFloat(
+            initialValue = 0.1f,
+            targetValue = 1f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(
+                    durationMillis = (300..700).random(),
+                    easing = LinearEasing
+                ),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "bar_$index"
+        )
+    }
 
+    Canvas(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(48.dp)
+            .padding(horizontal = 24.dp)
+    ) {
+        val barWidth = size.width / (bars * 2f)
+        val maxHeight = size.height
+
+        animations.forEachIndexed { index, animation ->
+            val barHeight = maxHeight * animation.value
+            val x = index * (barWidth * 2f) + barWidth / 2f
+            val y = (maxHeight - barHeight) / 2f
+
+            drawRect(
+                color = color.copy(alpha = 0.8f),
+                topLeft = Offset(x, y),
+                size = Size(barWidth, barHeight),
+            )
+        }
+    }
+}
 private fun formatDuration(durationMs: Long): String {
     val minutes = (durationMs / 1000) / 60
     val seconds = (durationMs / 1000) % 60
