@@ -1,5 +1,6 @@
 package com.mauro.offlinefirst.data.mapper
 
+import android.system.Os.link
 import com.mauro.offlinefirst.data.local.entity.SongEntity
 import com.mauro.offlinefirst.data.remote.dto.SongDto
 import com.mauro.offlinefirst.domain.model.Song
@@ -11,7 +12,8 @@ object SongMapper {
         artist = artist,
         albumArt = albumArt,
         durationMs = durationMs,
-        isAvailableOffline = isAvailableOffline
+        isAvailableOffline = isAvailableOffline,
+        deezerUrl = deezerUrl
     )
 
     fun SongDto.toEntity(): SongEntity = SongEntity(
@@ -21,7 +23,8 @@ object SongMapper {
         albumArt = albumArt.coverMedium,
         durationMs = duration * 1000L,
         isAvailableOffline = false,
-        lastUpdated = System.currentTimeMillis()
+        lastUpdated = System.currentTimeMillis(),
+        deezerUrl = link
     )
 
     fun List<SongEntity>.toDomainList(): List<Song> = map { it.toDomain() }
