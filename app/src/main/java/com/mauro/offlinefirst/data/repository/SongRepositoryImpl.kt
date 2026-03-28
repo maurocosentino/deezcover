@@ -39,7 +39,8 @@ class SongRepositoryImpl @Inject constructor(
     override suspend fun syncSongs() {
         try {
             val remoteSongs = remoteDataSource.fetchSongs()
-            val entities = remoteSongs.map { it.toEntity() }
+            val entities = remoteSongs.map { it.toEntity(isFromChart = true) }
+            songDao.deleteChartSongs()
             songDao.upsertSongs(entities)
         } catch (exception: Exception) {
             exception.printStackTrace()

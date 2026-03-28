@@ -19,4 +19,7 @@ interface SongDao {
 
     @Query("DELETE FROM songs")
     suspend fun deleteAllSongs()
+
+    @Query("DELETE FROM songs WHERE isFromChart = 1")
+    suspend fun deleteChartSongs()
 }

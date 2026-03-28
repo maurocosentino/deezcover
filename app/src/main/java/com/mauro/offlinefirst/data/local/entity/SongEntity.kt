@@ -16,6 +16,7 @@ data class SongEntity(
     val lastUpdated: Long = System.currentTimeMillis(),
     val deezerUrl: String,
     val previewUrl: String,
-    val albumId: String
+    val albumId: String,
+    val isFromChart: Boolean = false
 )
 
