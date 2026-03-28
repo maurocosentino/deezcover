@@ -15,6 +15,7 @@ data class SongEntity(
     val isAvailableOffline: Boolean,
     val lastUpdated: Long = System.currentTimeMillis(),
     val deezerUrl: String,
-    val previewUrl: String
+    val previewUrl: String,
+    val albumId: String
 )
 
