@@ -26,7 +26,7 @@ import javax.inject.Inject
 @HiltViewModel
 class SongDetailViewModel @Inject constructor(
     private val songRepository: SongRepository,
-    private val remoteDataSource: RemoteDataSource,  // ← nuevo
+    private val remoteDataSource: RemoteDataSource,
     savedStateHandle: SavedStateHandle,
     private val networkStatusDataSource: NetworkStatusDataSource,
     @ApplicationContext private val context: Context
@@ -37,7 +37,7 @@ class SongDetailViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(SongDetailUiState())
     val uiState: StateFlow<SongDetailUiState> = _uiState.asStateFlow()
 
-    // ExoPlayer para el preview de la canción principal
+    // ExoPlayer
     private val player = ExoPlayer.Builder(context).build().apply {
         addListener(object : Player.Listener {
             override fun onPlaybackStateChanged(playbackState: Int) {
@@ -67,8 +67,6 @@ class SongDetailViewModel @Inject constructor(
             }
         })
     }
-
-    // ExoPlayer para el álbum
     private val albumPlayer = ExoPlayer.Builder(context).build().apply {
         addListener(object : Player.Listener {
             override fun onPlaybackStateChanged(playbackState: Int) {
@@ -111,7 +109,19 @@ class SongDetailViewModel @Inject constructor(
     private fun observeSong() {
         viewModelScope.launch {
             songRepository.observeSongById(songId).collect { song ->
-                _uiState.update { it.copy(song = song) }
+                if (song != null) {
+                    _uiState.update { current ->
+                        current.copy(
+                            song = if (current.song?.albumTitle?.isNotEmpty() == true)
+                                current.song
+                            else
+                                song
+                        )
+                    }
+                    if (_uiState.value.albumSongs.isEmpty()) {
+                        loadAlbumTracks()
+                    }
+                }
             }
         }
     }
@@ -152,15 +162,6 @@ class SongDetailViewModel @Inject constructor(
             else player.play()
         }
     }
-
-    fun toggleAlbumExpanded() {
-        val currentlyExpanded = _uiState.value.isAlbumExpanded
-        _uiState.update { it.copy(isAlbumExpanded = !currentlyExpanded) }
-        if (!currentlyExpanded && _uiState.value.albumSongs.isEmpty()) {
-            loadAlbumTracks()
-        }
-    }
-
     private fun loadAlbumTracks() {
         viewModelScope.launch {
             val albumId = _uiState.value.song?.albumId ?: return@launch
@@ -181,7 +182,6 @@ class SongDetailViewModel @Inject constructor(
             }
         }
     }
-
     fun toggleAlbumPlayPause(song: Song) {
         val currentId = _uiState.value.currentAlbumPlayingId
         if (currentId == song.id) {

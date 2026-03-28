@@ -2,7 +2,6 @@ package com.mauro.offlinefirst.presentation.songdetail
 
 import android.content.Intent
 import android.net.Uri
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -21,11 +21,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AccessTime
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -48,22 +48,12 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
+import com.mauro.offlinefirst.domain.model.Song
 import com.mauro.offlinefirst.ui.theme.DeezerColor
-import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.CircularProgressIndicator
-import com.airbnb.lottie.compose.LottieAnimation
-import com.airbnb.lottie.compose.LottieCompositionSpec
-import com.airbnb.lottie.compose.LottieConstants
-import com.airbnb.lottie.compose.animateLottieCompositionAsState
-import com.airbnb.lottie.compose.rememberLottieComposition
-import androidx.compose.foundation.layout.height
-import com.mauro.offlinefirst.R
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 
 private val GradientTop = Color(0xFF01051C)
 private val GradientMiddle = Color(0xFF000000)
@@ -72,7 +62,6 @@ private val GradientBottom = Color(0xFF000715)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SongDetailScreen(
-    songId: String,
     onNavigateBack: () -> Unit,
     viewModel: SongDetailViewModel = hiltViewModel()
 ) {
@@ -81,6 +70,7 @@ fun SongDetailScreen(
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
         rememberTopAppBarState()
     )
+    val totalAlbumDuration = uiState.albumSongs.sumOf { it.durationMs }
 
     Box(
         modifier = Modifier
@@ -100,8 +90,13 @@ fun SongDetailScreen(
             modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
             topBar = {
                 LargeTopAppBar(
-                    title = { Text(song?.artist ?: "",                           fontFamily = FontFamily.SansSerif,
-                        fontWeight = FontWeight.Bold,) },
+                    title = {
+                        Text(
+                            text = song?.artist ?: "",
+                            fontFamily = FontFamily.SansSerif,
+                            fontWeight = FontWeight.Bold
+                        )
+                    },
                     navigationIcon = {
                         IconButton(onClick = onNavigateBack) {
                             Icon(
@@ -111,7 +106,7 @@ fun SongDetailScreen(
                         }
                     },
                     scrollBehavior = scrollBehavior,
-                    colors = TopAppBarDefaults.largeTopAppBarColors(
+                    colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = Color.Transparent,
                         scrolledContainerColor = Color.Transparent,
                         titleContentColor = Color.White,
@@ -131,7 +126,7 @@ fun SongDetailScreen(
                 ) {
                     AsyncImage(
                         model = currentSong.albumArt,
-                        contentDescription = currentSong.title,
+                        contentDescription = currentSong.albumTitle,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
                             .fillMaxWidth()
@@ -144,19 +139,16 @@ fun SongDetailScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 24.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                        verticalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         Text(
-                            text = currentSong.title,
+                            text = if (currentSong.albumTitle.isNotEmpty())
+                                currentSong.albumTitle
+                            else
+                                uiState.albumSongs.firstOrNull()?.albumTitle ?: "",
                             style = MaterialTheme.typography.headlineMedium,
                             color = Color.White
                         )
-                        Text(
-                            text = currentSong.albumTitle,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = Color.White.copy(alpha = 0.5f)
-                        )
-
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
                                 imageVector = Icons.Default.AccessTime,
@@ -166,58 +158,14 @@ fun SongDetailScreen(
                             )
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
-                                text = formatDuration(currentSong.durationMs),
-                                style = MaterialTheme.typography.bodyLarge,
+                                text = if (totalAlbumDuration > 0)
+                                    formatDuration(totalAlbumDuration)
+                                else
+                                    formatDuration(currentSong.durationMs),
+                                style = MaterialTheme.typography.bodyMedium,
                                 color = Color.White.copy(alpha = 0.6f)
                             )
                         }
-
-                        if (currentSong.isAvailableOffline) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(
-                                    imageVector = Icons.Default.CheckCircle,
-                                    contentDescription = "Disponible offline",
-                                    tint = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.size(18.dp)
-                                )
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Text(
-                                    text = "Disponible offline",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                            }
-                        }
-                    }
-                    AnimatedVisibility(
-                        visible = uiState.playerState == PlayerState.PLAYING,
-                        enter = fadeIn(tween(300)),
-                        exit = fadeOut(tween(300))
-                    ) {
-                        AudioWaveform()
-                    }
-                    if (currentSong.previewUrl.isNotEmpty()) {
-                        PreviewButton(
-                            playerState = uiState.playerState,
-                            isConnected = uiState.isConnected,
-                            onClick = { viewModel.togglePlayPause() },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 24.dp)
-                        )
-                    }
-                    if (uiState.playerState == PlayerState.PLAYING ||
-                        uiState.playerState == PlayerState.PAUSED) {
-
-                        val remaining = (uiState.totalDurationMs - uiState.currentPositionMs)
-                            .coerceAtLeast(0L)
-
-                        Text(
-                            text = "0:${String.format("%02d", remaining / 1000)} restantes",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = Color.White.copy(alpha = 0.6f),
-                            modifier = Modifier.padding(horizontal = 24.dp)
-                        )
                     }
 
                     if (currentSong.deezerUrl.isNotEmpty()) {
@@ -229,15 +177,48 @@ fun SongDetailScreen(
                         )
                     }
 
-                    Text(
-                        text = "Escuchá ${currentSong.title} de ${currentSong.artist} en Deezer",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color.White.copy(alpha = 0.4f),
+                    Column(
                         modifier = Modifier
+                            .fillMaxWidth()
                             .padding(horizontal = 24.dp)
-                            .padding(bottom = 24.dp),
-                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                    )
+                    ) {
+                        when {
+                            uiState.isAlbumLoading -> {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 24.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    CircularProgressIndicator(
+                                        color = Color.White,
+                                        modifier = Modifier.size(24.dp)
+                                    )
+                                }
+                            }
+                            uiState.albumSongs.isEmpty() -> {
+                                Text(
+                                    text = "No hay canciones disponibles",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = Color.White.copy(alpha = 0.4f),
+                                    modifier = Modifier.padding(vertical = 8.dp)
+                                )
+                            }
+                            else -> {
+                                uiState.albumSongs.forEach { albumSong ->
+                                    val isPlaying = uiState.currentAlbumPlayingId == albumSong.id
+                                    AlbumSongItem(
+                                        song = albumSong,
+                                        isPlaying = isPlaying,
+                                        playerState = uiState.albumPlayerState,
+                                        onPlayClick = { viewModel.toggleAlbumPlayPause(albumSong) }
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(24.dp))
                 }
             } ?: Box(
                 modifier = Modifier.fillMaxSize(),
@@ -259,7 +240,6 @@ fun DeezerButton(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-
     Button(
         onClick = {
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
@@ -273,92 +253,84 @@ fun DeezerButton(
             contentColor = Color.Black
         )
     ) {
-        Icon(
-            imageVector = Icons.Default.PlayArrow,
-            contentDescription = null
-        )
+        Icon(imageVector = Icons.Default.PlayArrow, contentDescription = null)
         Spacer(modifier = Modifier.width(8.dp))
-        Text(
-            text = "Escuchar en Deezer",
-            style = MaterialTheme.typography.labelLarge
-        )
+        Text(text = "Escuchar en Deezer", style = MaterialTheme.typography.labelLarge)
     }
 }
+
 @Composable
-fun PreviewButton(
+fun AlbumSongItem(
+    song: Song,
+    isPlaying: Boolean,
     playerState: PlayerState,
-    isConnected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-){
-    Button(
-        onClick = onClick,
-        enabled = isConnected,
-        shape = RoundedCornerShape(50),
-        modifier = modifier,
-        colors = ButtonDefaults.buttonColors(
-            containerColor = Color.White.copy(alpha = 0.15f),
-            contentColor = Color.White
-        )
-    ) {
-        when (playerState) {
-            PlayerState.LOADING -> {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(18.dp),
-                    color = Color.White,
-                    strokeWidth = 2.dp
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Cargando...")
-            }
-            PlayerState.PLAYING -> {
-                Icon(
-                    imageVector = Icons.Default.Pause,
-                    contentDescription = "Pausar"
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Pausar preview")
-            }
-            PlayerState.ERROR -> {
-                Icon(
-                    imageVector = Icons.Default.Warning,
-                    contentDescription = "Error"
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Error al reproducir")
-            }
-            else -> {
-                Icon(
-                    imageVector = Icons.Default.PlayArrow,
-                    contentDescription = "Reproducir"
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Preview 30s")
-            }
-        }
-    }
-}
-@Composable
-fun AudioWaveform(
+    onPlayClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val composition by rememberLottieComposition(
-        LottieCompositionSpec.RawRes(R.raw.audio_wave)
-    )
-    val progress by animateLottieCompositionAsState(
-        composition = composition,
-        iterations = LottieConstants.IterateForever
-    )
-
-    LottieAnimation(
-        composition = composition,
-        progress = { progress },
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .fillMaxWidth()
-            .height(80.dp)
-            .padding(horizontal = 24.dp)
-    )
+            .padding(vertical = 6.dp)
+    ) {
+        IconButton(onClick = onPlayClick) {
+            when {
+                isPlaying && playerState == PlayerState.LOADING -> {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        color = Color.White,
+                        strokeWidth = 2.dp
+                    )
+                }
+                isPlaying && playerState == PlayerState.PLAYING -> {
+                    Icon(
+                        imageVector = Icons.Default.Pause,
+                        contentDescription = "Pausar",
+                        tint = Color.White
+                    )
+                }
+                else -> {
+                    Icon(
+                        imageVector = Icons.Default.PlayArrow,
+                        contentDescription = "Reproducir",
+                        tint = Color.White.copy(alpha = 0.7f)
+                    )
+                }
+            }
+        }
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(horizontal = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(2.dp)
+        ) {
+            Text(
+                text = song.title,
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    fontWeight = FontWeight.SemiBold,
+                    color = if (isPlaying) Color.White else Color.White.copy(alpha = 0.9f)
+                ),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            Text(
+                text = song.artist,
+                style = MaterialTheme.typography.bodySmall.copy(
+                    color = Color.White.copy(alpha = 0.5f)
+                ),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+        Text(
+            text = formatDuration(song.durationMs),
+            style = MaterialTheme.typography.bodySmall.copy(
+                color = Color.White.copy(alpha = 0.5f)
+            )
+        )
+    }
 }
+
 private fun formatDuration(durationMs: Long): String {
     val minutes = (durationMs / 1000) / 60
     val seconds = (durationMs / 1000) % 60
