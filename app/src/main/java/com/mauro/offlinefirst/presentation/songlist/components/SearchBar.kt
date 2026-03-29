@@ -2,12 +2,12 @@ package com.mauro.offlinefirst.presentation.songlist.components
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -51,7 +51,9 @@ fun SearchBar(
     searchActive: Boolean,
     onSearchActiveChange: (Boolean) -> Unit,
     filteredSongsCount: Int,
+    filteredAlbumsCount: Int,
     totalSongsCount: Int,
+    totalAlbumsCount: Int,
     focusRequester: FocusRequester,
     modifier: Modifier = Modifier
 ) {
@@ -67,25 +69,46 @@ fun SearchBar(
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 6.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp, vertical = 6.dp)
             ) {
                 IconButton(onClick = {
                     onSearchActiveChange(false)
                     onSearchQueryChange("")
                 }) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Cerrar", tint = Color.White)
+                    Icon(
+                        Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Cerrar",
+                        tint = Color.White
+                    )
                 }
                 OutlinedTextField(
                     value         = searchQuery,
                     onValueChange = onSearchQueryChange,
-                    modifier      = Modifier.weight(1f).focusRequester(focusRequester),
-                    placeholder   = {
-                        Text("Título o artista...", style = MaterialTheme.typography.bodyLarge, color = Color.White.copy(alpha = 0.45f))
+                    modifier      = Modifier
+                        .weight(1f)
+                        .focusRequester(focusRequester),
+                    placeholder = {
+                        Text(
+                            "Título, artista o álbum...",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = Color.White.copy(alpha = 0.45f)
+                        )
                     },
                     trailingIcon = {
-                        AnimatedVisibility(visible = searchQuery.isNotEmpty(), enter = fadeIn(tween(150)), exit = fadeOut(tween(150))) {
+                        AnimatedVisibility(
+                            visible = searchQuery.isNotEmpty(),
+                            enter   = fadeIn(tween(150)),
+                            exit    = fadeOut(tween(150))
+                        ) {
                             IconButton(onClick = { onSearchQueryChange("") }) {
-                                Icon(Icons.Default.Close, contentDescription = "Limpiar", modifier = Modifier.size(18.dp), tint = Color.White.copy(alpha = 0.7f))
+                                Icon(
+                                    Icons.Default.Close,
+                                    contentDescription = "Limpiar",
+                                    modifier = Modifier.size(18.dp),
+                                    tint = Color.White.copy(alpha = 0.7f)
+                                )
                             }
                         }
                     },
@@ -114,21 +137,48 @@ fun SearchBar(
                 transitionSpec = { fadeIn(tween(200)) togetherWith fadeOut(tween(150)) },
                 label = "search_hint"
             ) { isEmpty ->
-                Box(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 10.dp)) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp, vertical = 10.dp)
+                ) {
                     if (isEmpty) {
-                        Text("Buscá entre $totalSongsCount canciones", style = MaterialTheme.typography.bodySmall, color = Color.White.copy(alpha = 0.4f))
+                        Text(
+                            text  = "Buscá entre $totalSongsCount canciones y $totalAlbumsCount álbumes",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.White.copy(alpha = 0.4f)
+                        )
                     } else {
+                        val totalResults = filteredSongsCount + filteredAlbumsCount
                         AnimatedContent(
-                            targetState = filteredSongsCount,
-                            transitionSpec = { slideInVertically { -it } + fadeIn() togetherWith slideOutVertically { it } + fadeOut() },
+                            targetState = totalResults,
+                            transitionSpec = {
+                                slideInVertically { -it } + fadeIn() togetherWith
+                                        slideOutVertically { it } + fadeOut()
+                            },
                             label = "result_count"
                         ) { count ->
-                            Text(
-                                text  = if (count == 0) "Sin resultados" else buildSongCountLabel(count),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = if (count == 0) Color(0xFFFF6B6B) else Color.White.copy(alpha = 0.8f),
-                                fontWeight = FontWeight.Medium
-                            )
+                            if (count == 0) {
+                                Text(
+                                    text  = "Sin resultados",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = Color(0xFFFF6B6B),
+                                    fontWeight = FontWeight.Medium
+                                )
+                            } else {
+                                val parts = buildList {
+                                    if (filteredSongsCount > 0)
+                                        add(buildSongCountLabel(filteredSongsCount))
+                                    if (filteredAlbumsCount > 0)
+                                        add(buildAlbumCountLabel(filteredAlbumsCount))
+                                }
+                                Text(
+                                    text  = parts.joinToString(" · "),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = Color.White.copy(alpha = 0.8f),
+                                    fontWeight = FontWeight.Medium
+                                )
+                            }
                         }
                     }
                 }
@@ -141,3 +191,6 @@ fun SearchBar(
 
 internal fun buildSongCountLabel(count: Int): String =
     if (count == 1) "1 canción" else "$count canciones"
+
+internal fun buildAlbumCountLabel(count: Int): String =
+    if (count == 1) "1 álbum" else "$count álbumes"
