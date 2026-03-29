@@ -24,7 +24,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Pause
+import androidx.compose.material.icons.filled.PauseCircle
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.PlayCircle
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -164,7 +166,7 @@ fun SongDetailScreen(
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
                                 text = if (totalAlbumDuration > 0)
-                                    formatDuration(totalAlbumDuration)
+                                    formatAlbumDuration(totalAlbumDuration)
                                 else
                                     formatDuration(currentSong.durationMs),
                                 style = MaterialTheme.typography.bodyMedium,
@@ -232,16 +234,6 @@ fun SongDetailScreen(
                                         )
                                     }
                                 }
-
-                                val count = uiState.albumSongs.size
-                                val word = if (count == 1) "canción" else "canciones"
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Text(
-                                    text = "$count $word • ${formatAlbumDuration(totalAlbumDuration)}",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = Color.White.copy(alpha = 0.4f),
-                                    modifier = Modifier.padding(vertical = 8.dp, horizontal = 4.dp)
-                                )
                             }
                         }
                     }
@@ -344,7 +336,7 @@ fun AlbumSongItem(
             when {
                 isPlaying && playerState == PlayerState.PLAYING -> {
                     Icon(
-                        imageVector = Icons.Default.Pause,
+                        imageVector = Icons.Default.PauseCircle,
                         contentDescription = "Pausar",
                         tint = AccentCyan,
                         modifier = Modifier.size(22.dp)
@@ -352,7 +344,7 @@ fun AlbumSongItem(
                 }
                 else -> {
                     Icon(
-                        imageVector = Icons.Default.PlayArrow,
+                        imageVector = Icons.Default.PlayCircle,
                         contentDescription = "Reproducir",
                         tint = Color.White.copy(alpha = 0.5f),
                         modifier = Modifier.size(22.dp)
@@ -362,7 +354,6 @@ fun AlbumSongItem(
         }
     }
 }
-
 @Composable
 fun DeezerButton(
     url: String,
