@@ -5,16 +5,24 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
 
 data class AudioPlayerState(
     val currentPlayingId: String? = null,
     val isPlaying: Boolean = false,
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val currentPositionMs: Long = 0L,
+    val totalDurationMs: Long = 0L
 )
 
 @Singleton
@@ -61,7 +69,28 @@ class PlayerManager @Inject constructor(
         _playerState.value = AudioPlayerState()
     }
 
+    private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+
+    init {
+        startPositionTracking()
+    }
+
+    private fun startPositionTracking() {
+        scope.launch {
+            while (true) {
+                delay(500)
+                if (player.isPlaying) {
+                    _playerState.value = _playerState.value.copy(
+                        currentPositionMs = player.currentPosition,
+                        totalDurationMs = player.duration.coerceAtLeast(0L)
+                    )
+                }
+            }
+        }
+    }
+
     fun release() {
+        scope.cancel()
         player.release()
     }
 }
