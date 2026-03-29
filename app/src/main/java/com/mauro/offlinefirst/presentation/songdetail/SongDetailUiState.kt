@@ -11,7 +11,8 @@ data class SongDetailUiState(
     val isAlbumLoading: Boolean = false,
     val albumSongs: List<Song> = emptyList(),
     val currentAlbumPlayingId: String? = null,
-    val albumPlayerState: PlayerState = PlayerState.IDLE
+    val albumPlayerState: PlayerState = PlayerState.IDLE,
+    val albumReleaseDate: String = ""
 )
 
 enum class PlayerState {

@@ -3,6 +3,7 @@ package com.mauro.offlinefirst.di
 import android.content.Context
 import androidx.room.Room
 import com.mauro.offlinefirst.data.local.AppDatabase
+import com.mauro.offlinefirst.data.local.dao.AlbumDao
 import com.mauro.offlinefirst.data.local.dao.SongDao
 import dagger.Module
 import dagger.Provides
@@ -28,9 +29,13 @@ object DatabaseModule {
            .fallbackToDestructiveMigration()
            .build()
     }
-
     @Provides
     fun provideSongDao(database: AppDatabase): SongDao {
         return database.songDao()
+    }
+
+    @Provides
+    fun provideAlbumDao(database: AppDatabase): AlbumDao {
+        return database.albumDao()
     }
 }

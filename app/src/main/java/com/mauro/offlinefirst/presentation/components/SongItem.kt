@@ -43,6 +43,7 @@ fun SongItem(
     isPlaying: Boolean,
     playerState: PlayerState,
     onPlayClick: () -> Unit,
+    remainingSeconds: Long = 0L,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -93,6 +94,24 @@ fun SongItem(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
+            if (isPlaying && (playerState == PlayerState.PLAYING ||
+                        playerState == PlayerState.PAUSED)) {
+                Text(
+                    text = "0:${String.format("%02d", remainingSeconds)} restantes",
+                    style = MaterialTheme.typography.bodySmall.copy(
+                        fontSize = 11.sp,
+                        color = AccentCyan.copy(alpha = 0.8f)
+                    )
+                )
+            } else {
+                Text(
+                    text = formatDuration(song.durationMs),
+                    style = MaterialTheme.typography.bodySmall.copy(
+                        fontSize = 11.sp,
+                        color = Color.White.copy(alpha = 0.3f)
+                    )
+                )
+            }
         }
 
         Box(
@@ -125,6 +144,7 @@ fun SongItem(
                 }
             }
         }
+
         Spacer(Modifier.padding(horizontal = 5.dp))
 
         IconButton(onClick = onClick) {
@@ -136,4 +156,9 @@ fun SongItem(
             )
         }
     }
+}
+private fun formatDuration(durationMs: Long): String {
+    val minutes = (durationMs / 1000) / 60
+    val seconds = (durationMs / 1000) % 60
+    return String.format("%d:%02d", minutes, seconds)
 }

@@ -1,6 +1,8 @@
 package com.mauro.offlinefirst.data.repository
 
+import com.mauro.offlinefirst.data.local.dao.AlbumDao
 import com.mauro.offlinefirst.data.local.dao.SongDao
+import com.mauro.offlinefirst.data.local.entity.AlbumEntity
 import com.mauro.offlinefirst.data.local.entity.SongEntity
 import com.mauro.offlinefirst.data.mapper.SongMapper.toDomain
 import com.mauro.offlinefirst.data.mapper.SongMapper.toDomainList
@@ -16,6 +18,7 @@ import javax.inject.Inject
 
 class SongRepositoryImpl @Inject constructor(
     private val songDao: SongDao,
+    private val albumDao: AlbumDao,
     private val remoteDataSource: RemoteDataSource
 ) : SongRepository {
 
@@ -45,13 +48,36 @@ class SongRepositoryImpl @Inject constructor(
     }
 
     override suspend fun saveAlbumTracks(tracks: List<SongEntity>) {
-        songDao.upsertSongs(tracks)
+        songDao.insertSongsIgnoreConflict(tracks)
     }
 
     override suspend fun shouldSync(): Boolean {
         val lastSync = songDao.getLastSyncTime() ?: return true
         val fifteenMinutes = 15 * 60 * 1000L
         return System.currentTimeMillis() - lastSync > fifteenMinutes
+    }
+
+    override fun observeAlbums(): Flow<List<Album>> {
+        return albumDao.observeAlbums().map { entities ->
+            entities.map { Album(id = it.id, title = it.title, artist = it.artist, coverUrl = it.coverUrl) }
+        }
+    }
+
+    override suspend fun syncAlbums() {
+        try {
+            val albums = remoteDataSource.fetchChartAlbums()
+            val entities = albums.map {
+                AlbumEntity(
+                    id = it.id.toString(),
+                    title = it.title,
+                    artist = it.artist.name,
+                    coverUrl = it.coverMedium
+                )
+            }
+            albumDao.upsertAlbums(entities)
+        } catch (exception: Exception) {
+            exception.printStackTrace()
+        }
     }
 
     override suspend fun fetchChartAlbums(): List<Album> {

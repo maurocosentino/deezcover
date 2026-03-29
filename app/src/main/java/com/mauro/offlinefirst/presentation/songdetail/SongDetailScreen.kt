@@ -143,6 +143,7 @@ fun SongDetailScreen(
                             style = MaterialTheme.typography.headlineMedium,
                             color = Color.White
                         )
+
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
                                 imageVector = Icons.Default.AccessTime,
@@ -158,6 +159,13 @@ fun SongDetailScreen(
                                     formatDuration(currentSong.durationMs),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = Color.White.copy(alpha = 0.6f)
+                            )
+                        }
+                        if (uiState.albumReleaseDate.isNotEmpty()) {
+                            Text(
+                                text = uiState.albumReleaseDate,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color.White.copy(alpha = 0.5f)
                             )
                         }
                     }
@@ -205,14 +213,17 @@ fun SongDetailScreen(
                                     val isPlaying =
                                         uiState.currentAlbumPlayingId == albumSong.id
 
+                                    val remainingSeconds = if (isPlaying && uiState.totalDurationMs > 0)
+                                        (uiState.totalDurationMs - uiState.currentPositionMs).coerceAtLeast(0L) / 1000
+                                    else 0L
+
                                     AlbumSongItem(
                                         index = index + 1,
                                         song = albumSong,
                                         isPlaying = isPlaying,
+                                        remainingSeconds = remainingSeconds,
                                         playerState = uiState.albumPlayerState,
-                                        onPlayClick = {
-                                            viewModel.toggleAlbumPlayPause(albumSong)
-                                        }
+                                        onPlayClick = { viewModel.toggleAlbumPlayPause(albumSong) }
                                     )
                                     if (index < uiState.albumSongs.lastIndex) {
                                         HorizontalDivider(

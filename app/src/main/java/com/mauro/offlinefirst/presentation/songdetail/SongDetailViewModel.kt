@@ -1,21 +1,16 @@
 package com.mauro.offlinefirst.presentation.songdetail
 
-import android.content.Context
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.media3.common.MediaItem
-import androidx.media3.common.Player
-import androidx.media3.exoplayer.ExoPlayer
 import com.mauro.offlinefirst.data.mapper.SongMapper.toDomain
 import com.mauro.offlinefirst.data.mapper.SongMapper.toEntity
 import com.mauro.offlinefirst.data.network.NetworkStatusDataSource
+import com.mauro.offlinefirst.data.player.PlayerManager
 import com.mauro.offlinefirst.data.remote.RemoteDataSource
 import com.mauro.offlinefirst.domain.model.Song
 import com.mauro.offlinefirst.domain.repository.SongRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -29,7 +24,7 @@ class SongDetailViewModel @Inject constructor(
     private val remoteDataSource: RemoteDataSource,
     savedStateHandle: SavedStateHandle,
     private val networkStatusDataSource: NetworkStatusDataSource,
-    @ApplicationContext private val context: Context
+    private val playerManager: PlayerManager
 ) : ViewModel() {
 
     private val songId: String = checkNotNull(savedStateHandle["songId"])
@@ -37,75 +32,31 @@ class SongDetailViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(SongDetailUiState())
     val uiState: StateFlow<SongDetailUiState> = _uiState.asStateFlow()
 
-    // ExoPlayer
-    private val player = ExoPlayer.Builder(context).build().apply {
-        addListener(object : Player.Listener {
-            override fun onPlaybackStateChanged(playbackState: Int) {
-                when (playbackState) {
-                    Player.STATE_BUFFERING -> _uiState.update {
-                        it.copy(playerState = PlayerState.LOADING)
-                    }
-                    Player.STATE_READY -> _uiState.update {
-                        it.copy(
-                            playerState = if (isPlaying) PlayerState.PLAYING
-                            else PlayerState.PAUSED
-                        )
-                    }
-                    Player.STATE_ENDED -> _uiState.update {
-                        it.copy(playerState = PlayerState.IDLE)
-                    }
-                    else -> Unit
-                }
-            }
-            override fun onIsPlayingChanged(isPlaying: Boolean) {
-                _uiState.update {
-                    it.copy(
-                        playerState = if (isPlaying) PlayerState.PLAYING
-                        else PlayerState.PAUSED
-                    )
-                }
-            }
-        })
-    }
-    private val albumPlayer = ExoPlayer.Builder(context).build().apply {
-        addListener(object : Player.Listener {
-            override fun onPlaybackStateChanged(playbackState: Int) {
-                when (playbackState) {
-                    Player.STATE_BUFFERING -> _uiState.update {
-                        it.copy(albumPlayerState = PlayerState.LOADING)
-                    }
-                    Player.STATE_READY -> _uiState.update {
-                        it.copy(
-                            albumPlayerState = if (isPlaying) PlayerState.PLAYING
-                            else PlayerState.PAUSED
-                        )
-                    }
-                    Player.STATE_ENDED -> _uiState.update {
-                        it.copy(
-                            albumPlayerState = PlayerState.IDLE,
-                            currentAlbumPlayingId = null
-                        )
-                    }
-                    else -> Unit
-                }
-            }
-            override fun onIsPlayingChanged(isPlaying: Boolean) {
-                _uiState.update {
-                    it.copy(
-                        albumPlayerState = if (isPlaying) PlayerState.PLAYING
-                        else PlayerState.PAUSED
-                    )
-                }
-            }
-        })
-    }
-
     init {
         observeSong()
         observeConnectivity()
-        startPositionTracking()
+        observePlayerState()
     }
 
+    private fun observePlayerState() {
+        viewModelScope.launch {
+            playerManager.playerState.collect { state ->
+                _uiState.update {
+                    it.copy(
+                        currentAlbumPlayingId = state.currentPlayingId,
+                        currentPositionMs = state.currentPositionMs,
+                        totalDurationMs = state.totalDurationMs,
+                        albumPlayerState = when {
+                            state.isLoading -> PlayerState.LOADING
+                            state.isPlaying -> PlayerState.PLAYING
+                            state.currentPlayingId != null -> PlayerState.PAUSED
+                            else -> PlayerState.IDLE
+                        }
+                    )
+                }
+            }
+        }
+    }
     private fun observeSong() {
         viewModelScope.launch {
             songRepository.observeSongById(songId).collect { song ->
@@ -133,22 +84,6 @@ class SongDetailViewModel @Inject constructor(
             }
         }
     }
-
-    private fun startPositionTracking() {
-        viewModelScope.launch {
-            while (true) {
-                delay(500)
-                if (player.isPlaying) {
-                    _uiState.update {
-                        it.copy(
-                            currentPositionMs = player.currentPosition,
-                            totalDurationMs = player.duration.coerceAtLeast(0L)
-                        )
-                    }
-                }
-            }
-        }
-    }
     private fun loadAlbumTracks() {
         viewModelScope.launch {
             val albumId = _uiState.value.song?.albumId ?: return@launch
@@ -156,13 +91,18 @@ class SongDetailViewModel @Inject constructor(
             _uiState.update { it.copy(isAlbumLoading = true) }
             try {
                 val tracks = remoteDataSource.fetchAlbumTracks(albumId)
+                val albumDetail = remoteDataSource.fetchAlbumDetail(albumId)  // ← nuevo
                 val entities = tracks.map {
                     it.toEntity(isFromChart = false).copy(albumArt = albumArt)
                 }
                 songRepository.saveAlbumTracks(entities)
                 val songs = entities.map { it.toDomain() }
                 _uiState.update {
-                    it.copy(albumSongs = songs, isAlbumLoading = false)
+                    it.copy(
+                        albumSongs = songs,
+                        isAlbumLoading = false,
+                        albumReleaseDate = albumDetail.releaseDate  // ← nuevo
+                    )
                 }
             } catch (exception: Exception) {
                 _uiState.update { it.copy(isAlbumLoading = false) }
@@ -170,22 +110,9 @@ class SongDetailViewModel @Inject constructor(
         }
     }
     fun toggleAlbumPlayPause(song: Song) {
-        val currentId = _uiState.value.currentAlbumPlayingId
-        if (currentId == song.id) {
-            if (albumPlayer.isPlaying) albumPlayer.pause()
-            else albumPlayer.play()
-        } else {
-            albumPlayer.stop()
-            albumPlayer.setMediaItem(MediaItem.fromUri(song.previewUrl))
-            albumPlayer.prepare()
-            albumPlayer.play()
-            _uiState.update { it.copy(currentAlbumPlayingId = song.id) }
-        }
+        playerManager.play(song.id, song.previewUrl)
     }
 
     override fun onCleared() {
-        super.onCleared()
-        player.release()
-        albumPlayer.release()
     }
 }

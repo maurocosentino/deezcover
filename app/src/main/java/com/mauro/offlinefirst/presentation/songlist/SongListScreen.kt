@@ -24,8 +24,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DarkMode
-import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Sync
 import androidx.compose.material3.CircularProgressIndicator
@@ -90,6 +88,7 @@ fun SongListScreen(
     var searchQuery  by remember { mutableStateOf("") }
     var searchActive by remember { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
+
 
     val filteredSongs = remember(uiState.songs, searchQuery) {
         if (searchQuery.isBlank()) uiState.songs
@@ -296,17 +295,20 @@ fun SongListScreen(
                                             modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 4.dp)
                                         )
                                     }
-                                    itemsIndexed(
-                                        items = filteredSongs,
-                                        key   = { _, song -> song.id }
-                                    ) { _, song ->
+                                    itemsIndexed(items = filteredSongs, key = { _, song -> song.id }) { _, song ->
+                                        val isPlaying = uiState.currentPlayingId == song.id
+                                        val remainingSeconds = if (isPlaying && uiState.totalDurationMs > 0)
+                                            (uiState.totalDurationMs - uiState.currentPositionMs).coerceAtLeast(0L) / 1000
+                                        else 0L
+
                                         SongItem(
-                                            song        = song,
-                                            isPlaying   = uiState.currentPlayingId == song.id,
+                                            song = song,
+                                            isPlaying = isPlaying,
                                             playerState = uiState.listPlayerState,
+                                            remainingSeconds = remainingSeconds,
                                             onPlayClick = { viewModel.togglePlayPause(song) },
-                                            onClick     = { onSongClick(song.id) },
-                                            modifier    = Modifier.animateItem()
+                                            onClick = { onSongClick(song.id) },
+                                            modifier = Modifier.animateItem()
                                         )
                                     }
                                 }

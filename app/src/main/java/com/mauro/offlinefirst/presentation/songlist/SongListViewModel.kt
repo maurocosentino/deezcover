@@ -1,17 +1,13 @@
 package com.mauro.offlinefirst.presentation.songlist
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.media3.common.MediaItem
-import androidx.media3.common.Player
-import androidx.media3.exoplayer.ExoPlayer
 import com.mauro.offlinefirst.data.network.NetworkStatusDataSource
+import com.mauro.offlinefirst.data.player.PlayerManager
 import com.mauro.offlinefirst.domain.model.Song
 import com.mauro.offlinefirst.domain.repository.SongRepository
 import com.mauro.offlinefirst.presentation.songdetail.PlayerState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,72 +19,41 @@ import javax.inject.Inject
 class SongListViewModel @Inject constructor(
     private val songRepository: SongRepository,
     private val networkStatusDataSource: NetworkStatusDataSource,
-    @ApplicationContext private val context: Context
+    private val playerManager: PlayerManager
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SongListUiState())
     val uiState: StateFlow<SongListUiState> = _uiState.asStateFlow()
 
-    private val player = ExoPlayer.Builder(context).build().apply {
-        addListener(object : Player.Listener {
-            override fun onPlaybackStateChanged(playbackState: Int) {
-                when (playbackState) {
-                    Player.STATE_BUFFERING -> _uiState.update {
-                        it.copy(listPlayerState = PlayerState.LOADING)
-                    }
-                    Player.STATE_READY -> _uiState.update {
-                        it.copy(
-                            listPlayerState = if (isPlaying) PlayerState.PLAYING
-                            else PlayerState.PAUSED
-                        )
-                    }
-                    Player.STATE_ENDED -> _uiState.update {
-                        it.copy(listPlayerState = PlayerState.IDLE, currentPlayingId = null)
-                    }
-                    else -> Unit
-                }
-            }
-            override fun onIsPlayingChanged(isPlaying: Boolean) {
+    init {
+        observeSongs()
+        observeAlbums()
+        syncSongs()
+        syncAlbums()
+        observeConnectivity()
+        observePlayerState()
+    }
+    private fun observePlayerState() {
+        viewModelScope.launch {
+            playerManager.playerState.collect { state ->
                 _uiState.update {
                     it.copy(
-                        listPlayerState = if (isPlaying) PlayerState.PLAYING
-                        else PlayerState.PAUSED
+                        currentPlayingId = state.currentPlayingId,
+                        currentPositionMs = state.currentPositionMs,
+                        totalDurationMs = state.totalDurationMs,
+                        listPlayerState = when {
+                            state.isLoading -> PlayerState.LOADING
+                            state.isPlaying -> PlayerState.PLAYING
+                            state.currentPlayingId != null -> PlayerState.PAUSED
+                            else -> PlayerState.IDLE
+                        }
                     )
                 }
             }
-        })
+        }
     }
-
-    init {
-        observeSongs()
-        syncSongs()
-        observeConnectivity()
-        loadChartAlbums()
-    }
-
     fun togglePlayPause(song: Song) {
-        val currentId = _uiState.value.currentPlayingId
-        if (currentId == song.id) {
-            if (player.isPlaying) player.pause() else player.play()
-        } else {
-            player.stop()
-            player.setMediaItem(MediaItem.fromUri(song.previewUrl))
-            player.prepare()
-            player.play()
-            _uiState.update { it.copy(currentPlayingId = song.id) }
-        }
-    }
-
-    fun loadChartAlbums() {
-        viewModelScope.launch {
-            _uiState.update { it.copy(isAlbumsLoading = true) }
-            try {
-                val albums = songRepository.fetchChartAlbums()
-                _uiState.update { it.copy(chartAlbums = albums, isAlbumsLoading = false) }
-            } catch (e: Exception) {
-                _uiState.update { it.copy(isAlbumsLoading = false) }
-            }
-        }
+        playerManager.play(song.id, song.previewUrl)
     }
 
     fun syncIfNeeded() {
@@ -100,7 +65,13 @@ class SongListViewModel @Inject constructor(
     private fun observeConnectivity() {
         viewModelScope.launch {
             networkStatusDataSource.isConnected.collect { isConnected ->
+                val wasOffline = !_uiState.value.isConnected
                 _uiState.update { it.copy(isConnected = isConnected) }
+
+                if (isConnected && wasOffline) {
+                    syncSongs()
+                    syncAlbums()
+                }
             }
         }
     }
@@ -124,6 +95,28 @@ class SongListViewModel @Inject constructor(
             }
         }
     }
+    fun syncSongs() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isSyncing = true) }
+            songRepository.syncSongs()
+            _uiState.update { it.copy(isSyncing = false) }
+        }
+    }
+
+    private fun observeAlbums() {
+        viewModelScope.launch {
+            songRepository.observeAlbums().collect { albums ->
+                _uiState.update { it.copy(chartAlbums = albums, isAlbumsLoading = false) }
+            }
+        }
+    }
+
+    private fun syncAlbums() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isAlbumsLoading = true) }
+            songRepository.syncAlbums()
+        }
+    }
     fun navigateToAlbum(albumId: String, albumArt: String, albumTitle: String, onReady: (String) -> Unit) {
         viewModelScope.launch {
             try {
@@ -137,16 +130,7 @@ class SongListViewModel @Inject constructor(
         }
     }
 
-    fun syncSongs() {
-        viewModelScope.launch {
-            _uiState.update { it.copy(isSyncing = true) }
-            songRepository.syncSongs()
-            _uiState.update { it.copy(isSyncing = false) }
-        }
-    }
-
     override fun onCleared() {
         super.onCleared()
-        player.release()
     }
 }

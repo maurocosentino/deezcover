@@ -1,6 +1,8 @@
 package com.mauro.offlinefirst.data.local.dao
 
 import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Upsert
 import com.mauro.offlinefirst.data.local.entity.SongEntity
@@ -28,4 +30,7 @@ interface SongDao {
 
     @Query("SELECT MAX(lastUpdated) FROM songs WHERE isFromChart = 1")
     suspend fun getLastSyncTime(): Long?
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertSongsIgnoreConflict(songs: List<SongEntity>)
 }

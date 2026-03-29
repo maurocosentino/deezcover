@@ -8,9 +8,10 @@ import kotlinx.coroutines.flow.Flow
 interface SongRepository {
     fun observeSongs(): Flow<Result<List<Song>>>
     fun observeSongById(songId: String): Flow<Song?>
+    fun observeAlbums(): Flow<List<Album>>
+    suspend fun syncAlbums()
     suspend fun syncSongs()
     suspend fun saveAlbumTracks(tracks: List<SongEntity>)
     suspend fun shouldSync(): Boolean
     suspend fun fetchChartAlbums(): List<Album>
-
     suspend fun fetchAlbumTracks(albumId: String, albumArt: String, albumTitle: String): List<Song>}
