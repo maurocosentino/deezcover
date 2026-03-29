@@ -34,6 +34,7 @@ fun AlbumSongItem(
     index: Int,
     song: Song,
     isPlaying: Boolean,
+    remainingSeconds: Long = 0L,
     playerState: PlayerState,
     onPlayClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -95,13 +96,24 @@ fun AlbumSongItem(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
-            Text(
-                text = formatDuration(song.durationMs),
-                style = MaterialTheme.typography.bodySmall.copy(
-                    fontSize = 11.sp,
-                    color = Color.White.copy(alpha = 0.3f)
+            if (isPlaying && (playerState == PlayerState.PLAYING ||
+                        playerState == PlayerState.PAUSED)) {
+                Text(
+                    text = "0:${String.format("%02d", remainingSeconds)} restantes",
+                    style = MaterialTheme.typography.bodySmall.copy(
+                        fontSize = 11.sp,
+                        color = AccentCyan.copy(alpha = 0.8f)
+                    )
                 )
-            )
+            } else {
+                Text(
+                    text = formatDuration(song.durationMs),
+                    style = MaterialTheme.typography.bodySmall.copy(
+                        fontSize = 11.sp,
+                        color = Color.White.copy(alpha = 0.3f)
+                    )
+                )
+            }
         }
 
         Box(
