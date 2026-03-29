@@ -22,4 +22,10 @@ interface SongDao {
 
     @Query("DELETE FROM songs WHERE isFromChart = 1")
     suspend fun deleteChartSongs()
+
+    @Query("SELECT * FROM songs WHERE isFromChart = 1 ORDER BY title ASC")
+    fun observeChartSongs(): Flow<List<SongEntity>>
+
+    @Query("SELECT MAX(lastUpdated) FROM songs WHERE isFromChart = 1")
+    suspend fun getLastSyncTime(): Long?
 }
