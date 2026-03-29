@@ -205,14 +205,17 @@ fun SongDetailScreen(
                                     val isPlaying =
                                         uiState.currentAlbumPlayingId == albumSong.id
 
+                                    val remainingSeconds = if (isPlaying && uiState.totalDurationMs > 0)
+                                        (uiState.totalDurationMs - uiState.currentPositionMs).coerceAtLeast(0L) / 1000
+                                    else 0L
+
                                     AlbumSongItem(
                                         index = index + 1,
                                         song = albumSong,
                                         isPlaying = isPlaying,
+                                        remainingSeconds = remainingSeconds,
                                         playerState = uiState.albumPlayerState,
-                                        onPlayClick = {
-                                            viewModel.toggleAlbumPlayPause(albumSong)
-                                        }
+                                        onPlayClick = { viewModel.toggleAlbumPlayPause(albumSong) }
                                     )
                                     if (index < uiState.albumSongs.lastIndex) {
                                         HorizontalDivider(
