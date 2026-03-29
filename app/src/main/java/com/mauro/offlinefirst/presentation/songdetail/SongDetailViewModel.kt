@@ -91,13 +91,18 @@ class SongDetailViewModel @Inject constructor(
             _uiState.update { it.copy(isAlbumLoading = true) }
             try {
                 val tracks = remoteDataSource.fetchAlbumTracks(albumId)
+                val albumDetail = remoteDataSource.fetchAlbumDetail(albumId)  // ← nuevo
                 val entities = tracks.map {
                     it.toEntity(isFromChart = false).copy(albumArt = albumArt)
                 }
                 songRepository.saveAlbumTracks(entities)
                 val songs = entities.map { it.toDomain() }
                 _uiState.update {
-                    it.copy(albumSongs = songs, isAlbumLoading = false)
+                    it.copy(
+                        albumSongs = songs,
+                        isAlbumLoading = false,
+                        albumReleaseDate = albumDetail.releaseDate  // ← nuevo
+                    )
                 }
             } catch (exception: Exception) {
                 _uiState.update { it.copy(isAlbumLoading = false) }
