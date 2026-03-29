@@ -149,19 +149,6 @@ class SongDetailViewModel @Inject constructor(
             }
         }
     }
-
-    fun togglePlayPause() {
-        val previewUrl = _uiState.value.song?.previewUrl ?: return
-        if (player.playbackState == Player.STATE_IDLE ||
-            player.playbackState == Player.STATE_ENDED) {
-            player.setMediaItem(MediaItem.fromUri(previewUrl))
-            player.prepare()
-            player.play()
-        } else {
-            if (player.isPlaying) player.pause()
-            else player.play()
-        }
-    }
     private fun loadAlbumTracks() {
         viewModelScope.launch {
             val albumId = _uiState.value.song?.albumId ?: return@launch
