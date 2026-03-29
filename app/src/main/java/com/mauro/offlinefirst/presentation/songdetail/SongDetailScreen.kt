@@ -1,9 +1,6 @@
 package com.mauro.offlinefirst.presentation.songdetail
 
-import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,18 +13,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AccessTime
-import androidx.compose.material.icons.filled.PauseCircle
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.PlayCircle
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -49,21 +40,18 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
-import com.mauro.offlinefirst.domain.model.Song
-import com.mauro.offlinefirst.ui.theme.DeezerColor
+import com.mauro.offlinefirst.presentation.songdetail.components.AlbumSongItem
+import com.mauro.offlinefirst.presentation.songdetail.components.DeezerButton
+import com.mauro.offlinefirst.presentation.songdetail.components.formatDuration
 
-private val GradientTop    = Color(0xFF01051C)
+private val GradientTop = Color(0xFF01051C)
 private val GradientMiddle = Color(0xFF000000)
 private val GradientBottom = Color(0xFF000715)
-private val AccentCyan     = Color(0xFF00C8FF)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -251,136 +239,6 @@ fun SongDetailScreen(
             }
         }
     }
-}
-@Composable
-fun AlbumSongItem(
-    index: Int,
-    song: Song,
-    isPlaying: Boolean,
-    playerState: PlayerState,
-    onPlayClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val isActive = isPlaying && playerState == PlayerState.PLAYING
-    val titleColor = if (isActive) AccentCyan else Color.White
-    val subtitleColor = if (isActive) AccentCyan.copy(alpha = 0.7f) else Color.White.copy(alpha = 0.5f)
-    val numberColor = if (isActive) AccentCyan else Color.White.copy(alpha = 0.35f)
-
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
-            .fillMaxWidth()
-            // Click en todo el item reproduce
-            .clickable(onClick = onPlayClick)
-            .padding(vertical = 10.dp)
-    ) {
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier.widthIn(min = 32.dp)
-        ) {
-            if (isPlaying && playerState == PlayerState.LOADING) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(14.dp),
-                    color = AccentCyan,
-                    strokeWidth = 2.dp
-                )
-            } else {
-                Text(
-                    text = index.toString(),
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 14.sp,
-                        color = numberColor
-                    )
-                )
-            }
-        }
-
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .padding(horizontal = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(2.dp)
-        ) {
-            Text(
-                text = song.title,
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    fontWeight = FontWeight.SemiBold,
-                    color = titleColor
-                ),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-            Text(
-                text = song.artist,
-                style = MaterialTheme.typography.bodySmall.copy(
-                    color = subtitleColor
-                ),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-            Text(
-                text = formatDuration(song.durationMs),
-                style = MaterialTheme.typography.bodySmall.copy(
-                    fontSize = 11.sp,
-                    color = Color.White.copy(alpha = 0.3f)
-                )
-            )
-        }
-
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier.size(40.dp)
-        ) {
-            when {
-                isPlaying && playerState == PlayerState.PLAYING -> {
-                    Icon(
-                        imageVector = Icons.Default.PauseCircle,
-                        contentDescription = "Pausar",
-                        tint = AccentCyan,
-                        modifier = Modifier.size(22.dp)
-                    )
-                }
-                else -> {
-                    Icon(
-                        imageVector = Icons.Default.PlayCircle,
-                        contentDescription = "Reproducir",
-                        tint = Color.White.copy(alpha = 0.5f),
-                        modifier = Modifier.size(22.dp)
-                    )
-                }
-            }
-        }
-    }
-}
-@Composable
-fun DeezerButton(
-    url: String,
-    modifier: Modifier = Modifier
-) {
-    val context = LocalContext.current
-    Button(
-        onClick = {
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            context.startActivity(intent)
-        },
-        shape = RoundedCornerShape(50),
-        modifier = modifier,
-        colors = ButtonDefaults.buttonColors(
-            containerColor = DeezerColor,
-            contentColor = Color.Black
-        )
-    ) {
-        Icon(imageVector = Icons.Default.PlayArrow, contentDescription = null)
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(text = "Escuchar en Deezer", style = MaterialTheme.typography.labelLarge)
-    }
-}
-private fun formatDuration(durationMs: Long): String {
-    val minutes = (durationMs / 1000) / 60
-    val seconds = (durationMs / 1000) % 60
-    return String.format("%d:%02d", minutes, seconds)
 }
 
 private fun formatAlbumDuration(durationMs: Long): String {
