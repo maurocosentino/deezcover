@@ -24,6 +24,8 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Sync
 import androidx.compose.material3.CircularProgressIndicator
@@ -109,10 +111,10 @@ fun SongListScreen(
 
     val infiniteTransition = rememberInfiniteTransition(label = "sync_rotation")
     val syncRotation by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue  = 360f,
+        initialValue  = 0f,
+        targetValue   = 360f,
         animationSpec = infiniteRepeatable(tween(800, easing = LinearEasing)),
-        label = "sync_rotation"
+        label         = "sync_rotation"
     )
 
     LaunchedEffect(searchActive) {
@@ -200,7 +202,6 @@ fun SongListScreen(
                             CircularProgressIndicator(color = Color.White)
                         }
                     }
-
                     uiState.errorMessage != null -> {
                         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                             Text(
@@ -210,9 +211,7 @@ fun SongListScreen(
                             )
                         }
                     }
-
                     uiState.songs.isEmpty() -> EmptyState()
-
                     searchQuery.isNotBlank() && totalResults == 0 -> {
                         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -235,7 +234,6 @@ fun SongListScreen(
                             }
                         }
                     }
-
                     else -> {
                         PullToRefreshBox(
                             isRefreshing = uiState.isSyncing,
@@ -280,7 +278,6 @@ fun SongListScreen(
                                         Spacer(modifier = Modifier.height(20.dp))
                                     }
                                 }
-
 
                                 if (filteredAlbums.isNotEmpty() && filteredSongs.isNotEmpty()) {
                                     item {
