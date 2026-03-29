@@ -11,8 +11,8 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.mauro.offlinefirst.presentation.songlist.SongListScreen
 import com.mauro.offlinefirst.presentation.songdetail.SongDetailScreen
+import com.mauro.offlinefirst.presentation.songlist.SongListScreen
 
 @Composable
 fun NavGraph(navController: NavHostController) {
@@ -23,10 +23,13 @@ fun NavGraph(navController: NavHostController) {
         composable(
             route = Screen.SongList.route,
             enterTransition = { fadeIn(animationSpec = tween(300)) },
-            exitTransition = { fadeOut(animationSpec = tween(300)) }
+            exitTransition  = { fadeOut(animationSpec = tween(300)) }
         ) {
             SongListScreen(
-                onSongClick = { songId ->
+                onSongClick  = { songId ->
+                    navController.navigate(Screen.SongDetail.createRoute(songId))
+                },
+                onAlbumClick = { songId ->
                     navController.navigate(Screen.SongDetail.createRoute(songId))
                 }
             )
@@ -38,22 +41,15 @@ fun NavGraph(navController: NavHostController) {
                 navArgument("songId") { type = NavType.StringType }
             ),
             enterTransition = {
-                slideInHorizontally(
-                    initialOffsetX = { it },
-                    animationSpec = tween(300)
-                )
+                slideInHorizontally(initialOffsetX = { it }, animationSpec = tween(300))
             },
             exitTransition = {
-                slideOutHorizontally(
-                    targetOffsetX = { it },
-                    animationSpec = tween(300)
-                )
+                slideOutHorizontally(targetOffsetX = { it }, animationSpec = tween(300))
             }
-        ) { backStackEntry ->
+        ) {
             SongDetailScreen(
                 onNavigateBack = { navController.popBackStack() }
             )
         }
-
     }
 }
