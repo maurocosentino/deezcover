@@ -27,9 +27,10 @@ class SongListViewModel @Inject constructor(
 
     init {
         observeSongs()
+        observeAlbums()
         syncSongs()
+        syncAlbums()
         observeConnectivity()
-        loadChartAlbums()
         observePlayerState()
     }
     private fun observePlayerState() {
@@ -53,18 +54,6 @@ class SongListViewModel @Inject constructor(
         playerManager.play(song.id, song.previewUrl)
     }
 
-    fun loadChartAlbums() {
-        viewModelScope.launch {
-            _uiState.update { it.copy(isAlbumsLoading = true) }
-            try {
-                val albums = songRepository.fetchChartAlbums()
-                _uiState.update { it.copy(chartAlbums = albums, isAlbumsLoading = false) }
-            } catch (e: Exception) {
-                _uiState.update { it.copy(isAlbumsLoading = false) }
-            }
-        }
-    }
-
     fun syncIfNeeded() {
         viewModelScope.launch {
             if (songRepository.shouldSync()) songRepository.syncSongs()
@@ -74,7 +63,13 @@ class SongListViewModel @Inject constructor(
     private fun observeConnectivity() {
         viewModelScope.launch {
             networkStatusDataSource.isConnected.collect { isConnected ->
+                val wasOffline = !_uiState.value.isConnected
                 _uiState.update { it.copy(isConnected = isConnected) }
+
+                if (isConnected && wasOffline) {
+                    syncSongs()
+                    syncAlbums()
+                }
             }
         }
     }
@@ -98,6 +93,28 @@ class SongListViewModel @Inject constructor(
             }
         }
     }
+    fun syncSongs() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isSyncing = true) }
+            songRepository.syncSongs()
+            _uiState.update { it.copy(isSyncing = false) }
+        }
+    }
+
+    private fun observeAlbums() {
+        viewModelScope.launch {
+            songRepository.observeAlbums().collect { albums ->
+                _uiState.update { it.copy(chartAlbums = albums, isAlbumsLoading = false) }
+            }
+        }
+    }
+
+    private fun syncAlbums() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isAlbumsLoading = true) }
+            songRepository.syncAlbums()
+        }
+    }
     fun navigateToAlbum(albumId: String, albumArt: String, albumTitle: String, onReady: (String) -> Unit) {
         viewModelScope.launch {
             try {
@@ -108,14 +125,6 @@ class SongListViewModel @Inject constructor(
             } catch (e: Exception) {
                 e.printStackTrace()
             }
-        }
-    }
-
-    fun syncSongs() {
-        viewModelScope.launch {
-            _uiState.update { it.copy(isSyncing = true) }
-            songRepository.syncSongs()
-            _uiState.update { it.copy(isSyncing = false) }
         }
     }
 
