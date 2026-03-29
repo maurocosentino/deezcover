@@ -6,7 +6,7 @@ data class SongDto(
     @SerializedName("id") val id: Long,
     @SerializedName("title") val title: String,
     @SerializedName("artist") val artist: DeezerArtistDto,
-    @SerializedName("album") val albumArt: DeezerAlbumDto,
+    @SerializedName("album") val albumArt: DeezerAlbumDto?,
     @SerializedName("duration") val duration: Long,
     @SerializedName("link") val link: String,
     @SerializedName("preview") val previewUrl: String
