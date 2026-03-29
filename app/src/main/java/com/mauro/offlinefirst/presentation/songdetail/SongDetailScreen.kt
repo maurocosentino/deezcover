@@ -143,6 +143,7 @@ fun SongDetailScreen(
                             style = MaterialTheme.typography.headlineMedium,
                             color = Color.White
                         )
+
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
                                 imageVector = Icons.Default.AccessTime,
@@ -158,6 +159,13 @@ fun SongDetailScreen(
                                     formatDuration(currentSong.durationMs),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = Color.White.copy(alpha = 0.6f)
+                            )
+                        }
+                        if (uiState.albumReleaseDate.isNotEmpty()) {
+                            Text(
+                                text = uiState.albumReleaseDate,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color.White.copy(alpha = 0.5f)
                             )
                         }
                     }
