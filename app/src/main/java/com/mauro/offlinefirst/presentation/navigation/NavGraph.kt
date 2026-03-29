@@ -11,7 +11,6 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.mauro.offlinefirst.presentation.album.AlbumScreen
 import com.mauro.offlinefirst.presentation.songlist.SongListScreen
 import com.mauro.offlinefirst.presentation.songdetail.SongDetailScreen
 
@@ -25,12 +24,10 @@ fun NavGraph(navController: NavHostController) {
             route = Screen.SongList.route,
             enterTransition = { fadeIn(animationSpec = tween(300)) },
             exitTransition = { fadeOut(animationSpec = tween(300)) }
-        )  {
+        ) {
             SongListScreen(
                 onSongClick = { songId ->
-                    navController.navigate(
-                        Screen.SongDetail.createRoute(songId)
-                    )
+                    navController.navigate(Screen.SongDetail.createRoute(songId))
                 }
             )
         }
@@ -53,38 +50,10 @@ fun NavGraph(navController: NavHostController) {
                 )
             }
         ) { backStackEntry ->
-            val songId = backStackEntry.arguments?.getString("songId") ?: ""
             SongDetailScreen(
-                songId = songId,
                 onNavigateBack = { navController.popBackStack() }
             )
         }
-        composable(
-            route = Screen.Album.route,
-            arguments = listOf(
-                navArgument("albumId") { type = NavType.StringType }
-            ),
-            enterTransition = {
-                slideInHorizontally(
-                    initialOffsetX = { it },
-                    animationSpec = tween(300)
-                )
-            },
-            exitTransition = {
-                slideOutHorizontally(
-                    targetOffsetX = { it },
-                    animationSpec = tween(300)
-                )
-            }
-        ) { backStackEntry ->
-            val albumId = backStackEntry.arguments?.getString("albumId") ?: ""
-            AlbumScreen(
-                albumId = albumId,
-                onNavigateBack = { navController.popBackStack() },
-                onSongClick = { songId ->
-                    navController.navigate(Screen.SongDetail.createRoute(songId))
-                }
-            )
-        }
+
     }
 }
