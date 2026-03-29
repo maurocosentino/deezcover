@@ -32,9 +32,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.filled.WifiOff
-import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material.icons.outlined.Sync
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -70,6 +68,8 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import com.mauro.offlinefirst.presentation.components.SongItem
 
 private val GradientTop = Color(0xFF000000)
@@ -84,6 +84,13 @@ fun SongListScreen(
     onSongClick: (String) -> Unit,
     viewModel: SongListViewModel = hiltViewModel()
 ) {
+    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+
+    LaunchedEffect(lifecycleOwner) {
+        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            viewModel.syncIfNeeded()
+        }
+    }
     val uiState by viewModel.uiState.collectAsState()
 
     var searchQuery   by remember { mutableStateOf("") }
@@ -391,8 +398,11 @@ fun SongListScreen(
                                     key   = { song -> song.id }
                                 ) { song ->
                                     SongItem(
-                                        song     = song,
-                                        onClick  = { onSongClick(song.id) },
+                                        song = song,
+                                        isPlaying = uiState.currentPlayingId == song.id,
+                                        playerState = uiState.listPlayerState,
+                                        onPlayClick = { viewModel.togglePlayPause(song) },
+                                        onClick = { onSongClick(song.id) },
                                         modifier = Modifier.animateItem()
                                     )
                                 }
