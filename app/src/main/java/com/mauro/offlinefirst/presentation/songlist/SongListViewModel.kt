@@ -39,6 +39,8 @@ class SongListViewModel @Inject constructor(
                 _uiState.update {
                     it.copy(
                         currentPlayingId = state.currentPlayingId,
+                        currentPositionMs = state.currentPositionMs,
+                        totalDurationMs = state.totalDurationMs,
                         listPlayerState = when {
                             state.isLoading -> PlayerState.LOADING
                             state.isPlaying -> PlayerState.PLAYING

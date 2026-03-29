@@ -13,5 +13,7 @@ data class SongListUiState(
     val errorMessage: String? = null,
     val isConnected: Boolean = true,
     val currentPlayingId: String? = null,
-    val listPlayerState: PlayerState = PlayerState.IDLE
+    val listPlayerState: PlayerState = PlayerState.IDLE,
+    val currentPositionMs: Long = 0L,
+    val totalDurationMs: Long = 0L
 )

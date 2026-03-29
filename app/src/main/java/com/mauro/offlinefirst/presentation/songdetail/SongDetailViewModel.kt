@@ -44,6 +44,8 @@ class SongDetailViewModel @Inject constructor(
                 _uiState.update {
                     it.copy(
                         currentAlbumPlayingId = state.currentPlayingId,
+                        currentPositionMs = state.currentPositionMs,
+                        totalDurationMs = state.totalDurationMs,
                         albumPlayerState = when {
                             state.isLoading -> PlayerState.LOADING
                             state.isPlaying -> PlayerState.PLAYING
