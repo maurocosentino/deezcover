@@ -1,47 +1,30 @@
 package com.mauro.offlinefirst.presentation.songlist
 
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.AccessibleForward
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
-import androidx.compose.material.icons.filled.ArrowCircleRight
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.WifiOff
 import androidx.compose.material.icons.outlined.Sync
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -49,8 +32,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -65,31 +46,28 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
-import coil.compose.AsyncImage
-import com.mauro.offlinefirst.domain.model.Album
 import com.mauro.offlinefirst.presentation.components.SongItem
+import com.mauro.offlinefirst.presentation.songlist.components.AlbumCard
+import com.mauro.offlinefirst.presentation.songlist.components.EmptyState
+import com.mauro.offlinefirst.presentation.songlist.components.OfflineBanner
+import com.mauro.offlinefirst.presentation.songlist.components.SearchBar
+import com.mauro.offlinefirst.presentation.songlist.components.SectionHeader
+import com.mauro.offlinefirst.presentation.songlist.components.buildSongCountLabel
 
 private val GradientTop    = Color(0xFF000000)
 private val GradientMiddle = Color(0xFF000000)
-private val GradientBottom = Color(0xFF000515)
-private val GradientSearch = Color(0xFF000000)
+private val GradientBottom = Color(0xFF000015)
 private val AccentCyan     = Color(0xFF00C8FF)
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -110,7 +88,6 @@ fun SongListScreen(
     var searchQuery    by remember { mutableStateOf("") }
     var searchActive   by remember { mutableStateOf(false) }
     val focusRequester     = remember { FocusRequester() }
-    val keyboardController = LocalSoftwareKeyboardController.current
 
     val filteredSongs = remember(uiState.songs, searchQuery) {
         if (searchQuery.isBlank()) uiState.songs
@@ -192,89 +169,15 @@ fun SongListScreen(
                     .padding(paddingValues)
             ) {
 
-                AnimatedVisibility(
-                    visible = searchActive,
-                    enter = slideInVertically(initialOffsetY = { -it }, animationSpec = tween(250)) + fadeIn(tween(200)),
-                    exit  = slideOutVertically(targetOffsetY = { -it }, animationSpec = tween(200)) + fadeOut(tween(150))
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(GradientSearch.copy(alpha = 0.95f))
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 6.dp)
-                        ) {
-                            IconButton(onClick = {
-                                searchActive = false
-                                searchQuery  = ""
-                                keyboardController?.hide()
-                            }) {
-                                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Cerrar", tint = Color.White)
-                            }
-                            OutlinedTextField(
-                                value         = searchQuery,
-                                onValueChange = { searchQuery = it },
-                                modifier      = Modifier.weight(1f).focusRequester(focusRequester),
-                                placeholder   = {
-                                    Text("Título o artista...", style = MaterialTheme.typography.bodyLarge, color = Color.White.copy(alpha = 0.45f))
-                                },
-                                trailingIcon = {
-                                    AnimatedVisibility(visible = searchQuery.isNotEmpty(), enter = fadeIn(tween(150)), exit = fadeOut(tween(150))) {
-                                        IconButton(onClick = { searchQuery = "" }) {
-                                            Icon(Icons.Default.Close, contentDescription = "Limpiar", modifier = Modifier.size(18.dp), tint = Color.White.copy(alpha = 0.7f))
-                                        }
-                                    }
-                                },
-                                singleLine      = true,
-                                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                                keyboardActions = KeyboardActions(onSearch = { keyboardController?.hide() }),
-                                shape  = RoundedCornerShape(50),
-                                colors = OutlinedTextFieldDefaults.colors(
-                                    focusedBorderColor      = Color.White.copy(alpha = 0.5f),
-                                    unfocusedBorderColor    = Color.White.copy(alpha = 0.2f),
-                                    focusedContainerColor   = Color.White.copy(alpha = 0.1f),
-                                    unfocusedContainerColor = Color.White.copy(alpha = 0.1f),
-                                    cursorColor             = Color.White,
-                                    focusedTextColor        = Color.White,
-                                    unfocusedTextColor      = Color.White
-                                ),
-                                textStyle = MaterialTheme.typography.bodyLarge
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                        }
-
-                        HorizontalDivider(color = Color.White.copy(alpha = 0.1f))
-
-                        AnimatedContent(
-                            targetState = searchQuery.isEmpty(),
-                            transitionSpec = { fadeIn(tween(200)) togetherWith fadeOut(tween(150)) },
-                            label = "search_hint"
-                        ) { isEmpty ->
-                            Box(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 10.dp)) {
-                                if (isEmpty) {
-                                    Text("Buscá entre ${uiState.songs.size} canciones", style = MaterialTheme.typography.bodySmall, color = Color.White.copy(alpha = 0.4f))
-                                } else {
-                                    AnimatedContent(
-                                        targetState = filteredSongs.size,
-                                        transitionSpec = { slideInVertically { -it } + fadeIn() togetherWith slideOutVertically { it } + fadeOut() },
-                                        label = "result_count"
-                                    ) { count ->
-                                        Text(
-                                            text  = if (count == 0) "Sin resultados" else buildSongCountLabel(count),
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = if (count == 0) Color(0xFFFF6B6B) else Color.White.copy(alpha = 0.8f),
-                                            fontWeight = FontWeight.Medium
-                                        )
-                                    }
-                                }
-                            }
-                        }
-
-                        HorizontalDivider(color = Color.White.copy(alpha = 0.06f))
-                    }
-                }
+                SearchBar(
+                    searchQuery = searchQuery,
+                    onSearchQueryChange = { searchQuery = it },
+                    searchActive = searchActive,
+                    onSearchActiveChange = { searchActive = it },
+                    filteredSongsCount = filteredSongs.size,
+                    totalSongsCount = uiState.songs.size,
+                    focusRequester = focusRequester
+                )
 
                 AnimatedVisibility(visible = !uiState.isConnected, enter = fadeIn(), exit = fadeOut()) {
                     OfflineBanner()
@@ -366,116 +269,6 @@ fun SongListScreen(
                     }
                 }
             }
-        }
-    }
-}
-
-
-@Composable
-private fun SectionHeader(title: String, modifier: Modifier = Modifier) {
-    Text(
-        text     = title,
-        style    = MaterialTheme.typography.titleMedium.copy(
-            fontWeight = FontWeight.Bold,
-            fontSize   = 18.sp,
-            color      = Color.White
-        ),
-        modifier = modifier
-    )
-}
-
-@Composable
-private fun AlbumCard(
-    album: Album,
-    onClick: () -> Unit
-) {
-    Column(
-        modifier = Modifier.widthIn(max = 130.dp),
-        verticalArrangement = Arrangement.spacedBy(5.dp)
-    ) {
-        Box(
-            modifier = Modifier
-                .size(130.dp)
-                .clip(RoundedCornerShape(12.dp))
-                .clickable(onClick = onClick)
-        ) {
-            AsyncImage(
-                model              = album.coverUrl,
-                contentDescription = album.title,
-                contentScale       = ContentScale.Crop,
-                modifier           = Modifier.fillMaxSize()
-            )
-        }
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(2.dp)
-            ) {
-                Text(
-                    text     = album.title,
-                    style    = MaterialTheme.typography.bodySmall.copy(
-                        fontWeight = FontWeight.SemiBold,
-                        color      = Color.White
-                    ),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Text(
-                    text     = album.artist,
-                    style    = MaterialTheme.typography.bodySmall.copy(
-                        fontSize = 11.sp,
-                        color    = Color.White.copy(alpha = 0.5f)
-                    ),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-
-            IconButton(
-                onClick = onClick,
-                modifier = Modifier.size(28.dp)
-            ) {
-                Icon(
-                    imageVector        = Icons.Default.ArrowCircleRight,
-                    contentDescription = "Ver álbum",
-                    tint               = Color.White.copy(alpha = 0.35f),
-                    modifier           = Modifier.size(12.dp)
-                )
-            }
-        }
-    }
-}
-
-private fun buildSongCountLabel(count: Int): String =
-    if (count == 1) "1 canción" else "$count canciones"
-
-@Composable
-private fun OfflineBanner() {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 6.dp)
-            .background(color = Color.White.copy(alpha = 0.12f), shape = RoundedCornerShape(12.dp))
-            .padding(horizontal = 14.dp, vertical = 8.dp)
-    ) {
-        Icon(Icons.Default.WifiOff, contentDescription = null, tint = Color.White.copy(alpha = 0.8f), modifier = Modifier.size(16.dp))
-        Spacer(modifier = Modifier.width(8.dp))
-        Text("Sin conexión — mostrando datos locales", color = Color.White.copy(alpha = 0.8f), style = MaterialTheme.typography.bodySmall)
-    }
-}
-
-@Composable
-private fun EmptyState() {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Icon(Icons.Outlined.Sync, contentDescription = null, tint = Color.White.copy(alpha = 0.4f), modifier = Modifier.size(40.dp).padding(bottom = 8.dp))
-            Text("No hay canciones disponibles", style = MaterialTheme.typography.bodyLarge, color = Color.White.copy(alpha = 0.6f))
-            Text("Conectate a internet para sincronizar", style = MaterialTheme.typography.bodySmall, color = Color.White.copy(alpha = 0.35f))
         }
     }
 }
