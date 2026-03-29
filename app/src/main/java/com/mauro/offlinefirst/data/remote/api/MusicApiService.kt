@@ -1,4 +1,5 @@
 package com.mauro.offlinefirst.data.remote.api
+import com.mauro.offlinefirst.data.remote.dto.DeezerAlbumChartDto
 import com.mauro.offlinefirst.data.remote.dto.DeezerChartResponseDto
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -11,5 +12,8 @@ interface MusicApiService {
     suspend fun getAlbumTracks(
         @Path("albumId") albumId: String
     ): DeezerChartResponseDto
+
+    @GET("chart/0/albums")
+    suspend fun getChartAlbums(): DeezerAlbumChartDto
 }
 
