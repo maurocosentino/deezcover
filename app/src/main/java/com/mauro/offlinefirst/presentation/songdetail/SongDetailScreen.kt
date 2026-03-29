@@ -49,7 +49,7 @@ import com.mauro.offlinefirst.presentation.songdetail.components.AlbumSongItem
 import com.mauro.offlinefirst.presentation.songdetail.components.DeezerButton
 import com.mauro.offlinefirst.presentation.songdetail.components.formatDuration
 
-private val GradientTop    = Color(0xFF01051C)
+private val GradientTop = Color(0xFF01051C)
 private val GradientMiddle = Color(0xFF000000)
 private val GradientBottom = Color(0xFF000715)
 
