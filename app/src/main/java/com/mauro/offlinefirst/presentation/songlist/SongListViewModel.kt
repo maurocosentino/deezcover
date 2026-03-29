@@ -43,10 +43,7 @@ class SongListViewModel @Inject constructor(
                         )
                     }
                     Player.STATE_ENDED -> _uiState.update {
-                        it.copy(
-                            listPlayerState = PlayerState.IDLE,
-                            currentPlayingId = null
-                        )
+                        it.copy(listPlayerState = PlayerState.IDLE, currentPlayingId = null)
                     }
                     else -> Unit
                 }
@@ -66,13 +63,13 @@ class SongListViewModel @Inject constructor(
         observeSongs()
         syncSongs()
         observeConnectivity()
+        loadChartAlbums()
     }
 
     fun togglePlayPause(song: Song) {
         val currentId = _uiState.value.currentPlayingId
         if (currentId == song.id) {
-            if (player.isPlaying) player.pause()
-            else player.play()
+            if (player.isPlaying) player.pause() else player.play()
         } else {
             player.stop()
             player.setMediaItem(MediaItem.fromUri(song.previewUrl))
@@ -81,15 +78,22 @@ class SongListViewModel @Inject constructor(
             _uiState.update { it.copy(currentPlayingId = song.id) }
         }
     }
-    override fun onCleared() {
-        super.onCleared()
-        player.release()
+
+    fun loadChartAlbums() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isAlbumsLoading = true) }
+            try {
+                val albums = songRepository.fetchChartAlbums()
+                _uiState.update { it.copy(chartAlbums = albums, isAlbumsLoading = false) }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(isAlbumsLoading = false) }
+            }
+        }
     }
+
     fun syncIfNeeded() {
         viewModelScope.launch {
-            if (songRepository.shouldSync()) {
-                songRepository.syncSongs()
-            }
+            if (songRepository.shouldSync()) songRepository.syncSongs()
         }
     }
 
@@ -100,30 +104,35 @@ class SongListViewModel @Inject constructor(
             }
         }
     }
+
     private fun observeSongs() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
-
             songRepository.observeSongs().collect { result ->
                 result.fold(
                     onSuccess = { songs ->
                         _uiState.update {
-                            it.copy(
-                                songs = songs,
-                                isLoading = false,
-                                errorMessage = null
-                            )
+                            it.copy(songs = songs, isLoading = false, errorMessage = null)
                         }
                     },
                     onFailure = { exception ->
                         _uiState.update {
-                            it.copy(
-                                isLoading = false,
-                                errorMessage = exception.message
-                            )
+                            it.copy(isLoading = false, errorMessage = exception.message)
                         }
                     }
                 )
+            }
+        }
+    }
+    fun navigateToAlbum(albumId: String, albumArt: String, albumTitle: String, onReady: (String) -> Unit) {
+        viewModelScope.launch {
+            try {
+                val tracks = songRepository.fetchAlbumTracks(albumId, albumArt, albumTitle)
+                if (tracks.isNotEmpty()) {
+                    onReady(tracks.first().id)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
     }
@@ -136,4 +145,8 @@ class SongListViewModel @Inject constructor(
         }
     }
 
+    override fun onCleared() {
+        super.onCleared()
+        player.release()
+    }
 }
