@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 import javax.inject.Singleton
 
-data class PlayerState(
+data class AudioPlayerState(
     val currentPlayingId: String? = null,
     val isPlaying: Boolean = false,
     val isLoading: Boolean = false
@@ -21,8 +21,8 @@ data class PlayerState(
 class PlayerManager @Inject constructor(
     @ApplicationContext context: Context
 ) {
-    private val _playerState = MutableStateFlow(PlayerState())
-    val playerState: StateFlow<PlayerState> = _playerState.asStateFlow()
+    private val _playerState = MutableStateFlow(AudioPlayerState())
+    val playerState: StateFlow<AudioPlayerState> = _playerState.asStateFlow()
 
     val player: ExoPlayer = ExoPlayer.Builder(context).build().apply {
         addListener(object : Player.Listener {
@@ -33,7 +33,7 @@ class PlayerManager @Inject constructor(
                     Player.STATE_READY -> _playerState.value =
                         _playerState.value.copy(isLoading = false, isPlaying = isPlaying)
                     Player.STATE_ENDED -> _playerState.value =
-                        PlayerState()
+                        AudioPlayerState()
                     else -> Unit
                 }
             }
@@ -58,7 +58,7 @@ class PlayerManager @Inject constructor(
 
     fun stop() {
         player.stop()
-        _playerState.value = PlayerState()
+        _playerState.value = AudioPlayerState()
     }
 
     fun release() {
