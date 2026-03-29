@@ -6,6 +6,7 @@ import com.mauro.offlinefirst.data.mapper.SongMapper.toDomain
 import com.mauro.offlinefirst.data.mapper.SongMapper.toDomainList
 import com.mauro.offlinefirst.data.mapper.SongMapper.toEntity
 import com.mauro.offlinefirst.data.remote.RemoteDataSource
+import com.mauro.offlinefirst.domain.model.Album
 import com.mauro.offlinefirst.domain.model.Song
 import com.mauro.offlinefirst.domain.repository.SongRepository
 import kotlinx.coroutines.flow.Flow
@@ -21,21 +22,16 @@ class SongRepositoryImpl @Inject constructor(
     override fun observeSongs(): Flow<Result<List<Song>>> {
         return songDao
             .observeChartSongs()
-            .map { entities ->
-                Result.success(entities.toDomainList())
-            }
-            .catch { exception ->
-                emit(Result.failure(exception))
-            }
+            .map { entities -> Result.success(entities.toDomainList()) }
+            .catch { exception -> emit(Result.failure(exception)) }
     }
 
     override fun observeSongById(songId: String): Flow<Song?> {
         return songDao
             .observeSongById(songId)
             .map { entity -> entity?.toDomain() }
-            .catch { exception -> emit(null) }
+            .catch { emit(null) }
     }
-
 
     override suspend fun syncSongs() {
         try {
@@ -56,5 +52,28 @@ class SongRepositoryImpl @Inject constructor(
         val lastSync = songDao.getLastSyncTime() ?: return true
         val fifteenMinutes = 15 * 60 * 1000L
         return System.currentTimeMillis() - lastSync > fifteenMinutes
+    }
+
+    override suspend fun fetchChartAlbums(): List<Album> {
+        return remoteDataSource.fetchChartAlbums().map { dto ->
+            Album(
+                id = dto.id.toString(),
+                title = dto.title,
+                artist = dto.artist.name,
+                coverUrl = dto.coverMedium
+            )
+        }
+    }
+    override suspend fun fetchAlbumTracks(albumId: String, albumArt: String, albumTitle: String): List<Song> {
+        val tracks = remoteDataSource.fetchAlbumTracks(albumId)
+        val entities = tracks.map {
+            it.toEntity(isFromChart = false).copy(
+                albumArt = albumArt,
+                albumTitle = albumTitle,
+                albumId = albumId
+            )
+        }
+        songDao.upsertSongs(entities)
+        return entities.map { it.toDomain() }
     }
 }
