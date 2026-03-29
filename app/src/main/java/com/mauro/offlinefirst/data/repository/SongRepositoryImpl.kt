@@ -20,7 +20,7 @@ class SongRepositoryImpl @Inject constructor(
 
     override fun observeSongs(): Flow<Result<List<Song>>> {
         return songDao
-            .observeAllSongs()
+            .observeChartSongs()
             .map { entities ->
                 Result.success(entities.toDomainList())
             }
@@ -36,6 +36,7 @@ class SongRepositoryImpl @Inject constructor(
             .catch { exception -> emit(null) }
     }
 
+
     override suspend fun syncSongs() {
         try {
             val remoteSongs = remoteDataSource.fetchSongs()
@@ -49,5 +50,11 @@ class SongRepositoryImpl @Inject constructor(
 
     override suspend fun saveAlbumTracks(tracks: List<SongEntity>) {
         songDao.upsertSongs(tracks)
+    }
+
+    override suspend fun shouldSync(): Boolean {
+        val lastSync = songDao.getLastSyncTime() ?: return true
+        val fifteenMinutes = 15 * 60 * 1000L
+        return System.currentTimeMillis() - lastSync > fifteenMinutes
     }
 }

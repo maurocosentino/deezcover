@@ -11,4 +11,6 @@ interface SongRepository {
     fun observeSongById(songId: String): Flow<Song?>
     suspend fun syncSongs()
     suspend fun saveAlbumTracks(tracks: List<SongEntity>)
+
+    suspend fun shouldSync(): Boolean
 }
