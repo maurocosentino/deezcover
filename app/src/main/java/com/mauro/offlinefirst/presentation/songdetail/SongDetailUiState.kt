@@ -8,6 +8,7 @@ data class SongDetailUiState(
     val isConnected: Boolean = true,
     val currentPositionMs: Long = 0L,
     val totalDurationMs: Long = 0L,
+    val albumTotalDurationMs: Long = 0L,
     val isAlbumLoading: Boolean = false,
     val albumSongs: List<Song> = emptyList(),
     val currentAlbumPlayingId: String? = null,

@@ -102,9 +102,11 @@ class SongDetailViewModel @Inject constructor(
                 }
                 songRepository.saveAlbumTracks(entities)
                 val songs = entities.map { it.toDomain() }
+                val albumTotalDurationMs = songs.sumOf { it.durationMs }
                 _uiState.update {
                     it.copy(
                         albumSongs = songs,
+                        albumTotalDurationMs = albumTotalDurationMs,
                         isAlbumLoading = false,
                         albumReleaseDate = albumDetail.releaseDate
                     )

@@ -234,10 +234,10 @@ fun AlbumDetailScreen(
                                     }
                                 }
 
-                                if (uiState.totalDurationMs > 0) {
+                                if (uiState.albumTotalDurationMs > 0) {
                                     Spacer(modifier = Modifier.height(16.dp))
                                     Text(
-                                        text = "${uiState.albumSongs.size} canciones • ${formatAlbumDuration(uiState.totalDurationMs)}",
+                                        text = "${uiState.albumSongs.size} canciones • ${formatAlbumDuration(uiState.albumTotalDurationMs)}",
                                         style = MaterialTheme.typography.bodySmall,
                                         color = Color.White.copy(alpha = 0.4f),
                                         modifier = Modifier.padding(bottom = 24.dp)
