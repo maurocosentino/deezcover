@@ -78,7 +78,7 @@ fun SongDetailScreen(
             containerColor = Color.Transparent,
             modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
             topBar = {
-                LargeTopAppBar(git
+                LargeTopAppBar(
                     title = {
                         Text(
                             text = song?.artist ?: "",
