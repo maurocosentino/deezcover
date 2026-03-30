@@ -11,32 +11,32 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.mauro.offlinefirst.presentation.songdetail.SongDetailScreen
-import com.mauro.offlinefirst.presentation.songlist.SongListScreen
+import com.mauro.offlinefirst.presentation.songdetail.AlbumDetailScreen
+import com.mauro.offlinefirst.presentation.songlist.HomeScreen
 
 @Composable
 fun NavGraph(navController: NavHostController) {
     NavHost(
         navController = navController,
-        startDestination = Screen.SongList.route
+        startDestination = Screen.Home.route
     ) {
         composable(
-            route = Screen.SongList.route,
+            route = Screen.Home.route,
             enterTransition = { fadeIn(animationSpec = tween(300)) },
             exitTransition  = { fadeOut(animationSpec = tween(300)) }
         ) {
-            SongListScreen(
+            HomeScreen(
                 onSongClick  = { songId ->
-                    navController.navigate(Screen.SongDetail.createRoute(songId))
+                    navController.navigate(Screen.AlbumDetail.createRoute(songId))
                 },
                 onAlbumClick = { songId ->
-                    navController.navigate(Screen.SongDetail.createRoute(songId))
+                    navController.navigate(Screen.AlbumDetail.createRoute(songId))
                 }
             )
         }
 
         composable(
-            route = Screen.SongDetail.route,
+            route = Screen.AlbumDetail.route,
             arguments = listOf(
                 navArgument("songId") { type = NavType.StringType }
             ),
@@ -47,7 +47,7 @@ fun NavGraph(navController: NavHostController) {
                 slideOutHorizontally(targetOffsetX = { it }, animationSpec = tween(300))
             }
         ) {
-            SongDetailScreen(
+            AlbumDetailScreen(
                 onNavigateBack = { navController.popBackStack() }
             )
         }
