@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -146,11 +147,6 @@ fun SongListScreen(
                                 fontFamily    = FontFamily.SansSerif,
                                 fontWeight    = FontWeight.Bold,
                                 letterSpacing = 1.5.sp
-                            )
-                            Text(
-                                text  = buildSongCountLabel(uiState.songs.size),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = Color.White.copy(alpha = 0.6f)
                             )
                         }
                     },
@@ -290,10 +286,25 @@ fun SongListScreen(
 
                                 if (filteredSongs.isNotEmpty()) {
                                     item {
-                                        SectionHeader(
-                                            title    = if (searchQuery.isBlank()) "Top Tracks" else "Canciones",
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
                                             modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 4.dp)
-                                        )
+                                        ) {
+                                            Text(
+                                                text = "Top Tracks",
+                                                style = MaterialTheme.typography.titleMedium.copy(
+                                                    fontWeight = FontWeight.Bold,
+                                                    fontSize = 18.sp,
+                                                    color = Color.White
+                                                ),
+                                                modifier = Modifier.weight(1f)
+                                            )
+                                            Text(
+                                                text = buildSongCountLabel(uiState.songs.size),
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = Color.White.copy(alpha = 0.4f)
+                                            )
+                                        }
                                     }
                                     itemsIndexed(items = filteredSongs, key = { _, song -> song.id }) { _, song ->
                                         val isPlaying = uiState.currentPlayingId == song.id
