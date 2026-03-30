@@ -15,7 +15,8 @@ object SongMapper {
         deezerUrl = deezerUrl,
         previewUrl = previewUrl,
         albumTitle = albumTitle,
-        albumId = albumId
+        albumId = albumId,
+        artistImageUrl = artistImageUrl
     )
 
     fun SongDto.toEntity(isFromChart: Boolean = false): SongEntity = SongEntity(
@@ -30,7 +31,8 @@ object SongMapper {
         previewUrl = previewUrl,
         albumArt = albumArt?.coverMedium ?: "",
         albumTitle = albumArt?.albumTitle ?: "",
-        albumId = albumArt?.albumId?.toString() ?: ""
+        albumId = albumArt?.albumId?.toString() ?: "",
+        artistImageUrl = artist.pictureSmall ?: ""
     )
 
     fun List<SongEntity>.toDomainList(): List<Song> = map { it.toDomain() }

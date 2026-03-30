@@ -33,4 +33,7 @@ interface SongDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertSongsIgnoreConflict(songs: List<SongEntity>)
+
+    @Query("SELECT isFromChart FROM songs WHERE id = :songId")
+    suspend fun isChartSong(songId: String): Boolean?
 }

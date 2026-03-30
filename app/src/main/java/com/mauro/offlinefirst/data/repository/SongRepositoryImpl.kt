@@ -92,11 +92,16 @@ class SongRepositoryImpl @Inject constructor(
     }
     override suspend fun fetchAlbumTracks(albumId: String, albumArt: String, albumTitle: String): List<Song> {
         val tracks = remoteDataSource.fetchAlbumTracks(albumId)
-        val entities = tracks.map {
-            it.toEntity(isFromChart = false).copy(
+        val albumDetail = remoteDataSource.fetchAlbumDetail(albumId)
+        val artistImageUrl = albumDetail.artist.pictureSmall ?: ""
+        val entities = tracks.mapNotNull { dto ->
+            val isChart = songDao.isChartSong(dto.id.toString())
+            if (isChart == true) null
+            else dto.toEntity(isFromChart = false).copy(
                 albumArt = albumArt,
                 albumTitle = albumTitle,
-                albumId = albumId
+                albumId = albumId,
+                artistImageUrl = artistImageUrl
             )
         }
         songDao.upsertSongs(entities)

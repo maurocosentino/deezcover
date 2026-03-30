@@ -12,13 +12,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -47,7 +45,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.mauro.offlinefirst.presentation.songdetail.components.AlbumSongItem
 import com.mauro.offlinefirst.presentation.songdetail.components.DeezerButton
-import com.mauro.offlinefirst.presentation.songdetail.components.formatDuration
 
 private val GradientTop = Color(0xFF01051C)
 private val GradientMiddle = Color(0xFF000000)
@@ -64,8 +61,6 @@ fun SongDetailScreen(
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
         rememberTopAppBarState()
     )
-    val totalAlbumDuration = uiState.albumSongs.sumOf { it.durationMs }
-
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -83,7 +78,7 @@ fun SongDetailScreen(
             containerColor = Color.Transparent,
             modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
             topBar = {
-                LargeTopAppBar(
+                LargeTopAppBar(git
                     title = {
                         Text(
                             text = song?.artist ?: "",
@@ -115,8 +110,7 @@ fun SongDetailScreen(
                         .fillMaxSize()
                         .padding(paddingValues)
                         .verticalScroll(rememberScrollState()),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                    verticalArrangement = Arrangement.spacedBy(0.dp)
                 ) {
                     AsyncImage(
                         model = currentSong.albumArt,
@@ -124,49 +118,58 @@ fun SongDetailScreen(
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 24.dp)
                             .aspectRatio(1f)
-                            .clip(RoundedCornerShape(24.dp))
                     )
 
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 24.dp),
-                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                            .padding(horizontal = 16.dp, vertical = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Text(
                             text = if (currentSong.albumTitle.isNotEmpty())
                                 currentSong.albumTitle
-                            else
-                                uiState.albumSongs.firstOrNull()?.albumTitle ?: "",
-                            style = MaterialTheme.typography.headlineMedium,
-                            color = Color.White
+                            else uiState.albumSongs.firstOrNull()?.albumTitle ?: "",
+                            style = MaterialTheme.typography.headlineLarge.copy(
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
                         )
 
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                imageVector = Icons.Default.AccessTime,
-                                contentDescription = null,
-                                tint = Color.White.copy(alpha = 0.6f),
-                                modifier = Modifier.size(16.dp)
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            if (currentSong.artistImageUrl.isNotEmpty()) {
+                                AsyncImage(
+                                    model = currentSong.artistImageUrl,
+                                    contentDescription = currentSong.artist,
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier
+                                        .size(24.dp)
+                                        .clip(CircleShape)
+                                )
+                            }
                             Text(
-                                text = if (totalAlbumDuration > 0)
-                                    formatAlbumDuration(totalAlbumDuration)
-                                else
-                                    formatDuration(currentSong.durationMs),
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = Color.White.copy(alpha = 0.6f)
+                                text = currentSong.artist,
+                                style = MaterialTheme.typography.bodyMedium.copy(
+                                    color = Color.White.copy(alpha = 0.8f),
+                                    fontWeight = FontWeight.SemiBold
+                                )
                             )
-                        }
-                        if (uiState.albumReleaseDate.isNotEmpty()) {
-                            Text(
-                                text = uiState.albumReleaseDate,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = Color.White.copy(alpha = 0.5f)
-                            )
+                            if (uiState.albumReleaseDate.isNotEmpty()) {
+                                Text(
+                                    text = "•",
+                                    color = Color.White.copy(alpha = 0.4f)
+                                )
+                                Text(
+                                    text = uiState.albumReleaseDate,
+                                    style = MaterialTheme.typography.bodySmall.copy(
+                                        color = Color.White.copy(alpha = 0.5f)
+                                    )
+                                )
+                            }
                         }
                     }
 
@@ -175,14 +178,15 @@ fun SongDetailScreen(
                             url = currentSong.deezerUrl,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(horizontal = 24.dp)
+                                .padding(horizontal = 16.dp)
+                                .padding(bottom = 16.dp)
                         )
                     }
 
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 24.dp)
+                            .padding(horizontal = 16.dp)
                     ) {
                         when {
                             uiState.isAlbumLoading -> {
@@ -198,7 +202,6 @@ fun SongDetailScreen(
                                     )
                                 }
                             }
-
                             uiState.albumSongs.isEmpty() -> {
                                 Text(
                                     text = "No hay canciones disponibles",
@@ -207,14 +210,12 @@ fun SongDetailScreen(
                                     modifier = Modifier.padding(vertical = 8.dp)
                                 )
                             }
-
                             else -> {
                                 uiState.albumSongs.forEachIndexed { index, albumSong ->
-                                    val isPlaying =
-                                        uiState.currentAlbumPlayingId == albumSong.id
-
+                                    val isPlaying = uiState.currentAlbumPlayingId == albumSong.id
                                     val remainingSeconds = if (isPlaying && uiState.totalDurationMs > 0)
-                                        (uiState.totalDurationMs - uiState.currentPositionMs).coerceAtLeast(0L) / 1000
+                                        (uiState.totalDurationMs - uiState.currentPositionMs)
+                                            .coerceAtLeast(0L) / 1000
                                     else 0L
 
                                     AlbumSongItem(
@@ -232,11 +233,19 @@ fun SongDetailScreen(
                                         )
                                     }
                                 }
+
+                                if (uiState.totalDurationMs > 0) {
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                    Text(
+                                        text = "${uiState.albumSongs.size} canciones • ${formatAlbumDuration(uiState.totalDurationMs)}",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = Color.White.copy(alpha = 0.4f),
+                                        modifier = Modifier.padding(bottom = 24.dp)
+                                    )
+                                }
                             }
                         }
                     }
-
-                    Spacer(modifier = Modifier.height(24.dp))
                 }
             } ?: Box(
                 modifier = Modifier.fillMaxSize(),

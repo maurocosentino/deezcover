@@ -16,7 +16,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun albumDao(): AlbumDao
 
     companion object {
-        const val DATABASE_NAME = "offline_first_db_v2"
+        const val DATABASE_NAME = "offline_first_db_v7"
         val MIGRATION_1_2 = object : Migration(1, 2) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 database.execSQL(

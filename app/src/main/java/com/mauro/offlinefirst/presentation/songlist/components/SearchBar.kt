@@ -190,7 +190,7 @@ fun SearchBar(
 }
 
 internal fun buildSongCountLabel(count: Int): String =
-    if (count == 1) "1 canción" else "$count canciones"
+    if (count == 1) "1 track" else "$count tracks"
 
 internal fun buildAlbumCountLabel(count: Int): String =
     if (count == 1) "1 álbum" else "$count álbumes"

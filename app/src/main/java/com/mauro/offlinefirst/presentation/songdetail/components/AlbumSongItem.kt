@@ -99,7 +99,7 @@ fun AlbumSongItem(
             if (isPlaying && (playerState == PlayerState.PLAYING ||
                         playerState == PlayerState.PAUSED)) {
                 Text(
-                    text = "0:${String.format("%02d", remainingSeconds)} restantes",
+                    text = "0:${String.format("%02d", remainingSeconds)}",
                     style = MaterialTheme.typography.bodySmall.copy(
                         fontSize = 11.sp,
                         color = AccentCyan.copy(alpha = 0.8f)

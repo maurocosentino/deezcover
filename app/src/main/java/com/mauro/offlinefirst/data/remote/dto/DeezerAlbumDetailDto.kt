@@ -5,5 +5,10 @@ import com.google.gson.annotations.SerializedName
 data class DeezerAlbumDetailDto(
     @SerializedName("id") val id: Long,
     @SerializedName("title") val title: String,
-    @SerializedName("release_date") val releaseDate: String
+    @SerializedName("release_date") val releaseDate: String,
+    @SerializedName("artist") val artist: DeezerAlbumArtistDto
+)
+data class DeezerAlbumArtistDto(
+    @SerializedName("name") val name: String,
+    @SerializedName("picture_small") val pictureSmall: String? = null
 )

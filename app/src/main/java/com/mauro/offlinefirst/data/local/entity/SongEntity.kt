@@ -17,6 +17,7 @@ data class SongEntity(
     val deezerUrl: String,
     val previewUrl: String,
     val albumId: String,
-    val isFromChart: Boolean = false
+    val isFromChart: Boolean = false,
+    val artistImageUrl: String = ""
 )
 
