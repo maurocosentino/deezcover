@@ -33,8 +33,10 @@ fun NavGraph(navController: NavHostController) {
                 onAlbumClick = { songId ->
                     navController.navigate(Screen.AlbumDetail.createRoute(songId))
                 },
-                onArtistClick = { artistId ->
-                    navController.navigate(Screen.ArtistDetail.createRoute(artistId))
+                onArtistClick = { artistId, artistName, artistImageUrl ->
+                    navController.navigate(
+                        Screen.ArtistDetail.createRoute(artistId, artistName, artistImageUrl)
+                    )
                 }
             )
         }
@@ -52,14 +54,21 @@ fun NavGraph(navController: NavHostController) {
             }
         ) {
             AlbumDetailScreen(
-                onNavigateBack = { navController.popBackStack() }
+                onNavigateBack = { navController.popBackStack() },
+                onArtistClick = { artistId, artistName, artistImageUrl ->
+                    navController.navigate(
+                        Screen.ArtistDetail.createRoute(artistId, artistName, artistImageUrl)
+                    )
+                }
             )
         }
 
         composable(
             route = Screen.ArtistDetail.route,
             arguments = listOf(
-                navArgument("artistId") { type = NavType.StringType }
+                navArgument("artistId") { type = NavType.StringType },
+                navArgument("artistName") { type = NavType.StringType },
+                navArgument("artistImageUrl") { type = NavType.StringType }
             ),
             enterTransition = {
                 slideInHorizontally(initialOffsetX = { it }, animationSpec = tween(300))

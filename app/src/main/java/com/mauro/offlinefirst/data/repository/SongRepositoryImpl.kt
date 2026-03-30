@@ -5,6 +5,8 @@ import com.mauro.offlinefirst.data.local.dao.SongDao
 import com.mauro.offlinefirst.data.local.entity.AlbumEntity
 import com.mauro.offlinefirst.data.local.entity.SongEntity
 import com.mauro.offlinefirst.data.mapper.ArtistMapper.toArtist
+import com.mauro.offlinefirst.data.mapper.ArtistMapper.bestImageUrl
+import com.mauro.offlinefirst.data.mapper.ArtistMapper.toDomain
 import com.mauro.offlinefirst.data.mapper.SongMapper.toDomain
 import com.mauro.offlinefirst.data.mapper.SongMapper.toDomainList
 import com.mauro.offlinefirst.data.mapper.SongMapper.toEntity
@@ -108,7 +110,7 @@ class SongRepositoryImpl @Inject constructor(
     override suspend fun fetchAlbumTracks(albumId: String, albumArt: String, albumTitle: String): List<Song> {
         val tracks = remoteDataSource.fetchAlbumTracks(albumId)
         val albumDetail = remoteDataSource.fetchAlbumDetail(albumId)
-        val artistImageUrl = albumDetail.artist.pictureSmall ?: ""
+        val artistImageUrl = albumDetail.artist.bestImageUrl()
         val entities = tracks.mapNotNull { dto ->
             val isChart = songDao.isChartSong(dto.id.toString())
             if (isChart == true) null
@@ -127,5 +129,9 @@ class SongRepositoryImpl @Inject constructor(
         return remoteDataSource.fetchArtistTopTracks(artistId).map { dto ->
             dto.toEntity(isFromChart = false).toDomain()
         }
+    }
+
+    override suspend fun fetchArtistDetail(artistId: String): Artist {
+        return remoteDataSource.fetchArtistDetail(artistId).toDomain()
     }
 }

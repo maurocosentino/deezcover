@@ -18,4 +18,5 @@ interface SongRepository {
     suspend fun fetchChartAlbums(): List<Album>
     suspend fun fetchAlbumTracks(albumId: String, albumArt: String, albumTitle: String): List<Song>
     suspend fun fetchArtistTopTracks(artistId: String): List<Song>
+    suspend fun fetchArtistDetail(artistId: String): Artist
 }

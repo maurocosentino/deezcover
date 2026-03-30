@@ -1,6 +1,7 @@
 package com.mauro.offlinefirst.presentation.albumdetail
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -54,6 +55,7 @@ private val GradientBottom = Color(0xFF000715)
 @Composable
 fun AlbumDetailScreen(
     onNavigateBack: () -> Unit,
+    onArtistClick: (artistId: String, artistName: String, artistImageUrl: String) -> Unit,
     viewModel: AlbumDetailViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -139,7 +141,17 @@ fun AlbumDetailScreen(
 
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.clickable(
+                                enabled = currentSong.artistId.isNotBlank(),
+                                onClick = {
+                                    onArtistClick(
+                                        currentSong.artistId,
+                                        currentSong.artist,
+                                        currentSong.artistImageUrl
+                                    )
+                                }
+                            )
                         ) {
                             if (currentSong.artistImageUrl.isNotEmpty()) {
                                 AsyncImage(

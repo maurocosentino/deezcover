@@ -10,5 +10,8 @@ data class DeezerAlbumDetailDto(
 )
 data class DeezerAlbumArtistDto(
     @SerializedName("name") val name: String,
-    @SerializedName("picture_small") val pictureSmall: String? = null
+    @SerializedName("picture_small") val pictureSmall: String? = null,
+    @SerializedName("picture_medium") val pictureMedium: String? = null,
+    @SerializedName("picture_big") val pictureBig: String? = null,
+    @SerializedName("picture_xl") val pictureXl: String? = null
 )

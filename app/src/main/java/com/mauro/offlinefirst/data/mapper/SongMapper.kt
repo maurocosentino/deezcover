@@ -2,6 +2,7 @@ package com.mauro.offlinefirst.data.mapper
 
 import com.mauro.offlinefirst.data.local.entity.SongEntity
 import com.mauro.offlinefirst.data.remote.dto.SongDto
+import com.mauro.offlinefirst.data.mapper.ArtistMapper.bestImageUrl
 import com.mauro.offlinefirst.domain.model.Song
 
 object SongMapper {
@@ -34,7 +35,7 @@ object SongMapper {
         albumArt = albumArt?.coverMedium ?: "",
         albumTitle = albumArt?.albumTitle ?: "",
         albumId = albumArt?.albumId?.toString() ?: "",
-        artistImageUrl = artist.pictureSmall ?: ""
+        artistImageUrl = artist.bestImageUrl()
     )
 
     fun List<SongEntity>.toDomainList(): List<Song> = map { it.toDomain() }

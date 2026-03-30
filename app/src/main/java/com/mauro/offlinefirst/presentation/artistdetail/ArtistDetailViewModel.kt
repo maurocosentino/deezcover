@@ -1,5 +1,6 @@
 package com.mauro.offlinefirst.presentation.artistdetail
 
+import android.net.Uri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -23,8 +24,16 @@ class ArtistDetailViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val artistId: String = checkNotNull(savedStateHandle["artistId"])
+    private val artistName: String = Uri.decode(savedStateHandle["artistName"] ?: "")
+    private val artistImageUrl: String = Uri.decode(savedStateHandle["artistImageUrl"] ?: "")
 
-    private val _uiState = MutableStateFlow(ArtistDetailUiState(artistId = artistId))
+    private val _uiState = MutableStateFlow(
+        ArtistDetailUiState(
+            artistId = artistId,
+            artistName = artistName,
+            artistImageUrl = artistImageUrl
+        )
+    )
     val uiState: StateFlow<ArtistDetailUiState> = _uiState.asStateFlow()
 
     init {
@@ -56,12 +65,13 @@ class ArtistDetailViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
             try {
+                val artistDetail = songRepository.fetchArtistDetail(artistId)
                 val tracks = songRepository.fetchArtistTopTracks(artistId)
-                val firstTrack = tracks.firstOrNull()
                 _uiState.update {
                     it.copy(
-                        artistName = firstTrack?.artist.orEmpty(),
-                        artistImageUrl = firstTrack?.artistImageUrl.orEmpty(),
+                        artistImageUrl = it.artistImageUrl.ifBlank { artistDetail.imageUrl },
+                        fanCount = artistDetail.fanCount,
+                        albumCount = artistDetail.albumCount,
                         topTracks = tracks,
                         isLoading = false
                     )

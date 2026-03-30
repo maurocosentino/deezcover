@@ -68,7 +68,7 @@ private val GradientBottom = Color(0xFF000715)
 fun HomeScreen(
     onSongClick: (String) -> Unit,
     onAlbumClick: (String) -> Unit,
-    onArtistClick: (String) -> Unit,
+    onArtistClick: (artistId: String, artistName: String, artistImageUrl: String) -> Unit,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
@@ -264,7 +264,7 @@ fun HomeScreen(
                                         TopArtistsSection(
                                             artists = filteredArtists,
                                             onArtistClick = { artist ->
-                                                onArtistClick(artist.id)
+                                                onArtistClick(artist.id, artist.name, artist.imageUrl)
                                             },
                                             modifier = Modifier.padding(
                                                 start = 16.dp,

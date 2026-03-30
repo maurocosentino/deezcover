@@ -3,6 +3,7 @@ package com.mauro.offlinefirst.data.remote
 import com.mauro.offlinefirst.data.remote.api.MusicApiService
 import com.mauro.offlinefirst.data.remote.dto.AlbumDto
 import com.mauro.offlinefirst.data.remote.dto.DeezerAlbumDetailDto
+import com.mauro.offlinefirst.data.remote.dto.DeezerArtistDto
 import com.mauro.offlinefirst.data.remote.dto.SongDto
 
 class RemoteDataSource constructor(
@@ -23,5 +24,9 @@ class RemoteDataSource constructor(
 
     suspend fun fetchArtistTopTracks(artistId: String): List<SongDto> {
         return apiService.getArtistTopTracks(artistId).tracks
+    }
+
+    suspend fun fetchArtistDetail(artistId: String): DeezerArtistDto {
+        return apiService.getArtistDetail(artistId)
     }
 }
