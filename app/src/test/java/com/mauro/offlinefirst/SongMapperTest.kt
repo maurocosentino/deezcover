@@ -17,8 +17,14 @@ class SongMapperTest {
             id = 1L,
             title = "Who",
             artist = DeezerArtistDto(name = "Jimin"),
-            albumArt = DeezerAlbumDto(coverMedium = "https://cover.url"),
-            duration = 170
+            albumArt = DeezerAlbumDto(
+                coverMedium = "https://cover.url",
+                albumTitle = "Muse",
+                albumId = 10L
+            ),
+            duration = 170,
+            link = "https://deezer.com/track/1",
+            previewUrl = "https://cdn.preview/1.mp3"
         )
 
         val entity = dto.toEntity()
@@ -32,8 +38,14 @@ class SongMapperTest {
             id = 123L,
             title = "Who",
             artist = DeezerArtistDto(name = "Jimin"),
-            albumArt = DeezerAlbumDto(coverMedium = "https://cover.url"),
-            duration = 170
+            albumArt = DeezerAlbumDto(
+                coverMedium = "https://cover.url",
+                albumTitle = "Muse",
+                albumId = 10L
+            ),
+            duration = 170,
+            link = "https://deezer.com/track/123",
+            previewUrl = "https://cdn.preview/123.mp3"
         )
 
         val entity = dto.toEntity()
@@ -47,8 +59,14 @@ class SongMapperTest {
             id = 1L,
             title = "Who",
             artist = DeezerArtistDto(name = "Jimin"),
-            albumArt = DeezerAlbumDto(coverMedium = "https://cover.url"),
-            duration = 170
+            albumArt = DeezerAlbumDto(
+                coverMedium = "https://cover.url",
+                albumTitle = "Muse",
+                albumId = 10L
+            ),
+            duration = 170,
+            link = "https://deezer.com/track/1",
+            previewUrl = "https://cdn.preview/1.mp3"
         )
 
         val entity = dto.toEntity()
@@ -62,10 +80,14 @@ class SongMapperTest {
             id = "1",
             title = "Who",
             artist = "Jimin",
+            albumTitle = "Muse",
             albumArt = "https://cover.url",
             durationMs = 170000L,
             isAvailableOffline = true,
-            lastUpdated = 0L
+            lastUpdated = 0L,
+            deezerUrl = "https://deezer.com/track/1",
+            previewUrl = "https://cdn.preview/1.mp3",
+            albumId = "10"
         )
 
         val song = entity.toDomain()
