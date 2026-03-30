@@ -20,4 +20,8 @@ class RemoteDataSource constructor(
     suspend fun fetchAlbumDetail(albumId: String): DeezerAlbumDetailDto {
         return apiService.getAlbumDetail(albumId)
     }
+
+    suspend fun fetchArtistTopTracks(artistId: String): List<SongDto> {
+        return apiService.getArtistTopTracks(artistId).tracks
+    }
 }

@@ -1,12 +1,14 @@
 package com.mauro.offlinefirst.presentation.home
 
 import com.mauro.offlinefirst.domain.model.Album
+import com.mauro.offlinefirst.domain.model.Artist
 import com.mauro.offlinefirst.domain.model.Song
 import com.mauro.offlinefirst.presentation.albumdetail.PlayerState
 
 data class HomeUiState(
     val songs: List<Song> = emptyList(),
     val chartAlbums: List<Album> = emptyList(),
+    val topArtists: List<Artist> = emptyList(),
     val isLoading: Boolean = false,
     val isAlbumsLoading: Boolean = false,
     val isSyncing: Boolean = false,

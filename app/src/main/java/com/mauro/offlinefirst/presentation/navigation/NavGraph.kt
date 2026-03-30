@@ -12,6 +12,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.mauro.offlinefirst.presentation.albumdetail.AlbumDetailScreen
+import com.mauro.offlinefirst.presentation.artistdetail.ArtistDetailScreen
 import com.mauro.offlinefirst.presentation.home.HomeScreen
 
 @Composable
@@ -31,6 +32,9 @@ fun NavGraph(navController: NavHostController) {
                 },
                 onAlbumClick = { songId ->
                     navController.navigate(Screen.AlbumDetail.createRoute(songId))
+                },
+                onArtistClick = { artistId ->
+                    navController.navigate(Screen.ArtistDetail.createRoute(artistId))
                 }
             )
         }
@@ -48,6 +52,23 @@ fun NavGraph(navController: NavHostController) {
             }
         ) {
             AlbumDetailScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+
+        composable(
+            route = Screen.ArtistDetail.route,
+            arguments = listOf(
+                navArgument("artistId") { type = NavType.StringType }
+            ),
+            enterTransition = {
+                slideInHorizontally(initialOffsetX = { it }, animationSpec = tween(300))
+            },
+            exitTransition = {
+                slideOutHorizontally(targetOffsetX = { it }, animationSpec = tween(300))
+            }
+        ) {
+            ArtistDetailScreen(
                 onNavigateBack = { navController.popBackStack() }
             )
         }

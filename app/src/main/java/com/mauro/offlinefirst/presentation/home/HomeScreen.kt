@@ -56,6 +56,7 @@ import com.mauro.offlinefirst.presentation.home.components.EmptyState
 import com.mauro.offlinefirst.presentation.home.components.OfflineBanner
 import com.mauro.offlinefirst.presentation.home.components.SearchBar
 import com.mauro.offlinefirst.presentation.home.components.TopAlbumsSection
+import com.mauro.offlinefirst.presentation.home.components.TopArtistsSection
 import com.mauro.offlinefirst.presentation.home.components.topTracksSection
 
 private val GradientTop    = Color(0xFF000000)
@@ -67,6 +68,7 @@ private val GradientBottom = Color(0xFF000715)
 fun HomeScreen(
     onSongClick: (String) -> Unit,
     onAlbumClick: (String) -> Unit,
+    onArtistClick: (String) -> Unit,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
@@ -98,7 +100,14 @@ fun HomeScreen(
         }
     }
 
-    val totalResults = filteredSongs.size + filteredAlbums.size
+    val filteredArtists = remember(uiState.topArtists, searchQuery) {
+        if (searchQuery.isBlank()) uiState.topArtists
+        else uiState.topArtists.filter { artist ->
+            artist.name.contains(searchQuery, ignoreCase = true)
+        }
+    }
+
+    val totalResults = filteredSongs.size + filteredAlbums.size + filteredArtists.size
 
     val infiniteTransition = rememberInfiniteTransition(label = "sync_rotation")
     val syncRotation by infiniteTransition.animateFloat(
@@ -250,7 +259,25 @@ fun HomeScreen(
                                     }
                                 }
 
-                                if (filteredAlbums.isNotEmpty() && filteredSongs.isNotEmpty()) {
+                                if (filteredArtists.isNotEmpty()) {
+                                    item {
+                                        TopArtistsSection(
+                                            artists = filteredArtists,
+                                            onArtistClick = { artist ->
+                                                onArtistClick(artist.id)
+                                            },
+                                            modifier = Modifier.padding(
+                                                start = 16.dp,
+                                                end = 16.dp,
+                                                bottom = 12.dp
+                                            )
+                                        )
+                                    }
+                                }
+
+                                if ((filteredAlbums.isNotEmpty() || filteredArtists.isNotEmpty()) &&
+                                    filteredSongs.isNotEmpty()
+                                ) {
                                     item {
                                         HorizontalDivider(
                                             color    = Color.White.copy(alpha = 0.06f),

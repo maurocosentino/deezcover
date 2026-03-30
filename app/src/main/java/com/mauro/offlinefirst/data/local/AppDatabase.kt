@@ -9,7 +9,7 @@ import com.mauro.offlinefirst.data.local.dao.SongDao
 import com.mauro.offlinefirst.data.local.entity.AlbumEntity
 import com.mauro.offlinefirst.data.local.entity.SongEntity
 
-@Database(entities = [SongEntity::class, AlbumEntity::class], version = 1, exportSchema = false)
+@Database(entities = [SongEntity::class, AlbumEntity::class], version = 2, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun songDao(): SongDao

@@ -9,6 +9,7 @@ data class SongEntity(
     val id: String,
     val title: String,
     val artist: String,
+    val artistId: String,
     val albumTitle: String,
     val albumArt: String,
     val durationMs: Long,
@@ -20,4 +21,3 @@ data class SongEntity(
     val isFromChart: Boolean = false,
     val artistImageUrl: String = ""
 )
-

@@ -21,5 +21,9 @@ interface MusicApiService {
     suspend fun getAlbumDetail(
         @Path("albumId") albumId: String
     ): DeezerAlbumDetailDto
-}
 
+    @GET("artist/{artistId}/top?limit=10")
+    suspend fun getArtistTopTracks(
+        @Path("artistId") artistId: String
+    ): DeezerChartResponseDto
+}

@@ -45,6 +45,7 @@ fun SongItem(
     onPlayClick: () -> Unit,
     remainingSeconds: Long = 0L,
     onClick: () -> Unit,
+    showNavigateAction: Boolean = true,
     modifier: Modifier = Modifier
 ) {
     val isActive     = isPlaying && playerState == PlayerState.PLAYING
@@ -145,15 +146,17 @@ fun SongItem(
             }
         }
 
-        Spacer(Modifier.padding(horizontal = 5.dp))
+        if (showNavigateAction) {
+            Spacer(Modifier.padding(horizontal = 5.dp))
 
-        IconButton(onClick = onClick) {
-            Icon(
-                imageVector = Icons.Default.ArrowCircleRight,
-                contentDescription = "Ver álbum",
-                tint = Color.White.copy(alpha = 0.50f),
-                modifier = Modifier.size(20.dp)
-            )
+            IconButton(onClick = onClick) {
+                Icon(
+                    imageVector = Icons.Default.ArrowCircleRight,
+                    contentDescription = "Ver álbum",
+                    tint = Color.White.copy(alpha = 0.50f),
+                    modifier = Modifier.size(20.dp)
+                )
+            }
         }
     }
 }

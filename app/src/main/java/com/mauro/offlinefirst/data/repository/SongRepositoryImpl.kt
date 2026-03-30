@@ -4,11 +4,13 @@ import com.mauro.offlinefirst.data.local.dao.AlbumDao
 import com.mauro.offlinefirst.data.local.dao.SongDao
 import com.mauro.offlinefirst.data.local.entity.AlbumEntity
 import com.mauro.offlinefirst.data.local.entity.SongEntity
+import com.mauro.offlinefirst.data.mapper.ArtistMapper.toArtist
 import com.mauro.offlinefirst.data.mapper.SongMapper.toDomain
 import com.mauro.offlinefirst.data.mapper.SongMapper.toDomainList
 import com.mauro.offlinefirst.data.mapper.SongMapper.toEntity
 import com.mauro.offlinefirst.data.remote.RemoteDataSource
 import com.mauro.offlinefirst.domain.model.Album
+import com.mauro.offlinefirst.domain.model.Artist
 import com.mauro.offlinefirst.domain.model.Song
 import com.mauro.offlinefirst.domain.repository.SongRepository
 import kotlinx.coroutines.flow.Flow
@@ -27,6 +29,19 @@ class SongRepositoryImpl @Inject constructor(
             .observeChartSongs()
             .map { entities -> Result.success(entities.toDomainList()) }
             .catch { exception -> emit(Result.failure(exception)) }
+    }
+
+    override fun observeArtists(): Flow<List<Artist>> {
+        return songDao
+            .observeChartSongs()
+            .map { entities ->
+                entities
+                    .asSequence()
+                    .filter { it.artistId.isNotBlank() }
+                    .distinctBy { it.artistId }
+                    .map { it.toArtist() }
+                    .toList()
+            }
     }
 
     override fun observeSongById(songId: String): Flow<Song?> {
@@ -106,5 +121,11 @@ class SongRepositoryImpl @Inject constructor(
         }
         songDao.upsertSongs(entities)
         return entities.map { it.toDomain() }
+    }
+
+    override suspend fun fetchArtistTopTracks(artistId: String): List<Song> {
+        return remoteDataSource.fetchArtistTopTracks(artistId).map { dto ->
+            dto.toEntity(isFromChart = false).toDomain()
+        }
     }
 }

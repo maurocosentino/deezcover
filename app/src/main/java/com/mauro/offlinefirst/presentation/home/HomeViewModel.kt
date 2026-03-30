@@ -27,6 +27,7 @@ class HomeViewModel @Inject constructor(
 
     init {
         observeSongs()
+        observeArtists()
         observeAlbums()
         syncSongs()
         syncAlbums()
@@ -83,7 +84,11 @@ class HomeViewModel @Inject constructor(
                 result.fold(
                     onSuccess = { songs ->
                         _uiState.update {
-                            it.copy(songs = songs, isLoading = false, errorMessage = null)
+                            it.copy(
+                                songs = songs,
+                                isLoading = false,
+                                errorMessage = null
+                            )
                         }
                     },
                     onFailure = { exception ->
@@ -92,6 +97,14 @@ class HomeViewModel @Inject constructor(
                         }
                     }
                 )
+            }
+        }
+    }
+
+    private fun observeArtists() {
+        viewModelScope.launch {
+            songRepository.observeArtists().collect { artists ->
+                _uiState.update { it.copy(topArtists = artists) }
             }
         }
     }
