@@ -13,6 +13,7 @@ data class AlbumDetailUiState(
     val albumSongs: List<Song> = emptyList(),
     val currentAlbumPlayingId: String? = null,
     val albumPlayerState: PlayerState = PlayerState.IDLE,
+    val albumType: String = "Álbum",
     val albumReleaseDate: String = ""
 )
 

@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
@@ -108,6 +109,7 @@ class AlbumDetailViewModel @Inject constructor(
                         albumSongs = songs,
                         albumTotalDurationMs = albumTotalDurationMs,
                         isAlbumLoading = false,
+                        albumType = albumDetail.recordType.toAlbumType(),
                         albumReleaseDate = albumDetail.releaseDate
                     )
                 }
@@ -122,5 +124,20 @@ class AlbumDetailViewModel @Inject constructor(
     }
 
     override fun onCleared() {
+    }
+}
+
+private fun String?.toAlbumType(): String {
+    val normalizedType = this?.trim()?.lowercase(Locale.getDefault()).orEmpty()
+    return when {
+        normalizedType.isEmpty() -> "Álbum"
+        normalizedType == "album" -> "Álbum"
+        else -> normalizedType.replaceFirstChar { char ->
+            if (char.isLowerCase()) {
+                char.titlecase(Locale.getDefault())
+            } else {
+                char.toString()
+            }
+        }
     }
 }

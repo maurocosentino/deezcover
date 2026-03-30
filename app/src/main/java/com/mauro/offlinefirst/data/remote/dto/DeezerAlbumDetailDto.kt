@@ -6,6 +6,7 @@ data class DeezerAlbumDetailDto(
     @SerializedName("id") val id: Long,
     @SerializedName("title") val title: String,
     @SerializedName("release_date") val releaseDate: String,
+    @SerializedName("record_type") val recordType: String? = null,
     @SerializedName("artist") val artist: DeezerAlbumArtistDto
 )
 data class DeezerAlbumArtistDto(

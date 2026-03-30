@@ -176,7 +176,7 @@ fun AlbumDetailScreen(
                                     color = Color.White.copy(alpha = 0.4f)
                                 )
                                 Text(
-                                    text = uiState.albumReleaseDate,
+                                    text = "${uiState.albumType} • ${uiState.albumReleaseDate}",
                                     style = MaterialTheme.typography.bodySmall.copy(
                                         color = Color.White.copy(alpha = 0.5f)
                                     )
