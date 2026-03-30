@@ -54,7 +54,7 @@ private val GradientBottom = Color(0xFF000715)
 @Composable
 fun AlbumDetailScreen(
     onNavigateBack: () -> Unit,
-    viewModel: SongDetailViewModel = hiltViewModel()
+    viewModel: AlbumDetailViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val song = uiState.song

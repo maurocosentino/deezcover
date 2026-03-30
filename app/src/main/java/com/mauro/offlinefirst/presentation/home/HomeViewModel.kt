@@ -16,14 +16,14 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SongListViewModel @Inject constructor(
+class HomeViewModel @Inject constructor(
     private val songRepository: SongRepository,
     private val networkStatusDataSource: NetworkStatusDataSource,
     private val playerManager: PlayerManager
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(SongListUiState())
-    val uiState: StateFlow<SongListUiState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(HomeUiState())
+    val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
     init {
         observeSongs()

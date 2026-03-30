@@ -2,7 +2,7 @@ package com.mauro.offlinefirst.presentation.albumdetail
 
 import com.mauro.offlinefirst.domain.model.Song
 
-data class SongDetailUiState(
+data class AlbumDetailUiState(
     val song: Song? = null,
     val playerState: PlayerState = PlayerState.IDLE,
     val isConnected: Boolean = true,

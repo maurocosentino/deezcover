@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SongDetailViewModel @Inject constructor(
+class AlbumDetailViewModel @Inject constructor(
     private val songRepository: SongRepository,
     private val remoteDataSource: RemoteDataSource,
     savedStateHandle: SavedStateHandle,
@@ -29,8 +29,8 @@ class SongDetailViewModel @Inject constructor(
 
     private val songId: String = checkNotNull(savedStateHandle["songId"])
 
-    private val _uiState = MutableStateFlow(SongDetailUiState())
-    val uiState: StateFlow<SongDetailUiState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(AlbumDetailUiState())
+    val uiState: StateFlow<AlbumDetailUiState> = _uiState.asStateFlow()
 
     init {
         observeSong()

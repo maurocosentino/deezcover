@@ -4,7 +4,7 @@ import com.mauro.offlinefirst.domain.model.Album
 import com.mauro.offlinefirst.domain.model.Song
 import com.mauro.offlinefirst.presentation.albumdetail.PlayerState
 
-data class SongListUiState(
+data class HomeUiState(
     val songs: List<Song> = emptyList(),
     val chartAlbums: List<Album> = emptyList(),
     val isLoading: Boolean = false,

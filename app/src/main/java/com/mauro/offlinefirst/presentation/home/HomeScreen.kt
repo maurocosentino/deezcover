@@ -67,7 +67,7 @@ private val GradientBottom = Color(0xFF000715)
 fun HomeScreen(
     onSongClick: (String) -> Unit,
     onAlbumClick: (String) -> Unit,
-    viewModel: SongListViewModel = hiltViewModel()
+    viewModel: HomeViewModel = hiltViewModel()
 ) {
     val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
     LaunchedEffect(lifecycleOwner) {
