@@ -6,6 +6,12 @@ import com.mauro.offlinefirst.data.mapper.ArtistMapper.bestImageUrl
 import com.mauro.offlinefirst.domain.model.Song
 
 object SongMapper {
+    private fun com.mauro.offlinefirst.data.remote.dto.DeezerAlbumDto.bestCoverUrl(): String {
+        return listOf(coverXl, coverBig, coverMedium, coverSmall)
+            .firstOrNull { !it.isNullOrBlank() }
+            .orEmpty()
+    }
+
     fun SongEntity.toDomain(): Song = Song(
         id = id,
         title = title,
@@ -32,7 +38,7 @@ object SongMapper {
         lastUpdated = System.currentTimeMillis(),
         deezerUrl = link,
         previewUrl = previewUrl,
-        albumArt = albumArt?.coverMedium ?: "",
+        albumArt = albumArt?.bestCoverUrl().orEmpty(),
         albumTitle = albumArt?.albumTitle ?: "",
         albumId = albumArt?.albumId?.toString() ?: "",
         artistImageUrl = artist.bestImageUrl()

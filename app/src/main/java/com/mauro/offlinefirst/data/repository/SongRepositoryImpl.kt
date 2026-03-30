@@ -26,6 +26,12 @@ class SongRepositoryImpl @Inject constructor(
     private val remoteDataSource: RemoteDataSource
 ) : SongRepository {
 
+    private fun com.mauro.offlinefirst.data.remote.dto.AlbumDto.bestCoverUrl(): String {
+        return listOf(coverXl, coverBig, coverMedium, coverSmall)
+            .firstOrNull { !it.isNullOrBlank() }
+            .orEmpty()
+    }
+
     override fun observeSongs(): Flow<Result<List<Song>>> {
         return songDao
             .observeChartSongs()
@@ -88,7 +94,7 @@ class SongRepositoryImpl @Inject constructor(
                     id = it.id.toString(),
                     title = it.title,
                     artist = it.artist.name,
-                    coverUrl = it.coverMedium
+                    coverUrl = it.bestCoverUrl()
                 )
             }
             albumDao.upsertAlbums(entities)
@@ -103,7 +109,7 @@ class SongRepositoryImpl @Inject constructor(
                 id = dto.id.toString(),
                 title = dto.title,
                 artist = dto.artist.name,
-                coverUrl = dto.coverMedium
+                coverUrl = dto.bestCoverUrl()
             )
         }
     }
