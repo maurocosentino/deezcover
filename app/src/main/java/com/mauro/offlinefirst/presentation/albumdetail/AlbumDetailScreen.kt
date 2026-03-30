@@ -1,4 +1,4 @@
-package com.mauro.offlinefirst.presentation.songdetail
+package com.mauro.offlinefirst.presentation.albumdetail
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -43,8 +43,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
-import com.mauro.offlinefirst.presentation.songdetail.components.AlbumSongItem
-import com.mauro.offlinefirst.presentation.songdetail.components.DeezerButton
+import com.mauro.offlinefirst.presentation.albumdetail.components.AlbumSongItem
+import com.mauro.offlinefirst.presentation.albumdetail.components.DeezerButton
 
 private val GradientTop = Color(0xFF01051C)
 private val GradientMiddle = Color(0xFF000000)

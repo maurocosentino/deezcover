@@ -1,4 +1,4 @@
-package com.mauro.offlinefirst.presentation.songlist
+package com.mauro.offlinefirst.presentation.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -6,7 +6,7 @@ import com.mauro.offlinefirst.data.network.NetworkStatusDataSource
 import com.mauro.offlinefirst.data.player.PlayerManager
 import com.mauro.offlinefirst.domain.model.Song
 import com.mauro.offlinefirst.domain.repository.SongRepository
-import com.mauro.offlinefirst.presentation.songdetail.PlayerState
+import com.mauro.offlinefirst.presentation.albumdetail.PlayerState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

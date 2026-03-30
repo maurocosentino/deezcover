@@ -1,8 +1,8 @@
-package com.mauro.offlinefirst.presentation.songlist
+package com.mauro.offlinefirst.presentation.home
 
 import com.mauro.offlinefirst.domain.model.Album
 import com.mauro.offlinefirst.domain.model.Song
-import com.mauro.offlinefirst.presentation.songdetail.PlayerState
+import com.mauro.offlinefirst.presentation.albumdetail.PlayerState
 
 data class SongListUiState(
     val songs: List<Song> = emptyList(),

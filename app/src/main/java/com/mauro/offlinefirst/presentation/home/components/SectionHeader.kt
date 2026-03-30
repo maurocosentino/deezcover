@@ -1,4 +1,4 @@
-package com.mauro.offlinefirst.presentation.songlist.components
+package com.mauro.offlinefirst.presentation.home.components
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text

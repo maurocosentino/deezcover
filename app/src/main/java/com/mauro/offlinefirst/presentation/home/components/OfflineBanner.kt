@@ -1,4 +1,4 @@
-package com.mauro.offlinefirst.presentation.songlist.components
+package com.mauro.offlinefirst.presentation.home.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row

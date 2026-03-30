@@ -1,4 +1,4 @@
-package com.mauro.offlinefirst.presentation.songdetail.components
+package com.mauro.offlinefirst.presentation.albumdetail.components
 
 import android.content.Intent
 import android.net.Uri

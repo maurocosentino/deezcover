@@ -1,4 +1,4 @@
-package com.mauro.offlinefirst.presentation.songdetail.components
+package com.mauro.offlinefirst.presentation.albumdetail.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -25,7 +25,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mauro.offlinefirst.domain.model.Song
-import com.mauro.offlinefirst.presentation.songdetail.PlayerState
+import com.mauro.offlinefirst.presentation.albumdetail.PlayerState
 
 private val AccentCyan = Color(0xFF00C8FF)
 

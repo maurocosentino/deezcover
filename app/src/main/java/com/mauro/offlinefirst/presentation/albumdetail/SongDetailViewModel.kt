@@ -1,4 +1,4 @@
-package com.mauro.offlinefirst.presentation.songdetail
+package com.mauro.offlinefirst.presentation.albumdetail
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel

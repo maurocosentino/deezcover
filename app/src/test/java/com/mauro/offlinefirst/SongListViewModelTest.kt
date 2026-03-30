@@ -4,7 +4,7 @@ import app.cash.turbine.test
 import com.mauro.offlinefirst.data.network.NetworkStatusDataSource
 import com.mauro.offlinefirst.domain.model.Song
 import com.mauro.offlinefirst.domain.repository.SongRepository
-import com.mauro.offlinefirst.presentation.songlist.SongListViewModel
+import com.mauro.offlinefirst.presentation.home.SongListViewModel
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk

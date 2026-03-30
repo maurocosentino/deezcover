@@ -1,4 +1,4 @@
-package com.mauro.offlinefirst.presentation.songdetail
+package com.mauro.offlinefirst.presentation.albumdetail
 
 import com.mauro.offlinefirst.domain.model.Song
 

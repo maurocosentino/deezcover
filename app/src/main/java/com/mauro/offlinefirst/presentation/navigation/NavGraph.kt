@@ -11,8 +11,8 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.mauro.offlinefirst.presentation.songdetail.AlbumDetailScreen
-import com.mauro.offlinefirst.presentation.songlist.HomeScreen
+import com.mauro.offlinefirst.presentation.albumdetail.AlbumDetailScreen
+import com.mauro.offlinefirst.presentation.home.HomeScreen
 
 @Composable
 fun NavGraph(navController: NavHostController) {

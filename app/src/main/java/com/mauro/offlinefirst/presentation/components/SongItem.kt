@@ -33,7 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.mauro.offlinefirst.domain.model.Song
-import com.mauro.offlinefirst.presentation.songdetail.PlayerState
+import com.mauro.offlinefirst.presentation.albumdetail.PlayerState
 
 private val AccentCyan = Color(0xFF00C8FF)
 

@@ -1,4 +1,4 @@
-package com.mauro.offlinefirst.presentation.songlist
+package com.mauro.offlinefirst.presentation.home
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.LinearEasing
@@ -52,11 +52,11 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
-import com.mauro.offlinefirst.presentation.songlist.components.EmptyState
-import com.mauro.offlinefirst.presentation.songlist.components.OfflineBanner
-import com.mauro.offlinefirst.presentation.songlist.components.SearchBar
-import com.mauro.offlinefirst.presentation.songlist.components.TopAlbumsSection
-import com.mauro.offlinefirst.presentation.songlist.components.topTracksSection
+import com.mauro.offlinefirst.presentation.home.components.EmptyState
+import com.mauro.offlinefirst.presentation.home.components.OfflineBanner
+import com.mauro.offlinefirst.presentation.home.components.SearchBar
+import com.mauro.offlinefirst.presentation.home.components.TopAlbumsSection
+import com.mauro.offlinefirst.presentation.home.components.topTracksSection
 
 private val GradientTop    = Color(0xFF000000)
 private val GradientMiddle = Color(0xFF000409)

@@ -1,4 +1,4 @@
-package com.mauro.offlinefirst.presentation.songlist.components
+package com.mauro.offlinefirst.presentation.home.components
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mauro.offlinefirst.domain.model.Song
 import com.mauro.offlinefirst.presentation.components.SongItem
-import com.mauro.offlinefirst.presentation.songdetail.PlayerState
+import com.mauro.offlinefirst.presentation.albumdetail.PlayerState
 
 fun LazyListScope.topTracksSection(
     songs: List<Song>,
