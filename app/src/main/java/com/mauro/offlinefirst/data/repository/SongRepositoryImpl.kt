@@ -13,7 +13,7 @@ import com.mauro.offlinefirst.data.mapper.SongMapper.toEntity
 import com.mauro.offlinefirst.data.remote.RemoteDataSource
 import com.mauro.offlinefirst.domain.model.Album
 import com.mauro.offlinefirst.domain.model.Artist
-import com.mauro.offlinefirst.domain.model.SearchResults
+import com.mauro.offlinefirst.domain.model.SearchResult
 import com.mauro.offlinefirst.domain.model.Song
 import com.mauro.offlinefirst.domain.repository.SongRepository
 import kotlinx.coroutines.flow.Flow
@@ -146,9 +146,9 @@ class SongRepositoryImpl @Inject constructor(
         return remoteDataSource.fetchArtistDetail(artistId).toDomain()
     }
 
-    override suspend fun search(query: String): SearchResults {
+    override suspend fun search(query: String): SearchResult {
         val trimmedQuery = query.trim()
-        if (trimmedQuery.isBlank()) return SearchResults()
+        if (trimmedQuery.isBlank()) return SearchResult()
 
         val tracks = remoteDataSource.searchTracks(query = trimmedQuery, limit = 20)
             .map { dto -> dto.toEntity(isFromChart = false).toDomain() }
@@ -157,7 +157,7 @@ class SongRepositoryImpl @Inject constructor(
         val artists = remoteDataSource.searchArtists(query = trimmedQuery, limit = 5)
             .map { dto -> dto.toDomain() }
 
-        return SearchResults(
+        return SearchResult(
             tracks = tracks,
             albums = albums,
             artists = artists
