@@ -4,6 +4,7 @@ import app.cash.turbine.test
 import com.mauro.offlinefirst.data.network.NetworkStatusDataSource
 import com.mauro.offlinefirst.data.player.AudioPlayerState
 import com.mauro.offlinefirst.data.player.PlayerManager
+import com.mauro.offlinefirst.domain.model.SearchResults
 import com.mauro.offlinefirst.domain.model.Song
 import com.mauro.offlinefirst.domain.repository.SongRepository
 import com.mauro.offlinefirst.presentation.home.HomeViewModel
@@ -53,8 +54,14 @@ class HomeViewModelTest {
         viewModel = HomeViewModel(songRepository, networkStatusDataSource, playerManager)
     }
 
+    private fun stubCommonRepositoryState() {
+        every { songRepository.observeArtists() } returns flowOf(emptyList())
+        coEvery { songRepository.search(any()) } returns SearchResults()
+    }
+
     @Test
     fun `initial state finishes loading when repository emits empty list`() = runTest {
+        stubCommonRepositoryState()
         every { songRepository.observeSongs() } returns flowOf(Result.success(emptyList()))
         every { songRepository.observeAlbums() } returns flowOf(emptyList())
         coEvery { songRepository.syncSongs() } returns Unit
@@ -74,11 +81,13 @@ class HomeViewModelTest {
 
     @Test
     fun `songs are updated when repository emits data`() = runTest {
+        stubCommonRepositoryState()
         val songs = listOf(
             Song(
                 id = "1",
                 title = "Who",
                 artist = "Jimin",
+                artistId = "42",
                 albumTitle = "Muse",
                 albumArt = "https://cover.url",
                 durationMs = 170000L,
@@ -108,6 +117,7 @@ class HomeViewModelTest {
 
     @Test
     fun `errorMessage is set when repository emits failure`() = runTest {
+        stubCommonRepositoryState()
         every { songRepository.observeSongs() } returns flowOf(
             Result.failure(Exception("Network error"))
         )
@@ -128,6 +138,7 @@ class HomeViewModelTest {
 
     @Test
     fun `isConnected updates when network status changes`() = runTest {
+        stubCommonRepositoryState()
         every { songRepository.observeSongs() } returns flowOf(Result.success(emptyList()))
         every { songRepository.observeAlbums() } returns flowOf(emptyList())
         coEvery { songRepository.syncSongs() } returns Unit

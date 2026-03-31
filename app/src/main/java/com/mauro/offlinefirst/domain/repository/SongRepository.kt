@@ -1,5 +1,6 @@
 package com.mauro.offlinefirst.domain.repository
 
+import android.app.appsearch.SearchResults
 import com.mauro.offlinefirst.data.local.entity.SongEntity
 import com.mauro.offlinefirst.domain.model.Album
 import com.mauro.offlinefirst.domain.model.Artist
@@ -19,4 +20,5 @@ interface SongRepository {
     suspend fun fetchAlbumTracks(albumId: String, albumArt: String, albumTitle: String): List<Song>
     suspend fun fetchArtistTopTracks(artistId: String): List<Song>
     suspend fun fetchArtistDetail(artistId: String): Artist
+    suspend fun search(query: String): SearchResults
 }

@@ -80,6 +80,7 @@ class SongMapperTest {
             id = "1",
             title = "Who",
             artist = "Jimin",
+            artistId = "42",
             albumTitle = "Muse",
             albumArt = "https://cover.url",
             durationMs = 170000L,
