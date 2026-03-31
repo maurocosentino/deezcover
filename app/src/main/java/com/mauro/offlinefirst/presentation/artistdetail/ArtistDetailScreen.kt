@@ -38,8 +38,8 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -64,13 +64,15 @@ fun ArtistDetailScreen(
     viewModel: ArtistDetailViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val heroHeight = LocalConfiguration.current.screenHeightDp.dp * 0.52f
+    val density = LocalDensity.current
+    val heroHeight = with(LocalWindowInfo.current.containerSize) {
+        with(density) { height.toDp() * 0.52f }
+    }
     val deezerUrl = rememberArtistDeezerUrl(uiState.artistId)
     val listState = rememberLazyListState()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
         rememberTopAppBarState()
     )
-    val density = LocalDensity.current
     val collapseThresholdPx = remember(heroHeight, density) {
         with(density) {
             maxOf(120.dp.toPx(), heroHeight.toPx() - 140.dp.toPx())
@@ -79,7 +81,7 @@ fun ArtistDetailScreen(
     val isCollapsed by remember(listState, collapseThresholdPx) {
         derivedStateOf {
             listState.firstVisibleItemIndex > 0 ||
-                listState.firstVisibleItemScrollOffset > collapseThresholdPx
+                    listState.firstVisibleItemScrollOffset > collapseThresholdPx
         }
     }
     val stickyTitleAlpha by animateFloatAsState(
@@ -164,7 +166,7 @@ fun ArtistDetailScreen(
                             )
                         )
                     }
-                ) {
+                ) { _ ->
                     LazyColumn(
                         state = listState,
                         modifier = Modifier.fillMaxSize()

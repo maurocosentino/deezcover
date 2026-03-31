@@ -1,5 +1,7 @@
 package com.mauro.offlinefirst.presentation.albumdetail
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -53,6 +55,7 @@ private val GradientTop = Color(0xFF01051C)
 private val GradientMiddle = Color(0xFF000000)
 private val GradientBottom = Color(0xFF000715)
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AlbumDetailScreen(
@@ -62,6 +65,7 @@ fun AlbumDetailScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val song = uiState.song
+    val albumDeezerUrl = rememberAlbumDeezerUrl(song?.albumId.orEmpty())
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
         rememberTopAppBarState()
     )
@@ -187,9 +191,9 @@ fun AlbumDetailScreen(
                         }
                     }
 
-                    if (currentSong.deezerUrl.isNotEmpty()) {
+                    if (albumDeezerUrl.isNotEmpty()) {
                         DeezerButton(
-                            url = currentSong.deezerUrl,
+                            url = albumDeezerUrl,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(horizontal = 16.dp)
@@ -274,6 +278,9 @@ fun AlbumDetailScreen(
         }
     }
 }
+
+private fun rememberAlbumDeezerUrl(albumId: String): String =
+    albumId.takeIf { it.isNotBlank() }?.let { "https://www.deezer.com/album/$it" }.orEmpty()
 
 private fun formatAlbumDuration(durationMs: Long): String {
     val totalMinutes = durationMs / 1000 / 60

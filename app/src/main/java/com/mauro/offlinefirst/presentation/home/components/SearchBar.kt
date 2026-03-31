@@ -42,6 +42,7 @@ fun SearchBar(
     totalSongsCount: Int,
     totalAlbumsCount: Int,
     totalArtistsCount: Int,
+    isConnected: Boolean,
     focusRequester: FocusRequester,
     modifier: Modifier = Modifier
 ) {
@@ -123,7 +124,7 @@ fun SearchBar(
                 )
             )
 
-            if (!isFocused && searchQuery.isBlank()) {
+            if (!isConnected && !isFocused && searchQuery.isBlank()) {
                 Text(
                     text = "Available now: $totalSongsCount tracks, $totalAlbumsCount albums, $totalArtistsCount artists",
                     style = MaterialTheme.typography.bodySmall,

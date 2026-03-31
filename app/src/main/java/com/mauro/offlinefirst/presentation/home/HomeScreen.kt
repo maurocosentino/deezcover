@@ -255,6 +255,7 @@ fun HomeScreen(
                                     totalSongsCount = uiState.songs.size,
                                     totalAlbumsCount = uiState.chartAlbums.size,
                                     totalArtistsCount = uiState.topArtists.size,
+                                    isConnected = uiState.isConnected,
                                     focusRequester = focusRequester
                                 )
                             }
