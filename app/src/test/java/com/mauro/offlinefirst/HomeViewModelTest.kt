@@ -4,7 +4,7 @@ import app.cash.turbine.test
 import com.mauro.offlinefirst.data.network.NetworkStatusDataSource
 import com.mauro.offlinefirst.data.player.AudioPlayerState
 import com.mauro.offlinefirst.data.player.PlayerManager
-import com.mauro.offlinefirst.domain.model.SearchResults
+import com.mauro.offlinefirst.domain.model.SearchResult
 import com.mauro.offlinefirst.domain.model.Song
 import com.mauro.offlinefirst.domain.repository.SongRepository
 import com.mauro.offlinefirst.presentation.home.HomeViewModel
@@ -56,7 +56,7 @@ class HomeViewModelTest {
 
     private fun stubCommonRepositoryState() {
         every { songRepository.observeArtists() } returns flowOf(emptyList())
-        coEvery { songRepository.search(any()) } returns SearchResults()
+        coEvery { songRepository.search(any()) } returns SearchResult()
     }
 
     @Test
