@@ -1,14 +1,13 @@
 package com.mauro.offlinefirst.presentation.home
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -45,6 +44,8 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -85,6 +86,15 @@ fun HomeScreen(
 
     val uiState by viewModel.uiState.collectAsState()
     val focusRequester = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val clearSearchFocus: () -> Unit = remember(focusManager, keyboardController) {
+        {
+            focusManager.clearFocus()
+            keyboardController?.hide()
+            Unit
+        }
+    }
 
     val hasSearchQuery = uiState.searchQuery.isNotBlank()
     val localTracks = uiState.localTracks
@@ -98,9 +108,12 @@ fun HomeScreen(
     val remoteResultsCount = remoteTracks.size + remoteAlbums.size + remoteArtists.size
     val showSearchEmptyState = hasSearchQuery &&
         !uiState.isSearchLoading &&
-        uiState.searchError == null &&
         localResultsCount == 0 &&
-        remoteResultsCount == 0
+        if (uiState.isConnected) {
+            uiState.searchError == null && remoteResultsCount == 0
+        } else {
+            true
+        }
 
     val infiniteTransition = rememberInfiniteTransition(label = "sync_rotation")
     val syncRotation by infiniteTransition.animateFloat(
@@ -113,6 +126,11 @@ fun HomeScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = clearSearchFocus
+            )
             .background(
                 Brush.verticalGradient(
                     colorStops = arrayOf(
@@ -193,16 +211,13 @@ fun HomeScreen(
                                 .fillMaxSize()
                                 .padding(paddingValues),
                             contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 24.dp),
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
                             item {
                                 Spacer(modifier = Modifier.height(8.dp))
                                 SearchBar(
                                     searchQuery = uiState.searchQuery,
                                     onSearchQueryChange = viewModel::onSearchQueryChange,
-                                    localTracksCount = localTracks.size,
-                                    localAlbumsCount = localAlbums.size,
-                                    localArtistsCount = localArtists.size,
                                     totalSongsCount = uiState.songs.size,
                                     totalAlbumsCount = uiState.chartAlbums.size,
                                     totalArtistsCount = uiState.topArtists.size,
@@ -210,64 +225,86 @@ fun HomeScreen(
                                 )
                             }
 
-                            item {
-                                AnimatedVisibility(
-                                    visible = !uiState.isConnected,
-                                    enter = fadeIn(),
-                                    exit = fadeOut()
-                                ) {
+                            if (!uiState.isConnected) {
+                                item {
                                     OfflineBanner()
                                 }
                             }
 
                             if (!showSearchEmptyState) {
-                                localResultsSection(
-                                    hasSearchQuery = hasSearchQuery,
-                                    tracks = localTracks,
-                                    albums = localAlbums,
-                                    artists = localArtists,
-                                    currentPlayingId = uiState.currentPlayingId,
-                                    totalDurationMs = uiState.totalDurationMs,
-                                    currentPositionMs = uiState.currentPositionMs,
-                                    playerState = uiState.listPlayerState,
-                                    onPlayClick = { song -> viewModel.togglePlayPause(song) },
-                                    onSongClick = { song -> onSongClick(song.id) },
-                                    onAlbumClick = { album ->
-                                        viewModel.navigateToAlbum(
-                                            albumId = album.id,
-                                            albumArt = album.coverUrl,
-                                            albumTitle = album.title,
-                                            onReady = onAlbumClick
-                                        )
-                                    },
-                                    onArtistClick = { artist ->
-                                        onArtistClick(artist.id, artist.name, artist.imageUrl)
-                                    }
-                                )
-
                                 if (hasSearchQuery) {
-                                    remoteResultsSection(
-                                        remoteTracks = remoteTracks,
-                                        remoteAlbums = remoteAlbums,
-                                        remoteArtists = remoteArtists,
-                                        isSearchLoading = uiState.isSearchLoading,
-                                        searchError = uiState.searchError,
+                                    if (uiState.isConnected) {
+                                        remoteResultsSection(
+                                            remoteTracks = remoteTracks,
+                                            remoteAlbums = remoteAlbums,
+                                            remoteArtists = remoteArtists,
+                                            isSearchLoading = uiState.isSearchLoading,
+                                            searchError = uiState.searchError,
+                                            currentPlayingId = uiState.currentPlayingId,
+                                            totalDurationMs = uiState.totalDurationMs,
+                                            currentPositionMs = uiState.currentPositionMs,
+                                            playerState = uiState.listPlayerState,
+                                            onRetry = viewModel::retrySearch,
+                                            onPlayClick = { song -> viewModel.togglePlayPause(song) },
+                                            onTrackClick = { song ->
+                                                if (song.albumId.isNotBlank()) {
+                                                    viewModel.navigateToAlbum(
+                                                        albumId = song.albumId,
+                                                        albumArt = song.albumArt,
+                                                        albumTitle = song.albumTitle,
+                                                        onReady = onAlbumClick
+                                                    )
+                                                }
+                                            },
+                                            onAlbumClick = { album ->
+                                                viewModel.navigateToAlbum(
+                                                    albumId = album.id,
+                                                    albumArt = album.coverUrl,
+                                                    albumTitle = album.title,
+                                                    onReady = onAlbumClick
+                                                )
+                                            },
+                                            onArtistClick = { artist ->
+                                                onArtistClick(artist.id, artist.name, artist.imageUrl)
+                                            }
+                                        )
+                                    } else {
+                                        localResultsSection(
+                                            hasSearchQuery = true,
+                                            tracks = localTracks,
+                                            albums = localAlbums,
+                                            artists = localArtists,
+                                            currentPlayingId = uiState.currentPlayingId,
+                                            totalDurationMs = uiState.totalDurationMs,
+                                            currentPositionMs = uiState.currentPositionMs,
+                                            playerState = uiState.listPlayerState,
+                                            onPlayClick = { song -> viewModel.togglePlayPause(song) },
+                                            onSongClick = { song -> onSongClick(song.id) },
+                                            onAlbumClick = { album ->
+                                                viewModel.navigateToAlbum(
+                                                    albumId = album.id,
+                                                    albumArt = album.coverUrl,
+                                                    albumTitle = album.title,
+                                                    onReady = onAlbumClick
+                                                )
+                                            },
+                                            onArtistClick = { artist ->
+                                                onArtistClick(artist.id, artist.name, artist.imageUrl)
+                                            }
+                                        )
+                                    }
+                                } else {
+                                    localResultsSection(
+                                        hasSearchQuery = false,
+                                        tracks = localTracks,
+                                        albums = localAlbums,
+                                        artists = localArtists,
                                         currentPlayingId = uiState.currentPlayingId,
                                         totalDurationMs = uiState.totalDurationMs,
                                         currentPositionMs = uiState.currentPositionMs,
                                         playerState = uiState.listPlayerState,
-                                        onRetry = viewModel::retrySearch,
                                         onPlayClick = { song -> viewModel.togglePlayPause(song) },
-                                        onTrackClick = { song ->
-                                            if (song.albumId.isNotBlank()) {
-                                                viewModel.navigateToAlbum(
-                                                    albumId = song.albumId,
-                                                    albumArt = song.albumArt,
-                                                    albumTitle = song.albumTitle,
-                                                    onReady = onAlbumClick
-                                                )
-                                            }
-                                        },
+                                        onSongClick = { song -> onSongClick(song.id) },
                                         onAlbumClick = { album ->
                                             viewModel.navigateToAlbum(
                                                 albumId = album.id,
@@ -339,7 +376,6 @@ private fun androidx.compose.foundation.lazy.LazyListScope.localResultsSection(
     if (tracks.isNotEmpty()) {
         topTracksSection(
             songs = tracks,
-            totalSongsCount = tracks.size,
             title = if (hasSearchQuery) "Tracks" else "Top Tracks",
             currentPlayingId = currentPlayingId,
             totalDurationMs = totalDurationMs,
@@ -368,10 +404,12 @@ private fun androidx.compose.foundation.lazy.LazyListScope.remoteResultsSection(
     onArtistClick: (Artist) -> Unit
 ) {
     item {
-        Spacer(modifier = Modifier.height(4.dp))
         HorizontalDivider(color = Color.White.copy(alpha = 0.08f))
-        Spacer(modifier = Modifier.height(12.dp))
-        SectionHeader(title = "Deezer Results")
+        Spacer(modifier = Modifier.height(4.dp))
+        SectionHeader(
+            title = "Deezer Results",
+            modifier = Modifier.padding(horizontal = 16.dp)
+        )
     }
 
     when {
@@ -436,7 +474,6 @@ private fun androidx.compose.foundation.lazy.LazyListScope.remoteResultsSection(
             if (remoteTracks.isNotEmpty()) {
                 topTracksSection(
                     songs = remoteTracks,
-                    totalSongsCount = remoteTracks.size,
                     title = "Tracks",
                     currentPlayingId = currentPlayingId,
                     totalDurationMs = totalDurationMs,
@@ -464,6 +501,10 @@ private fun SearchFeedbackState(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
+        SectionHeader(
+            title = "Deezer Results",
+            modifier = Modifier.padding(horizontal = 16.dp)
+        )
         if (loading) {
             CircularProgressIndicator(
                 modifier = Modifier.size(22.dp),
