@@ -172,7 +172,6 @@ fun ArtistDetailScreen(
 
                     topTracksSection(
                         songs = uiState.topTracks,
-                        totalSongsCount = uiState.topTracks.size,
                         title = "Top 10 tracks",
                         currentPlayingId = uiState.currentPlayingId,
                         totalDurationMs = uiState.totalDurationMs,
