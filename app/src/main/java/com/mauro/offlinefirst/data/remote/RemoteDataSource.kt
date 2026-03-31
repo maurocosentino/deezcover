@@ -29,4 +29,16 @@ class RemoteDataSource constructor(
     suspend fun fetchArtistDetail(artistId: String): DeezerArtistDto {
         return apiService.getArtistDetail(artistId)
     }
+
+    suspend fun searchTracks(query: String, limit: Int): List<SongDto> {
+        return apiService.searchTracks(query = query, limit = limit).tracks
+    }
+
+    suspend fun searchAlbums(query: String, limit: Int): List<AlbumDto> {
+        return apiService.searchAlbums(query = query, limit = limit).albums
+    }
+
+    suspend fun searchArtists(query: String, limit: Int): List<DeezerArtistDto> {
+        return apiService.searchArtists(query = query, limit = limit).artists
+    }
 }

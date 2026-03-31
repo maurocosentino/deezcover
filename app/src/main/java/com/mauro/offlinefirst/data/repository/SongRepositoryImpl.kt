@@ -13,6 +13,7 @@ import com.mauro.offlinefirst.data.mapper.SongMapper.toEntity
 import com.mauro.offlinefirst.data.remote.RemoteDataSource
 import com.mauro.offlinefirst.domain.model.Album
 import com.mauro.offlinefirst.domain.model.Artist
+import com.mauro.offlinefirst.domain.model.SearchResults
 import com.mauro.offlinefirst.domain.model.Song
 import com.mauro.offlinefirst.domain.repository.SongRepository
 import kotlinx.coroutines.flow.Flow
@@ -30,6 +31,15 @@ class SongRepositoryImpl @Inject constructor(
         return listOf(coverXl, coverBig, coverMedium, coverSmall)
             .firstOrNull { !it.isNullOrBlank() }
             .orEmpty()
+    }
+
+    private fun com.mauro.offlinefirst.data.remote.dto.AlbumDto.toDomain(): Album {
+        return Album(
+            id = id.toString(),
+            title = title,
+            artist = artist.name,
+            coverUrl = bestCoverUrl()
+        )
     }
 
     override fun observeSongs(): Flow<Result<List<Song>>> {
@@ -105,12 +115,7 @@ class SongRepositoryImpl @Inject constructor(
 
     override suspend fun fetchChartAlbums(): List<Album> {
         return remoteDataSource.fetchChartAlbums().map { dto ->
-            Album(
-                id = dto.id.toString(),
-                title = dto.title,
-                artist = dto.artist.name,
-                coverUrl = dto.bestCoverUrl()
-            )
+            dto.toDomain()
         }
     }
     override suspend fun fetchAlbumTracks(albumId: String, albumArt: String, albumTitle: String): List<Song> {
@@ -139,5 +144,23 @@ class SongRepositoryImpl @Inject constructor(
 
     override suspend fun fetchArtistDetail(artistId: String): Artist {
         return remoteDataSource.fetchArtistDetail(artistId).toDomain()
+    }
+
+    override suspend fun search(query: String): SearchResults {
+        val trimmedQuery = query.trim()
+        if (trimmedQuery.isBlank()) return SearchResults()
+
+        val tracks = remoteDataSource.searchTracks(query = trimmedQuery, limit = 20)
+            .map { dto -> dto.toEntity(isFromChart = false).toDomain() }
+        val albums = remoteDataSource.searchAlbums(query = trimmedQuery, limit = 10)
+            .map { dto -> dto.toDomain() }
+        val artists = remoteDataSource.searchArtists(query = trimmedQuery, limit = 5)
+            .map { dto -> dto.toDomain() }
+
+        return SearchResults(
+            tracks = tracks,
+            albums = albums,
+            artists = artists
+        )
     }
 }

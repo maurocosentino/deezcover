@@ -2,9 +2,11 @@ package com.mauro.offlinefirst.data.remote.api
 import com.mauro.offlinefirst.data.remote.dto.DeezerAlbumChartDto
 import com.mauro.offlinefirst.data.remote.dto.DeezerAlbumDetailDto
 import com.mauro.offlinefirst.data.remote.dto.DeezerArtistDto
+import com.mauro.offlinefirst.data.remote.dto.DeezerArtistSearchResponseDto
 import com.mauro.offlinefirst.data.remote.dto.DeezerChartResponseDto
 import retrofit2.http.GET
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface MusicApiService {
     @GET("chart/0/tracks")
@@ -32,4 +34,22 @@ interface MusicApiService {
     suspend fun getArtistDetail(
         @Path("artistId") artistId: String
     ): DeezerArtistDto
+
+    @GET("search")
+    suspend fun searchTracks(
+        @Query("q") query: String,
+        @Query("limit") limit: Int
+    ): DeezerChartResponseDto
+
+    @GET("search/album")
+    suspend fun searchAlbums(
+        @Query("q") query: String,
+        @Query("limit") limit: Int
+    ): DeezerAlbumChartDto
+
+    @GET("search/artist")
+    suspend fun searchArtists(
+        @Query("q") query: String,
+        @Query("limit") limit: Int
+    ): DeezerArtistSearchResponseDto
 }
