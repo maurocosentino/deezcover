@@ -1,9 +1,9 @@
 package com.mauro.offlinefirst.domain.repository
 
-import android.app.appsearch.SearchResults
 import com.mauro.offlinefirst.data.local.entity.SongEntity
 import com.mauro.offlinefirst.domain.model.Album
 import com.mauro.offlinefirst.domain.model.Artist
+import com.mauro.offlinefirst.domain.model.SearchResult
 import com.mauro.offlinefirst.domain.model.Song
 import kotlinx.coroutines.flow.Flow
 
@@ -20,5 +20,5 @@ interface SongRepository {
     suspend fun fetchAlbumTracks(albumId: String, albumArt: String, albumTitle: String): List<Song>
     suspend fun fetchArtistTopTracks(artistId: String): List<Song>
     suspend fun fetchArtistDetail(artistId: String): Artist
-    suspend fun search(query: String): SearchResults
+    suspend fun search(query: String): SearchResult
 }
