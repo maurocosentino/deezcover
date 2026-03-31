@@ -1,14 +1,8 @@
 package com.mauro.offlinefirst.presentation.home.components
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -24,32 +18,35 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import com.mauro.offlinefirst.presentation.components.formatSongCount
 
 private val SearchOverlay = Color(0xE6141822)
-private val SearchField = Color(0x6630394A)
+private val SearchField = Color(0x6611181F)
 private val SearchAccent = Color(0xFF00C8FF)
 
 @Composable
 fun SearchBar(
     searchQuery: String,
     onSearchQueryChange: (String) -> Unit,
-    localTracksCount: Int,
-    localAlbumsCount: Int,
-    localArtistsCount: Int,
     totalSongsCount: Int,
     totalAlbumsCount: Int,
     totalArtistsCount: Int,
     focusRequester: FocusRequester,
     modifier: Modifier = Modifier
 ) {
+    var isFocused by remember { mutableStateOf(false) }
+
     Surface(
         modifier = modifier.fillMaxWidth(),
         color = SearchOverlay,
@@ -82,6 +79,7 @@ fun SearchBar(
                 onValueChange = onSearchQueryChange,
                 modifier = Modifier
                     .fillMaxWidth()
+                    .onFocusChanged { isFocused = it.isFocused }
                     .focusRequester(focusRequester),
                 leadingIcon = {
                     Icon(
@@ -125,52 +123,13 @@ fun SearchBar(
                 )
             )
 
-            AnimatedContent(
-                targetState = searchQuery.isBlank(),
-                transitionSpec = { fadeIn(tween(180)) togetherWith fadeOut(tween(120)) },
-                label = "search_summary"
-            ) { isBlank ->
-                if (isBlank) {
-                    Text(
-                        text = "Available now: $totalSongsCount tracks, $totalAlbumsCount albums, $totalArtistsCount artists",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color.White.copy(alpha = 0.25f)
-                    )
-                } else {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        SearchStatChip(label = buildSongCountLabel(localTracksCount))
-                        SearchStatChip(label = buildAlbumCountLabel(localAlbumsCount))
-                        SearchStatChip(label = buildArtistCountLabel(localArtistsCount))
-                    }
-                }
+            if (!isFocused && searchQuery.isBlank()) {
+                Text(
+                    text = "Available now: $totalSongsCount tracks, $totalAlbumsCount albums, $totalArtistsCount artists",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.White.copy(alpha = 0.25f)
+                )
             }
         }
     }
 }
-
-@Composable
-private fun SearchStatChip(label: String) {
-    Surface(
-        color = Color.White.copy(alpha = 0.07f),
-        shape = RoundedCornerShape(16.dp)
-    ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodySmall,
-            color = Color.White.copy(alpha = 0.78f),
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
-        )
-    }
-}
-
-internal fun buildSongCountLabel(count: Int): String =
-    formatSongCount(count)
-
-internal fun buildAlbumCountLabel(count: Int): String =
-    if (count == 1) "1 álbum" else "$count álbumes"
-
-internal fun buildArtistCountLabel(count: Int): String =
-    if (count == 1) "1 artista" else "$count artistas"
