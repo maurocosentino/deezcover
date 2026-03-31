@@ -26,7 +26,8 @@ fun LazyListScope.topTracksSection(
     currentPositionMs: Long,
     playerState: PlayerState,
     onPlayClick: (Song) -> Unit,
-    onSongClick: (Song) -> Unit
+    onSongClick: (Song) -> Unit,
+    showNavigateAction: (Song) -> Boolean = { true }
 ) {
     item {
         TopTracksSectionHeader(
@@ -49,7 +50,8 @@ fun LazyListScope.topTracksSection(
             playerState = playerState,
             remainingSeconds = remainingSeconds,
             onPlayClick = { onPlayClick(song) },
-            onClick = { onSongClick(song) }
+            onClick = { onSongClick(song) },
+            showNavigateAction = showNavigateAction(song)
         )
     }
 }

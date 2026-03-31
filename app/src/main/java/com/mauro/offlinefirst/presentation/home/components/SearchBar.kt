@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import com.mauro.offlinefirst.presentation.components.formatSongCount
 
 private val SearchOverlay = Color(0xE6141822)
 private val SearchField = Color(0x6630394A)
@@ -58,7 +59,7 @@ fun SearchBar(
     ) {
         Column(
             modifier = Modifier
-                .background(SearchOverlay)
+                .background(Color(0xFF000000))
                 .padding(horizontal = 18.dp, vertical = 18.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
@@ -104,7 +105,7 @@ fun SearchBar(
                     Text(
                         text = "Search songs, artists...",
                         style = MaterialTheme.typography.bodyLarge,
-                        color = Color.White.copy(alpha = 0.5f)
+                        color = Color.White.copy(alpha = 0.2f)
                     )
                 },
                 singleLine = true,
@@ -133,7 +134,7 @@ fun SearchBar(
                     Text(
                         text = "Available now: $totalSongsCount tracks, $totalAlbumsCount albums, $totalArtistsCount artists",
                         style = MaterialTheme.typography.bodySmall,
-                        color = Color.White.copy(alpha = 0.48f)
+                        color = Color.White.copy(alpha = 0.25f)
                     )
                 } else {
                     Row(
@@ -166,7 +167,7 @@ private fun SearchStatChip(label: String) {
 }
 
 internal fun buildSongCountLabel(count: Int): String =
-    if (count == 1) "1 track" else "$count tracks"
+    formatSongCount(count)
 
 internal fun buildAlbumCountLabel(count: Int): String =
     if (count == 1) "1 álbum" else "$count álbumes"

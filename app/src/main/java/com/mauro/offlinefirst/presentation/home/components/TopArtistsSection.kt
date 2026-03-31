@@ -70,12 +70,12 @@ private fun ArtistStoryItem(
     Box(
         contentAlignment = Alignment.TopCenter,
         modifier = Modifier
-            .size(width = 84.dp, height = 112.dp)
+            .size(width = 92.dp, height = 122.dp)
             .clickable(onClick = onClick)
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             Surface(
                 shape = CircleShape,

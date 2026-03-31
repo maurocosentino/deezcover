@@ -46,6 +46,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.mauro.offlinefirst.presentation.albumdetail.components.AlbumSongItem
 import com.mauro.offlinefirst.presentation.albumdetail.components.DeezerButton
+import com.mauro.offlinefirst.presentation.components.formatSongCount
 
 private val GradientTop = Color(0xFF01051C)
 private val GradientMiddle = Color(0xFF000000)
@@ -249,7 +250,7 @@ fun AlbumDetailScreen(
                                 if (uiState.albumTotalDurationMs > 0) {
                                     Spacer(modifier = Modifier.height(16.dp))
                                     Text(
-                                        text = "${uiState.albumSongs.size} canciones • ${formatAlbumDuration(uiState.albumTotalDurationMs)}",
+                                        text = "${formatSongCount(uiState.albumSongs.size)} • ${formatAlbumDuration(uiState.albumTotalDurationMs)}",
                                         style = MaterialTheme.typography.bodySmall,
                                         color = Color.White.copy(alpha = 0.4f),
                                         modifier = Modifier.padding(bottom = 24.dp)
