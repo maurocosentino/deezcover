@@ -90,4 +90,24 @@ class ArtistDetailViewModel @Inject constructor(
     fun togglePlayPause(song: Song) {
         playerManager.play(song.id, song.previewUrl)
     }
+
+    fun navigateToAlbum(song: Song, onReady: (String) -> Unit) {
+        if (song.albumId.isBlank()) return
+
+        viewModelScope.launch {
+            try {
+                val tracks = songRepository.fetchAlbumTracks(
+                    albumId = song.albumId,
+                    albumArt = song.albumArt,
+                    albumTitle = song.albumTitle
+                )
+                val targetSongId = tracks.firstOrNull()?.id?.takeIf { it.isNotBlank() }
+                if (targetSongId != null) {
+                    onReady(targetSongId)
+                }
+            } catch (exception: Exception) {
+                exception.printStackTrace()
+            }
+        }
+    }
 }
