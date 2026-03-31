@@ -4,17 +4,27 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mauro.offlinefirst.data.network.NetworkStatusDataSource
 import com.mauro.offlinefirst.data.player.PlayerManager
+import com.mauro.offlinefirst.domain.model.Album
+import com.mauro.offlinefirst.domain.model.Artist
 import com.mauro.offlinefirst.domain.model.Song
 import com.mauro.offlinefirst.domain.repository.SongRepository
 import com.mauro.offlinefirst.presentation.albumdetail.PlayerState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+private const val SEARCH_DEBOUNCE_MS = 300L
+
+@OptIn(FlowPreview::class)
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val songRepository: SongRepository,
@@ -29,6 +39,7 @@ class HomeViewModel @Inject constructor(
         observeSongs()
         observeArtists()
         observeAlbums()
+        observeSearchQuery()
         syncSongs()
         syncAlbums()
         observeConnectivity()
@@ -57,6 +68,22 @@ class HomeViewModel @Inject constructor(
         playerManager.play(song.id, song.previewUrl)
     }
 
+    fun onSearchQueryChange(query: String) {
+        _uiState.update { current ->
+            current.copy(searchQuery = query)
+        }
+        refreshLocalSearchResults()
+    }
+
+    fun retrySearch() {
+        val query = _uiState.value.searchQuery
+        if (query.isBlank()) return
+
+        viewModelScope.launch {
+            runRemoteSearch(query)
+        }
+    }
+
     fun syncIfNeeded() {
         viewModelScope.launch {
             if (songRepository.shouldSync()) songRepository.syncSongs()
@@ -72,8 +99,96 @@ class HomeViewModel @Inject constructor(
                 if (isConnected && wasOffline) {
                     syncSongs()
                     syncAlbums()
+                    retrySearch()
                 }
             }
+        }
+    }
+
+    private fun observeSearchQuery() {
+        viewModelScope.launch {
+            uiState
+                .map { it.searchQuery.trim() }
+                .debounce(SEARCH_DEBOUNCE_MS)
+                .distinctUntilChanged()
+                .collectLatest { query ->
+                    runRemoteSearch(query)
+                }
+        }
+    }
+
+    private suspend fun runRemoteSearch(query: String) {
+        if (query.isBlank()) {
+            _uiState.update {
+                it.copy(
+                    remoteTracks = emptyList(),
+                    remoteAlbums = emptyList(),
+                    remoteArtists = emptyList(),
+                    isSearchLoading = false,
+                    searchError = null
+                )
+            }
+            return
+        }
+
+        if (!_uiState.value.isConnected) {
+            _uiState.update {
+                it.copy(
+                    remoteTracks = emptyList(),
+                    remoteAlbums = emptyList(),
+                    remoteArtists = emptyList(),
+                    isSearchLoading = false,
+                    searchError = "Sin conexión para buscar en Deezer"
+                )
+            }
+            return
+        }
+
+        _uiState.update {
+            it.copy(
+                isSearchLoading = true,
+                searchError = null,
+                remoteTracks = emptyList(),
+                remoteAlbums = emptyList(),
+                remoteArtists = emptyList()
+            )
+        }
+
+        runCatching { songRepository.search(query) }
+            .onSuccess { results ->
+                _uiState.update {
+                    it.copy(
+                        remoteTracks = results.tracks,
+                        remoteAlbums = results.albums,
+                        remoteArtists = results.artists,
+                        isSearchLoading = false,
+                        searchError = null
+                    )
+                }
+            }
+            .onFailure { exception ->
+                _uiState.update {
+                    it.copy(
+                        remoteTracks = emptyList(),
+                        remoteAlbums = emptyList(),
+                        remoteArtists = emptyList(),
+                        isSearchLoading = false,
+                        searchError = exception.message ?: "No se pudo buscar en Deezer"
+                    )
+                }
+            }
+    }
+
+    private fun refreshLocalSearchResults() {
+        val currentState = _uiState.value
+        val query = currentState.searchQuery.trim()
+
+        _uiState.update {
+            it.copy(
+                localTracks = filterSongs(currentState.songs, query),
+                localAlbums = filterAlbums(currentState.chartAlbums, query),
+                localArtists = filterArtists(currentState.topArtists, query)
+            )
         }
     }
 
@@ -90,6 +205,7 @@ class HomeViewModel @Inject constructor(
                                 errorMessage = null
                             )
                         }
+                        refreshLocalSearchResults()
                     },
                     onFailure = { exception ->
                         _uiState.update {
@@ -105,6 +221,7 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             songRepository.observeArtists().collect { artists ->
                 _uiState.update { it.copy(topArtists = artists) }
+                refreshLocalSearchResults()
             }
         }
     }
@@ -120,6 +237,7 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             songRepository.observeAlbums().collect { albums ->
                 _uiState.update { it.copy(chartAlbums = albums, isAlbumsLoading = false) }
+                refreshLocalSearchResults()
             }
         }
     }
@@ -145,5 +263,28 @@ class HomeViewModel @Inject constructor(
 
     override fun onCleared() {
         super.onCleared()
+    }
+}
+
+private fun filterSongs(songs: List<Song>, query: String): List<Song> {
+    if (query.isBlank()) return songs
+    return songs.filter { song ->
+        song.title.contains(query, ignoreCase = true) ||
+            song.artist.contains(query, ignoreCase = true)
+    }
+}
+
+private fun filterAlbums(albums: List<Album>, query: String): List<Album> {
+    if (query.isBlank()) return albums
+    return albums.filter { album ->
+        album.title.contains(query, ignoreCase = true) ||
+            album.artist.contains(query, ignoreCase = true)
+    }
+}
+
+private fun filterArtists(artists: List<Artist>, query: String): List<Artist> {
+    if (query.isBlank()) return artists
+    return artists.filter { artist ->
+        artist.name.contains(query, ignoreCase = true)
     }
 }
