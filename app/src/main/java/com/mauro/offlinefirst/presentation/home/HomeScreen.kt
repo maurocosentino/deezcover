@@ -9,6 +9,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -23,6 +24,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Sync
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -36,9 +38,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -52,14 +52,19 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
+import com.mauro.offlinefirst.domain.model.Album
+import com.mauro.offlinefirst.domain.model.Artist
+import com.mauro.offlinefirst.domain.model.Song
+import com.mauro.offlinefirst.presentation.albumdetail.PlayerState
 import com.mauro.offlinefirst.presentation.home.components.EmptyState
 import com.mauro.offlinefirst.presentation.home.components.OfflineBanner
 import com.mauro.offlinefirst.presentation.home.components.SearchBar
+import com.mauro.offlinefirst.presentation.home.components.SectionHeader
 import com.mauro.offlinefirst.presentation.home.components.TopAlbumsSection
 import com.mauro.offlinefirst.presentation.home.components.TopArtistsSection
 import com.mauro.offlinefirst.presentation.home.components.topTracksSection
 
-private val GradientTop    = Color(0xFF000000)
+private val GradientTop = Color(0xFF000000)
 private val GradientMiddle = Color(0xFF000409)
 private val GradientBottom = Color(0xFF000715)
 
@@ -79,47 +84,31 @@ fun HomeScreen(
     }
 
     val uiState by viewModel.uiState.collectAsState()
-    var searchQuery  by remember { mutableStateOf("") }
-    var searchActive by remember { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
 
+    val hasSearchQuery = uiState.searchQuery.isNotBlank()
+    val localTracks = uiState.localTracks
+    val localAlbums = uiState.localAlbums
+    val localArtists = uiState.localArtists
+    val remoteTracks = uiState.remoteTracks
+    val remoteAlbums = uiState.remoteAlbums
+    val remoteArtists = uiState.remoteArtists
 
-    val filteredSongs = remember(uiState.songs, searchQuery) {
-        if (searchQuery.isBlank()) uiState.songs
-        else uiState.songs.filter { song ->
-            song.title.contains(searchQuery, ignoreCase = true) ||
-                    song.artist.contains(searchQuery, ignoreCase = true)
-        }
-    }
-
-    val filteredAlbums = remember(uiState.chartAlbums, searchQuery) {
-        if (searchQuery.isBlank()) uiState.chartAlbums
-        else uiState.chartAlbums.filter { album ->
-            album.title.contains(searchQuery, ignoreCase = true) ||
-                    album.artist.contains(searchQuery, ignoreCase = true)
-        }
-    }
-
-    val filteredArtists = remember(uiState.topArtists, searchQuery) {
-        if (searchQuery.isBlank()) uiState.topArtists
-        else uiState.topArtists.filter { artist ->
-            artist.name.contains(searchQuery, ignoreCase = true)
-        }
-    }
-
-    val totalResults = filteredSongs.size + filteredAlbums.size + filteredArtists.size
+    val localResultsCount = localTracks.size + localAlbums.size + localArtists.size
+    val remoteResultsCount = remoteTracks.size + remoteAlbums.size + remoteArtists.size
+    val showSearchEmptyState = hasSearchQuery &&
+        !uiState.isSearchLoading &&
+        uiState.searchError == null &&
+        localResultsCount == 0 &&
+        remoteResultsCount == 0
 
     val infiniteTransition = rememberInfiniteTransition(label = "sync_rotation")
     val syncRotation by infiniteTransition.animateFloat(
-        initialValue  = 0f,
-        targetValue   = 360f,
+        initialValue = 0f,
+        targetValue = 360f,
         animationSpec = infiniteRepeatable(tween(800, easing = LinearEasing)),
-        label         = "sync_rotation"
+        label = "sync_rotation"
     )
-
-    LaunchedEffect(searchActive) {
-        if (searchActive) focusRequester.requestFocus()
-    }
 
     Box(
         modifier = Modifier
@@ -139,171 +128,398 @@ fun HomeScreen(
             topBar = {
                 TopAppBar(
                     title = {
-                        Column {
-                            Text(
-                                text          = "OfflineFirst",
-                                style         = MaterialTheme.typography.titleLarge,
-                                color         = Color.White,
-                                fontFamily    = FontFamily.SansSerif,
-                                fontWeight    = FontWeight.Bold,
-                                letterSpacing = 1.5.sp
-                            )
-                        }
+                        Text(
+                            text = "OfflineFirst",
+                            style = MaterialTheme.typography.titleLarge,
+                            color = Color.White,
+                            fontFamily = FontFamily.SansSerif,
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 1.5.sp
+                        )
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor         = Color.Transparent,
+                        containerColor = Color.Transparent,
                         scrolledContainerColor = Color.Transparent
                     ),
                     actions = {
-                        IconButton(onClick = { searchActive = true }) {
-                            Icon(Icons.Default.Search, contentDescription = "Buscar", tint = Color.White)
-                        }
                         IconButton(onClick = { viewModel.syncSongs() }) {
                             Icon(
-                                imageVector   = Icons.Outlined.Sync,
+                                imageVector = Icons.Outlined.Sync,
                                 contentDescription = "Sincronizar",
-                                tint          = Color.White,
-                                modifier      = if (uiState.isSyncing) Modifier.rotate(syncRotation) else Modifier
+                                tint = Color.White,
+                                modifier = if (uiState.isSyncing) Modifier.rotate(syncRotation) else Modifier
                             )
                         }
                     }
                 )
             }
         ) { paddingValues ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-            ) {
-                SearchBar(
-                    searchQuery          = searchQuery,
-                    onSearchQueryChange  = { searchQuery = it },
-                    searchActive         = searchActive,
-                    onSearchActiveChange = { searchActive = it },
-                    filteredSongsCount   = filteredSongs.size,
-                    filteredAlbumsCount  = filteredAlbums.size,
-                    totalSongsCount      = uiState.songs.size,
-                    totalAlbumsCount     = uiState.chartAlbums.size,
-                    focusRequester       = focusRequester
-                )
-
-                AnimatedVisibility(visible = !uiState.isConnected, enter = fadeIn(), exit = fadeOut()) {
-                    OfflineBanner()
+            when {
+                uiState.isLoading -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(color = Color.White)
+                    }
                 }
 
-                when {
-                    uiState.isLoading -> {
-                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            CircularProgressIndicator(color = Color.White)
-                        }
+                uiState.errorMessage != null -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = uiState.errorMessage!!,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color(0xFFFF6B6B)
+                        )
                     }
-                    uiState.errorMessage != null -> {
-                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            Text(
-                                uiState.errorMessage!!,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = Color(0xFFFF6B6B)
-                            )
-                        }
-                    }
-                    uiState.songs.isEmpty() -> EmptyState()
-                    searchQuery.isNotBlank() && totalResults == 0 -> {
-                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Icon(
-                                    Icons.Default.Search,
-                                    contentDescription = null,
-                                    tint     = Color.White.copy(alpha = 0.4f),
-                                    modifier = Modifier.size(40.dp).padding(bottom = 12.dp)
-                                )
-                                Text(
-                                    "Sin resultados para",
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    color = Color.White.copy(alpha = 0.5f)
-                                )
-                                Text(
-                                    "\"$searchQuery\"",
-                                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
-                                    color = Color.White
+                }
+
+                uiState.songs.isEmpty() -> EmptyState()
+
+                else -> {
+                    PullToRefreshBox(
+                        isRefreshing = uiState.isSyncing,
+                        onRefresh = { viewModel.syncSongs() }
+                    ) {
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(paddingValues),
+                            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 24.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            item {
+                                Spacer(modifier = Modifier.height(8.dp))
+                                SearchBar(
+                                    searchQuery = uiState.searchQuery,
+                                    onSearchQueryChange = viewModel::onSearchQueryChange,
+                                    localTracksCount = localTracks.size,
+                                    localAlbumsCount = localAlbums.size,
+                                    localArtistsCount = localArtists.size,
+                                    totalSongsCount = uiState.songs.size,
+                                    totalAlbumsCount = uiState.chartAlbums.size,
+                                    totalArtistsCount = uiState.topArtists.size,
+                                    focusRequester = focusRequester
                                 )
                             }
-                        }
-                    }
-                    else -> {
-                        PullToRefreshBox(
-                            isRefreshing = uiState.isSyncing,
-                            onRefresh    = { viewModel.syncSongs() }
-                        ) {
-                            LazyColumn(contentPadding = PaddingValues(bottom = 24.dp)) {
 
-                                if (filteredAlbums.isNotEmpty()) {
-                                    item {
-                                        TopAlbumsSection(
-                                            albums = filteredAlbums,
-                                            isLoading = uiState.isAlbumsLoading,
-                                            title = if (searchQuery.isBlank()) "Top Álbumes" else "Álbumes",
-                                            onAlbumClick = { album ->
-                                                viewModel.navigateToAlbum(
-                                                    albumId = album.id,
-                                                    albumArt = album.coverUrl,
-                                                    albumTitle = album.title
-                                                ) { songId -> onAlbumClick(songId) }
-                                            },
-                                            modifier = Modifier.padding(
-                                                start = 16.dp,
-                                                end = 16.dp,
-                                                top = 12.dp,
-                                                bottom = 12.dp
-                                            )
-                                        )
-                                    }
-                                }
-
-                                if (filteredArtists.isNotEmpty()) {
-                                    item {
-                                        TopArtistsSection(
-                                            artists = filteredArtists,
-                                            onArtistClick = { artist ->
-                                                onArtistClick(artist.id, artist.name, artist.imageUrl)
-                                            },
-                                            modifier = Modifier.padding(
-                                                start = 16.dp,
-                                                end = 16.dp,
-                                                bottom = 12.dp
-                                            )
-                                        )
-                                    }
-                                }
-
-                                if ((filteredAlbums.isNotEmpty() || filteredArtists.isNotEmpty()) &&
-                                    filteredSongs.isNotEmpty()
+                            item {
+                                AnimatedVisibility(
+                                    visible = !uiState.isConnected,
+                                    enter = fadeIn(),
+                                    exit = fadeOut()
                                 ) {
-                                    item {
-                                        HorizontalDivider(
-                                            color    = Color.White.copy(alpha = 0.06f),
-                                            modifier = Modifier.padding(horizontal = 16.dp)
-                                        )
-                                        Spacer(modifier = Modifier.height(4.dp))
-                                    }
+                                    OfflineBanner()
                                 }
+                            }
 
-                                if (filteredSongs.isNotEmpty()) {
-                                    topTracksSection(
-                                        songs = filteredSongs,
-                                        totalSongsCount = uiState.songs.size,
+                            if (!showSearchEmptyState) {
+                                localResultsSection(
+                                    hasSearchQuery = hasSearchQuery,
+                                    tracks = localTracks,
+                                    albums = localAlbums,
+                                    artists = localArtists,
+                                    currentPlayingId = uiState.currentPlayingId,
+                                    totalDurationMs = uiState.totalDurationMs,
+                                    currentPositionMs = uiState.currentPositionMs,
+                                    playerState = uiState.listPlayerState,
+                                    onPlayClick = { song -> viewModel.togglePlayPause(song) },
+                                    onSongClick = { song -> onSongClick(song.id) },
+                                    onAlbumClick = { album ->
+                                        viewModel.navigateToAlbum(
+                                            albumId = album.id,
+                                            albumArt = album.coverUrl,
+                                            albumTitle = album.title,
+                                            onReady = onAlbumClick
+                                        )
+                                    },
+                                    onArtistClick = { artist ->
+                                        onArtistClick(artist.id, artist.name, artist.imageUrl)
+                                    }
+                                )
+
+                                if (hasSearchQuery) {
+                                    remoteResultsSection(
+                                        remoteTracks = remoteTracks,
+                                        remoteAlbums = remoteAlbums,
+                                        remoteArtists = remoteArtists,
+                                        isSearchLoading = uiState.isSearchLoading,
+                                        searchError = uiState.searchError,
                                         currentPlayingId = uiState.currentPlayingId,
                                         totalDurationMs = uiState.totalDurationMs,
                                         currentPositionMs = uiState.currentPositionMs,
                                         playerState = uiState.listPlayerState,
+                                        onRetry = viewModel::retrySearch,
                                         onPlayClick = { song -> viewModel.togglePlayPause(song) },
-                                        onSongClick = { song -> onSongClick(song.id) }
+                                        onTrackClick = { song ->
+                                            if (song.albumId.isNotBlank()) {
+                                                viewModel.navigateToAlbum(
+                                                    albumId = song.albumId,
+                                                    albumArt = song.albumArt,
+                                                    albumTitle = song.albumTitle,
+                                                    onReady = onAlbumClick
+                                                )
+                                            }
+                                        },
+                                        onAlbumClick = { album ->
+                                            viewModel.navigateToAlbum(
+                                                albumId = album.id,
+                                                albumArt = album.coverUrl,
+                                                albumTitle = album.title,
+                                                onReady = onAlbumClick
+                                            )
+                                        },
+                                        onArtistClick = { artist ->
+                                            onArtistClick(artist.id, artist.name, artist.imageUrl)
+                                        }
                                     )
+                                }
+                            } else {
+                                item {
+                                    SearchEmptyState(query = uiState.searchQuery)
                                 }
                             }
                         }
                     }
                 }
             }
+        }
+    }
+}
+
+private fun androidx.compose.foundation.lazy.LazyListScope.localResultsSection(
+    hasSearchQuery: Boolean,
+    tracks: List<Song>,
+    albums: List<Album>,
+    artists: List<Artist>,
+    currentPlayingId: String?,
+    totalDurationMs: Long,
+    currentPositionMs: Long,
+    playerState: PlayerState,
+    onPlayClick: (Song) -> Unit,
+    onSongClick: (Song) -> Unit,
+    onAlbumClick: (Album) -> Unit,
+    onArtistClick: (Artist) -> Unit
+) {
+    if (albums.isNotEmpty()) {
+        item {
+            TopAlbumsSection(
+                albums = albums,
+                isLoading = false,
+                title = if (hasSearchQuery) "Albums" else "Top Álbumes",
+                onAlbumClick = onAlbumClick
+            )
+        }
+    }
+
+    if (artists.isNotEmpty()) {
+        item {
+            TopArtistsSection(
+                artists = artists,
+                title = if (hasSearchQuery) "Artists" else "Top Artists",
+                onArtistClick = onArtistClick
+            )
+        }
+    }
+
+    if ((albums.isNotEmpty() || artists.isNotEmpty()) && tracks.isNotEmpty()) {
+        item {
+            HorizontalDivider(color = Color.White.copy(alpha = 0.06f))
+            Spacer(modifier = Modifier.height(4.dp))
+        }
+    }
+
+    if (tracks.isNotEmpty()) {
+        topTracksSection(
+            songs = tracks,
+            totalSongsCount = tracks.size,
+            title = if (hasSearchQuery) "Tracks" else "Top Tracks",
+            currentPlayingId = currentPlayingId,
+            totalDurationMs = totalDurationMs,
+            currentPositionMs = currentPositionMs,
+            playerState = playerState,
+            onPlayClick = onPlayClick,
+            onSongClick = onSongClick
+        )
+    }
+}
+
+private fun androidx.compose.foundation.lazy.LazyListScope.remoteResultsSection(
+    remoteTracks: List<Song>,
+    remoteAlbums: List<Album>,
+    remoteArtists: List<Artist>,
+    isSearchLoading: Boolean,
+    searchError: String?,
+    currentPlayingId: String?,
+    totalDurationMs: Long,
+    currentPositionMs: Long,
+    playerState: PlayerState,
+    onRetry: () -> Unit,
+    onPlayClick: (Song) -> Unit,
+    onTrackClick: (Song) -> Unit,
+    onAlbumClick: (Album) -> Unit,
+    onArtistClick: (Artist) -> Unit
+) {
+    item {
+        Spacer(modifier = Modifier.height(4.dp))
+        HorizontalDivider(color = Color.White.copy(alpha = 0.08f))
+        Spacer(modifier = Modifier.height(12.dp))
+        SectionHeader(title = "Deezer Results")
+    }
+
+    when {
+        isSearchLoading -> {
+            item {
+                SearchFeedbackState(
+                    text = "Searching Deezer...",
+                    loading = true
+                )
+            }
+        }
+
+        searchError != null -> {
+            item {
+                SearchFeedbackState(
+                    text = searchError,
+                    loading = false,
+                    actionLabel = "Retry",
+                    onAction = onRetry
+                )
+            }
+        }
+
+        remoteTracks.isEmpty() && remoteAlbums.isEmpty() && remoteArtists.isEmpty() -> {
+            item {
+                SearchFeedbackState(
+                    text = "No Deezer results for this search",
+                    loading = false
+                )
+            }
+        }
+
+        else -> {
+            if (remoteAlbums.isNotEmpty()) {
+                item {
+                    TopAlbumsSection(
+                        albums = remoteAlbums,
+                        isLoading = false,
+                        title = "Albums",
+                        onAlbumClick = onAlbumClick
+                    )
+                }
+            }
+
+            if (remoteArtists.isNotEmpty()) {
+                item {
+                    TopArtistsSection(
+                        artists = remoteArtists,
+                        title = "Artists",
+                        onArtistClick = onArtistClick
+                    )
+                }
+            }
+
+            if ((remoteAlbums.isNotEmpty() || remoteArtists.isNotEmpty()) && remoteTracks.isNotEmpty()) {
+                item {
+                    HorizontalDivider(color = Color.White.copy(alpha = 0.06f))
+                    Spacer(modifier = Modifier.height(4.dp))
+                }
+            }
+
+            if (remoteTracks.isNotEmpty()) {
+                topTracksSection(
+                    songs = remoteTracks,
+                    totalSongsCount = remoteTracks.size,
+                    title = "Tracks",
+                    currentPlayingId = currentPlayingId,
+                    totalDurationMs = totalDurationMs,
+                    currentPositionMs = currentPositionMs,
+                    playerState = playerState,
+                    onPlayClick = onPlayClick,
+                    onSongClick = onTrackClick
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun SearchFeedbackState(
+    text: String,
+    loading: Boolean,
+    actionLabel: String? = null,
+    onAction: (() -> Unit)? = null
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(vertical = 8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        if (loading) {
+            CircularProgressIndicator(
+                modifier = Modifier.size(22.dp),
+                color = Color.White
+            )
+        } else {
+            Icon(
+                imageVector = Icons.Default.Search,
+                contentDescription = null,
+                tint = Color.White.copy(alpha = 0.45f),
+                modifier = Modifier.size(28.dp)
+            )
+        }
+
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodyMedium,
+            color = Color.White.copy(alpha = 0.72f)
+        )
+
+        if (actionLabel != null && onAction != null) {
+            FilledTonalButton(onClick = onAction) {
+                Text(text = actionLabel)
+            }
+        }
+    }
+}
+
+@Composable
+private fun SearchEmptyState(query: String) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(vertical = 48.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Search,
+                contentDescription = null,
+                tint = Color.White.copy(alpha = 0.38f),
+                modifier = Modifier.size(40.dp)
+            )
+            Text(
+                text = "No results for",
+                style = MaterialTheme.typography.bodyLarge,
+                color = Color.White.copy(alpha = 0.56f)
+            )
+            Text(
+                text = "\"$query\"",
+                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
+                color = Color.White
+            )
         }
     }
 }

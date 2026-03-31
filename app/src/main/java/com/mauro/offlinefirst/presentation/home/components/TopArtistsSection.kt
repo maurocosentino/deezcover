@@ -36,13 +36,14 @@ private val ArtistAccent = Color(0xFF00C8FF)
 @Composable
 fun TopArtistsSection(
     artists: List<Artist>,
+    title: String = "Top Artists",
     onArtistClick: (Artist) -> Unit,
     modifier: Modifier = Modifier
 ) {
     if (artists.isEmpty()) return
 
     SectionHeader(
-        title = "Top Artists",
+        title = title,
         modifier = modifier
     )
 

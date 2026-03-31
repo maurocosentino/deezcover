@@ -20,6 +20,7 @@ import com.mauro.offlinefirst.presentation.albumdetail.PlayerState
 fun LazyListScope.topTracksSection(
     songs: List<Song>,
     totalSongsCount: Int,
+    title: String = "Top Tracks",
     currentPlayingId: String?,
     totalDurationMs: Long,
     currentPositionMs: Long,
@@ -28,7 +29,10 @@ fun LazyListScope.topTracksSection(
     onSongClick: (Song) -> Unit
 ) {
     item {
-        TopTracksSectionHeader(totalSongsCount = totalSongsCount)
+        TopTracksSectionHeader(
+            title = title,
+            totalSongsCount = totalSongsCount
+        )
     }
 
     itemsIndexed(items = songs, key = { _, song -> song.id }) { _, song ->
@@ -52,6 +56,7 @@ fun LazyListScope.topTracksSection(
 
 @Composable
 private fun TopTracksSectionHeader(
+    title: String,
     totalSongsCount: Int
 ) {
     Row(
@@ -59,7 +64,7 @@ private fun TopTracksSectionHeader(
         modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 4.dp)
     ) {
         Text(
-            text = "Top Tracks",
+            text = title,
             style = MaterialTheme.typography.titleMedium.copy(
                 fontWeight = FontWeight.Bold,
                 fontSize = 18.sp,
