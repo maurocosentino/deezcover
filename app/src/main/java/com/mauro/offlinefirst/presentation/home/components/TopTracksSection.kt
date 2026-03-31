@@ -14,12 +14,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mauro.offlinefirst.domain.model.Song
-import com.mauro.offlinefirst.presentation.components.SongItem
 import com.mauro.offlinefirst.presentation.albumdetail.PlayerState
+import com.mauro.offlinefirst.presentation.components.SongItem
 
 fun LazyListScope.topTracksSection(
     songs: List<Song>,
-    totalSongsCount: Int,
     title: String = "Top Tracks",
     currentPlayingId: String?,
     totalDurationMs: Long,
@@ -30,10 +29,7 @@ fun LazyListScope.topTracksSection(
     showNavigateAction: (Song) -> Boolean = { true }
 ) {
     item {
-        TopTracksSectionHeader(
-            title = title,
-            totalSongsCount = totalSongsCount
-        )
+        TopTracksSectionHeader(title = title)
     }
 
     itemsIndexed(items = songs, key = { _, song -> song.id }) { _, song ->
@@ -57,13 +53,10 @@ fun LazyListScope.topTracksSection(
 }
 
 @Composable
-private fun TopTracksSectionHeader(
-    title: String,
-    totalSongsCount: Int
-) {
+private fun TopTracksSectionHeader(title: String) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 4.dp)
+        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
     ) {
         Text(
             text = title,
@@ -73,11 +66,6 @@ private fun TopTracksSectionHeader(
                 color = Color.White
             ),
             modifier = Modifier.weight(1f)
-        )
-        Text(
-            text = buildSongCountLabel(totalSongsCount),
-            style = MaterialTheme.typography.bodySmall,
-            color = Color.White.copy(alpha = 0.4f)
         )
     }
 }
