@@ -46,6 +46,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.mauro.offlinefirst.presentation.albumdetail.components.AlbumSongItem
 import com.mauro.offlinefirst.presentation.albumdetail.components.DeezerButton
+import com.mauro.offlinefirst.presentation.components.formatDate
 import com.mauro.offlinefirst.presentation.components.formatSongCount
 
 private val GradientTop = Color(0xFF01051C)
@@ -177,7 +178,7 @@ fun AlbumDetailScreen(
                                     color = Color.White.copy(alpha = 0.4f)
                                 )
                                 Text(
-                                    text = "${uiState.albumType} • ${uiState.albumReleaseDate}",
+                                    text = "${uiState.albumType} • ${formatDate(uiState.albumReleaseDate)}",
                                     style = MaterialTheme.typography.bodySmall.copy(
                                         color = Color.White.copy(alpha = 0.5f)
                                     )

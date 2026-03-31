@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -46,9 +47,13 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -66,6 +71,7 @@ import com.mauro.offlinefirst.presentation.home.components.SectionHeader
 import com.mauro.offlinefirst.presentation.home.components.TopAlbumsSection
 import com.mauro.offlinefirst.presentation.home.components.TopArtistsSection
 import com.mauro.offlinefirst.presentation.home.components.topTracksSection
+import com.mauro.offlinefirst.ui.theme.DeezerColor
 
 private val GradientTop = Color(0xFF000000)
 private val GradientMiddle = Color(0xFF000409)
@@ -148,14 +154,40 @@ fun HomeScreen(
             topBar = {
                 TopAppBar(
                     title = {
-                        Text(
-                            text = stringResource(R.string.app_name),
-                            style = MaterialTheme.typography.titleLarge,
-                            color = Color.White,
-                            fontFamily = FontFamily.SansSerif,
-                            fontWeight = FontWeight.Bold,
-                            letterSpacing = 1.5.sp
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Text(
+                                text = buildAnnotatedString {
+                                    withStyle(
+                                        SpanStyle(
+                                            color = Color.White,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    ) {
+                                        append("Deez")
+                                    }
+                                    withStyle(
+                                        SpanStyle(
+                                            color = DeezerColor,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    ) {
+                                        append("cover")
+                                    }
+                                },
+                                style = MaterialTheme.typography.titleLarge,
+                                fontFamily = FontFamily.SansSerif,
+                                letterSpacing = 1.1.sp
+                            )
+                            Icon(
+                                painter = painterResource(R.drawable.ic_deezcover_mark),
+                                contentDescription = stringResource(R.string.app_name),
+                                tint = DeezerColor,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = Color.Transparent,
