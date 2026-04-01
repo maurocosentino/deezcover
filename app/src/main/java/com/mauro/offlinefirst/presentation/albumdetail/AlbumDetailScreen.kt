@@ -68,6 +68,7 @@ fun AlbumDetailScreen(
     onNavigateBack: () -> Unit,
     onArtistClick: (artistId: String, artistName: String, artistImageUrl: String) -> Unit,
     playerViewModel: PlayerViewModel,
+    onMiniPlayerClick: (songId: String) -> Unit,
     viewModel: AlbumDetailViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -322,6 +323,7 @@ fun AlbumDetailScreen(
                 onPreviousClick = playerViewModel::playPrevious,
                 onPlayPauseClick = playerViewModel::togglePlayPause,
                 onNextClick = playerViewModel::playNext,
+                onClick = { onMiniPlayerClick(activeSong.id) },
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()

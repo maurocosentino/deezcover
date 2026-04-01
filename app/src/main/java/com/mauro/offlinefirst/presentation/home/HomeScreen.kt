@@ -83,6 +83,7 @@ fun HomeScreen(
     onSongClick: (String) -> Unit,
     onAlbumClick: (String) -> Unit,
     onArtistClick: (artistId: String, artistName: String, artistImageUrl: String) -> Unit,
+    onMiniPlayerClick: (songId: String) -> Unit,
     viewModel: HomeViewModel = hiltViewModel(),
     playerViewModel: PlayerViewModel
 ) {
@@ -384,6 +385,7 @@ fun HomeScreen(
                 onPreviousClick = playerViewModel::playPrevious,
                 onPlayPauseClick = playerViewModel::togglePlayPause,
                 onNextClick = playerViewModel::playNext,
+                onClick = { onMiniPlayerClick(song.id) },
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()

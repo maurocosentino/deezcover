@@ -1,6 +1,8 @@
 package com.mauro.offlinefirst.presentation.navigation
 
+import android.os.Build
 import androidx.activity.ComponentActivity
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -55,6 +57,7 @@ private fun backwardExitTransition(): ExitTransition {
         )
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun NavGraph(navController: NavHostController) {
     val activity = LocalContext.current as ComponentActivity
@@ -83,6 +86,9 @@ fun NavGraph(navController: NavHostController) {
                         Screen.ArtistDetail.createRoute(artistId, artistName, artistImageUrl)
                     )
                 },
+                onMiniPlayerClick = { songId ->
+                    navController.navigate(Screen.AlbumDetail.createRoute(songId))
+                },
                 playerViewModel = playerViewModel
             )
         }
@@ -104,6 +110,9 @@ fun NavGraph(navController: NavHostController) {
                         Screen.ArtistDetail.createRoute(artistId, artistName, artistImageUrl)
                     )
                 },
+                onMiniPlayerClick = { songId ->
+                    navController.navigate(Screen.AlbumDetail.createRoute(songId))
+                },
                 playerViewModel = playerViewModel
             )
         }
@@ -122,6 +131,9 @@ fun NavGraph(navController: NavHostController) {
         ) {
             ArtistDetailScreen(
                 onNavigateBack = { navController.popBackStack() },
+                onMiniPlayerClick = { songId ->
+                    navController.navigate(Screen.AlbumDetail.createRoute(songId))
+                },
                 onSongClick = { songId ->
                     navController.navigate(Screen.AlbumDetail.createRoute(songId))
                 },

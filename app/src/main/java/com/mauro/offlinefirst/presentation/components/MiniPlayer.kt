@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.mauro.offlinefirst.domain.model.Song
 import androidx.compose.animation.animateColorAsState
+import com.mauro.offlinefirst.presentation.navigation.Screen
 import com.mauro.offlinefirst.ui.theme.DeezerColor
 
 @Composable
