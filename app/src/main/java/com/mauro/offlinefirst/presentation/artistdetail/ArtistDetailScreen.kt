@@ -73,7 +73,6 @@ fun ArtistDetailScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val playerUiState by playerViewModel.uiState.collectAsState()
-    val isPlaying = playerUiState.isPlaying
     val miniPlayerVisible = playerUiState.currentSong != null
     val contentBottomSpacing = if (miniPlayerVisible) 116.dp else 32.dp
     val density = LocalDensity.current
@@ -271,16 +270,7 @@ fun ArtistDetailScreen(
                                 }
 
                                 PlaybackControls(
-                                    isShuffleActive = playerUiState.isShuffleActive,
-                                    isPlaying = isPlaying,
-                                    onShuffleClick = playerViewModel::toggleShuffle,
-                                    onPlayClick = {
-                                        if (playerUiState.currentSong?.id in uiState.topTracks.map { it.id }) {
-                                            playerViewModel.togglePlayPause()
-                                        } else {
-                                            playerViewModel.playSongs(uiState.topTracks)
-                                        }
-                                    }
+                                    onPlayClick = { playerViewModel.playSongs(uiState.topTracks) }
                                 )
                             }
                         }
@@ -289,12 +279,10 @@ fun ArtistDetailScreen(
                             songs = uiState.topTracks,
                             titleRes = R.string.top_10_tracks,
                             currentPlayingId = playerUiState.currentPlayingId,
-                            totalDurationMs = playerUiState.totalDurationMs,
-                            currentPositionMs = playerUiState.currentPositionMs,
                             playerState = playerUiState.playerState,
                             onPlayClick = { song ->
                                 val songIndex = uiState.topTracks.indexOfFirst { it.id == song.id }
-                                if (playerUiState.currentSong?.id == song.id) {
+                                if (playerUiState.currentPlayingId == song.id) {
                                     playerViewModel.togglePlayPause()
                                 } else if (songIndex != -1) {
                                     playerViewModel.playSongs(uiState.topTracks, songIndex)
@@ -334,7 +322,12 @@ fun ArtistDetailScreen(
         playerUiState.currentSong?.let { song ->
             MiniPlayer(
                 song = song,
-                isPlaying = isPlaying,
+                isPlaying = playerUiState.isPlaying,
+                isShuffleActive = playerUiState.isShuffleActive,
+                currentPositionMs = playerUiState.currentPositionMs,
+                totalDurationMs = playerUiState.totalDurationMs,
+                onShuffleClick = playerViewModel::toggleShuffle,
+                onPreviousClick = playerViewModel::playPrevious,
                 onPlayPauseClick = playerViewModel::togglePlayPause,
                 onNextClick = playerViewModel::playNext,
                 modifier = Modifier

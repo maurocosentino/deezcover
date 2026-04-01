@@ -14,8 +14,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
@@ -58,6 +60,7 @@ import com.mauro.offlinefirst.domain.model.Album
 import com.mauro.offlinefirst.domain.model.Artist
 import com.mauro.offlinefirst.domain.model.Song
 import com.mauro.offlinefirst.presentation.albumdetail.PlayerState
+import com.mauro.offlinefirst.presentation.components.MiniPlayer
 import com.mauro.offlinefirst.presentation.home.components.EmptyState
 import com.mauro.offlinefirst.presentation.home.components.OfflineBanner
 import com.mauro.offlinefirst.presentation.home.components.SearchBar
@@ -113,6 +116,8 @@ fun HomeScreen(
 
     val localResultsCount = localTracks.size + localAlbums.size + localArtists.size
     val remoteResultsCount = remoteTracks.size + remoteAlbums.size + remoteArtists.size
+    val miniPlayerVisible = playerUiState.currentSong != null
+    val contentBottomPadding = if (miniPlayerVisible) 116.dp else 24.dp
     val showSearchEmptyState = hasSearchQuery &&
         !uiState.isSearchLoading &&
         localResultsCount == 0 &&
@@ -231,7 +236,7 @@ fun HomeScreen(
                             contentPadding = PaddingValues(
                                 start = HomeHorizontalPadding,
                                 end = HomeHorizontalPadding,
-                                bottom = 24.dp
+                                bottom = contentBottomPadding
                             ),
                             verticalArrangement = Arrangement.spacedBy(HomeSectionSpacing)
                         ) {
@@ -264,13 +269,11 @@ fun HomeScreen(
                                             isSearchLoading = uiState.isSearchLoading,
                                             searchError = uiState.searchError,
                                             currentPlayingId = playerUiState.currentPlayingId,
-                                            totalDurationMs = playerUiState.totalDurationMs,
-                                            currentPositionMs = playerUiState.currentPositionMs,
                                             playerState = playerUiState.playerState,
                                             onRetry = viewModel::retrySearch,
                                             onPlayClick = { song ->
                                                 val songIndex = remoteTracks.indexOfFirst { it.id == song.id }
-                                                if (playerUiState.currentSong?.id == song.id) {
+                                                if (playerUiState.currentPlayingId == song.id) {
                                                     playerViewModel.togglePlayPause()
                                                 } else if (songIndex != -1) {
                                                     playerViewModel.playSongs(remoteTracks, songIndex)
@@ -305,12 +308,10 @@ fun HomeScreen(
                                             albums = localAlbums,
                                             artists = localArtists,
                                             currentPlayingId = playerUiState.currentPlayingId,
-                                            totalDurationMs = playerUiState.totalDurationMs,
-                                            currentPositionMs = playerUiState.currentPositionMs,
                                             playerState = playerUiState.playerState,
                                             onPlayClick = { song ->
                                                 val songIndex = localTracks.indexOfFirst { it.id == song.id }
-                                                if (playerUiState.currentSong?.id == song.id) {
+                                                if (playerUiState.currentPlayingId == song.id) {
                                                     playerViewModel.togglePlayPause()
                                                 } else if (songIndex != -1) {
                                                     playerViewModel.playSongs(localTracks, songIndex)
@@ -337,12 +338,10 @@ fun HomeScreen(
                                         albums = localAlbums,
                                         artists = localArtists,
                                         currentPlayingId = playerUiState.currentPlayingId,
-                                        totalDurationMs = playerUiState.totalDurationMs,
-                                        currentPositionMs = playerUiState.currentPositionMs,
                                         playerState = playerUiState.playerState,
                                         onPlayClick = { song ->
                                             val songIndex = localTracks.indexOfFirst { it.id == song.id }
-                                            if (playerUiState.currentSong?.id == song.id) {
+                                            if (playerUiState.currentPlayingId == song.id) {
                                                 playerViewModel.togglePlayPause()
                                             } else if (songIndex != -1) {
                                                 playerViewModel.playSongs(localTracks, songIndex)
@@ -372,6 +371,25 @@ fun HomeScreen(
                 }
             }
         }
+
+        playerUiState.currentSong?.let { song ->
+            MiniPlayer(
+                song = song,
+                isPlaying = playerUiState.isPlaying,
+                isShuffleActive = playerUiState.isShuffleActive,
+                currentPositionMs = playerUiState.currentPositionMs,
+                totalDurationMs = playerUiState.totalDurationMs,
+                onShuffleClick = playerViewModel::toggleShuffle,
+                onPreviousClick = playerViewModel::playPrevious,
+                onPlayPauseClick = playerViewModel::togglePlayPause,
+                onNextClick = playerViewModel::playNext,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 12.dp)
+                    .navigationBarsPadding()
+            )
+        }
     }
 }
 
@@ -381,8 +399,6 @@ private fun androidx.compose.foundation.lazy.LazyListScope.localResultsSection(
     albums: List<Album>,
     artists: List<Artist>,
     currentPlayingId: String?,
-    totalDurationMs: Long,
-    currentPositionMs: Long,
     playerState: PlayerState,
     onPlayClick: (Song) -> Unit,
     onSongClick: (Song) -> Unit,
@@ -433,8 +449,6 @@ private fun androidx.compose.foundation.lazy.LazyListScope.localResultsSection(
                 R.string.home_top_tracks
             },
             currentPlayingId = currentPlayingId,
-            totalDurationMs = totalDurationMs,
-            currentPositionMs = currentPositionMs,
             playerState = playerState,
             onPlayClick = onPlayClick,
             onSongClick = onSongClick,
@@ -450,8 +464,6 @@ private fun androidx.compose.foundation.lazy.LazyListScope.remoteResultsSection(
     isSearchLoading: Boolean,
     searchError: String?,
     currentPlayingId: String?,
-    totalDurationMs: Long,
-    currentPositionMs: Long,
     playerState: PlayerState,
     onRetry: () -> Unit,
     onPlayClick: (Song) -> Unit,
@@ -530,8 +542,6 @@ private fun androidx.compose.foundation.lazy.LazyListScope.remoteResultsSection(
                     songs = remoteTracks,
                     titleRes = R.string.search_section_tracks,
                     currentPlayingId = currentPlayingId,
-                    totalDurationMs = totalDurationMs,
-                    currentPositionMs = currentPositionMs,
                     playerState = playerState,
                     onPlayClick = onPlayClick,
                     onSongClick = onTrackClick

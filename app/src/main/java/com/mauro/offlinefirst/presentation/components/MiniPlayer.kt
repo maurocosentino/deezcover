@@ -3,14 +3,17 @@ package com.mauro.offlinefirst.presentation.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -19,6 +22,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,16 +32,28 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.mauro.offlinefirst.domain.model.Song
+import androidx.compose.animation.animateColorAsState
+import com.mauro.offlinefirst.ui.theme.DeezerColor
 
 @Composable
 fun MiniPlayer(
     song: Song,
     isPlaying: Boolean,
+    isShuffleActive: Boolean,
+    currentPositionMs: Long,
+    totalDurationMs: Long,
+    onShuffleClick: () -> Unit,
+    onPreviousClick: () -> Unit,
     onPlayPauseClick: () -> Unit,
     onNextClick: () -> Unit,
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null
 ) {
+    val shuffleTint by animateColorAsState(
+        targetValue = if (isShuffleActive) DeezerColor else Color.White.copy(alpha = 0.58f),
+        label = "mini_player_shuffle_tint"
+    )
+
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(22.dp),
@@ -70,7 +86,7 @@ fun MiniPlayer(
                     .background(Color.White.copy(alpha = 0.06f))
             )
 
-            androidx.compose.foundation.layout.Column(
+            Column(
                 modifier = Modifier.weight(1f)
             ) {
                 Text(
@@ -82,7 +98,11 @@ fun MiniPlayer(
                 )
                 if (song.artist.isNotBlank()) {
                     Text(
-                        text = song.artist,
+                        text = buildMiniPlayerSubtitle(
+                            artist = song.artist,
+                            currentPositionMs = currentPositionMs,
+                            totalDurationMs = totalDurationMs
+                        ),
                         style = MaterialTheme.typography.bodySmall,
                         color = Color.White.copy(alpha = 0.62f),
                         maxLines = 1,
@@ -94,6 +114,20 @@ fun MiniPlayer(
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                IconButton(onClick = onShuffleClick) {
+                    Icon(
+                        imageVector = Icons.Default.Shuffle,
+                        contentDescription = "Shuffle",
+                        tint = shuffleTint
+                    )
+                }
+                IconButton(onClick = onPreviousClick) {
+                    Icon(
+                        imageVector = Icons.Default.SkipPrevious,
+                        contentDescription = "Previous",
+                        tint = Color.White
+                    )
+                }
                 IconButton(onClick = onPlayPauseClick) {
                     Icon(
                         imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
@@ -111,4 +145,24 @@ fun MiniPlayer(
             }
         }
     }
+}
+
+private fun buildMiniPlayerSubtitle(
+    artist: String,
+    currentPositionMs: Long,
+    totalDurationMs: Long
+): String {
+    val durationText = formatMiniPlayerTime(currentPositionMs, totalDurationMs)
+    return if (artist.isBlank()) durationText else "$artist • $durationText"
+}
+
+private fun formatMiniPlayerTime(currentPositionMs: Long, totalDurationMs: Long): String {
+    val targetMs = when {
+        totalDurationMs > 0L -> (totalDurationMs - currentPositionMs).coerceAtLeast(0L)
+        else -> 0L
+    }
+    val totalSeconds = targetMs / 1000
+    val minutes = totalSeconds / 60
+    val seconds = totalSeconds % 60
+    return String.format("%d:%02d", minutes, seconds)
 }

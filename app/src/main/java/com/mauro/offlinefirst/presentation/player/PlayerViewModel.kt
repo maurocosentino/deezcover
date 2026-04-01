@@ -16,6 +16,7 @@ import javax.inject.Inject
 data class PlayerUiState(
     val currentSong: Song? = null,
     val currentQueue: List<Song> = emptyList(),
+    val originalQueue: List<Song> = emptyList(),
     val currentIndex: Int = -1,
     val isPlaying: Boolean = false,
     val isShuffleActive: Boolean = false,
@@ -35,6 +36,7 @@ class PlayerViewModel @Inject constructor(
 
     init {
         observePlayerState()
+        observePosition()
         observeSongCompletion()
     }
 
@@ -51,6 +53,7 @@ class PlayerViewModel @Inject constructor(
         val queueIndex = queue.indexOfFirst { it.id == selectedSong.id }
         if (queueIndex == -1) return
 
+        _uiState.update { it.copy(originalQueue = list) }
         playSongAt(queue = queue, index = queueIndex)
     }
     fun togglePlayPause() {
@@ -77,13 +80,23 @@ class PlayerViewModel @Inject constructor(
         playSongAt(queue = uiState.value.currentQueue, index = nextIndex)
     }
 
+    fun playPrevious() {
+        val previousIndex = uiState.value.currentIndex - 1
+        if (previousIndex !in uiState.value.currentQueue.indices) {
+            return
+        }
+
+        playSongAt(queue = uiState.value.currentQueue, index = previousIndex)
+    }
+
     fun toggleShuffle() {
         val nextShuffleState = !uiState.value.isShuffleActive
         _uiState.update { it.copy(isShuffleActive = nextShuffleState) }
 
         val currentSong = uiState.value.currentSong ?: return
+        val sourceList = uiState.value.originalQueue.ifEmpty { uiState.value.currentQueue }
         val queue = buildQueue(
-            songs = uiState.value.currentQueue,
+            songs = sourceList,
             selectedSong = currentSong,
             isShuffleActive = nextShuffleState
         )
@@ -97,22 +110,47 @@ class PlayerViewModel @Inject constructor(
         }
     }
 
+    fun isCurrentQueue(songs: List<Song>): Boolean {
+        val currentQueue = uiState.value.currentQueue
+        if (currentQueue.size != songs.size) return false
+        return currentQueue.map(Song::id) == songs.map(Song::id)
+    }
+
+    fun stopPlayback() {
+        playerManager.stop()
+        clearQueue()
+    }
+
+    fun releasePlayer() {
+        playerManager.release()
+    }
+
     private fun observePlayerState() {
         viewModelScope.launch {
             playerManager.playerState.collect { state ->
                 _uiState.update {
                     it.copy(
-                        currentSong = it.currentQueue.getOrNull(it.currentIndex),
                         isPlaying = state.isPlaying,
                         currentPlayingId = state.currentPlayingId,
-                        currentPositionMs = state.currentPositionMs,
-                        totalDurationMs = state.totalDurationMs,
                         playerState = when {
                             state.isLoading -> PlayerState.LOADING
                             state.isPlaying -> PlayerState.PLAYING
                             state.currentPlayingId != null -> PlayerState.PAUSED
                             else -> PlayerState.IDLE
                         }
+                    )
+                }
+            }
+        }
+    }
+
+    private fun observePosition() {
+        viewModelScope.launch {
+            playerManager.positionState.collect { (currentPositionMs, totalDurationMs) ->
+                _uiState.update {
+                    it.copy(
+                        currentPositionMs = currentPositionMs,
+                        totalDurationMs = totalDurationMs
                     )
                 }
             }
@@ -143,6 +181,7 @@ class PlayerViewModel @Inject constructor(
         _uiState.update {
             it.copy(
                 currentSong = null,
+                originalQueue = emptyList(),
                 currentQueue = emptyList(),
                 currentIndex = -1,
                 isPlaying = false,
@@ -163,5 +202,10 @@ class PlayerViewModel @Inject constructor(
         if (!isShuffleActive) return songs
 
         return listOf(selectedSong) + songs.filterNot { it.id == selectedSong.id }.shuffled()
+    }
+
+    override fun onCleared() {
+        playerManager.release()
+        super.onCleared()
     }
 }

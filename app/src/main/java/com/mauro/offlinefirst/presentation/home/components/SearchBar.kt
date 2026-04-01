@@ -51,7 +51,7 @@ fun SearchBar(
     Surface(
         modifier = modifier.fillMaxWidth(),
         color = Color.Transparent,
-        shape = RoundedCornerShape(24.dp),
+        shape = RoundedCornerShape(22.dp),
         tonalElevation = 0.dp,
         shadowElevation = 0.dp
     ) {
@@ -61,7 +61,7 @@ fun SearchBar(
                 .padding(vertical = 4.dp)
         ) {
             Column(
-                modifier = Modifier.padding(bottom = 10.dp),
+                modifier = Modifier.padding(bottom = 12.dp),
                 verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(2.dp)
             ) {
                 Text(

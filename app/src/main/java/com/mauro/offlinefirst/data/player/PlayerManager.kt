@@ -23,17 +23,18 @@ import javax.inject.Singleton
 data class AudioPlayerState(
     val currentPlayingId: String? = null,
     val isPlaying: Boolean = false,
-    val isLoading: Boolean = false,
-    val currentPositionMs: Long = 0L,
-    val totalDurationMs: Long = 0L
+    val isLoading: Boolean = false
 )
 
 @Singleton
 class PlayerManager @Inject constructor(
     @ApplicationContext context: Context
 ) {
+    private var isReleased = false
     private val _playerState = MutableStateFlow(AudioPlayerState())
     val playerState: StateFlow<AudioPlayerState> = _playerState.asStateFlow()
+    private val _positionState = MutableStateFlow(0L to 0L)
+    val positionState: StateFlow<Pair<Long, Long>> = _positionState.asStateFlow()
     private val _songCompleted = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
     val songCompleted: SharedFlow<Unit> = _songCompleted.asSharedFlow()
 
@@ -46,11 +47,10 @@ class PlayerManager @Inject constructor(
                     Player.STATE_READY -> _playerState.value =
                         _playerState.value.copy(isLoading = false, isPlaying = isPlaying)
                     Player.STATE_ENDED -> {
+                        _positionState.value = player.duration.coerceAtLeast(0L) to player.duration.coerceAtLeast(0L)
                         _playerState.value = _playerState.value.copy(
                             isPlaying = false,
-                            isLoading = false,
-                            currentPositionMs = player.duration.coerceAtLeast(0L),
-                            totalDurationMs = player.duration.coerceAtLeast(0L)
+                            isLoading = false
                         )
                         _songCompleted.tryEmit(Unit)
                     }
@@ -64,10 +64,12 @@ class PlayerManager @Inject constructor(
     }
 
     fun playSong(id: String, previewUrl: String) {
+        if (isReleased) return
         player.stop()
         player.setMediaItem(MediaItem.fromUri(previewUrl))
         player.prepare()
         player.play()
+        _positionState.value = 0L to 0L
         _playerState.value = AudioPlayerState(
             currentPlayingId = id,
             isPlaying = true,
@@ -85,18 +87,22 @@ class PlayerManager @Inject constructor(
     }
 
     fun pause() {
+        if (isReleased) return
         player.pause()
         _playerState.value = _playerState.value.copy(isPlaying = false, isLoading = false)
     }
 
     fun resume() {
+        if (isReleased) return
         if (_playerState.value.currentPlayingId == null) return
         player.play()
         _playerState.value = _playerState.value.copy(isPlaying = true, isLoading = false)
     }
 
     fun stop() {
+        if (isReleased) return
         player.stop()
+        _positionState.value = 0L to 0L
         _playerState.value = AudioPlayerState()
     }
 
@@ -110,17 +116,19 @@ class PlayerManager @Inject constructor(
         scope.launch {
             while (true) {
                 delay(500)
+                if (isReleased) break
                 if (player.isPlaying) {
-                    _playerState.value = _playerState.value.copy(
-                        currentPositionMs = player.currentPosition,
-                        totalDurationMs = player.duration.coerceAtLeast(0L)
-                    )
+                    _positionState.value = player.currentPosition to player.duration.coerceAtLeast(0L)
                 }
             }
         }
     }
 
     fun release() {
+        if (isReleased) return
+        isReleased = true
+        _positionState.value = 0L to 0L
+        _playerState.value = AudioPlayerState()
         scope.cancel()
         player.release()
     }
