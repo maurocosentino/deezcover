@@ -20,6 +20,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.mauro.offlinefirst.ui.theme.DeezerColor
 
 @Composable
 fun PlaybackControls(
@@ -34,7 +35,7 @@ fun PlaybackControls(
         modifier = modifier
     ) {
         val shuffleColor by animateColorAsState(
-            targetValue = if (isShuffleActive) Color(0xFF1DB954)
+            targetValue = if (isShuffleActive) DeezerColor
             else Color.Gray.copy(alpha = 0.3f),
             label = "shuffle_color"
         )
@@ -61,7 +62,7 @@ fun PlaybackControls(
             onClick = onPlayClick,
             modifier = Modifier
                 .clip(CircleShape)
-                .background(Color(0xFF1DB954))
+                .background(DeezerColor)
         ) {
             Icon(
                 imageVector = if (isPlaying)

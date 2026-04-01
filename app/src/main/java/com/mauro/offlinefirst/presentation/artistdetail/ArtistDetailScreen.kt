@@ -51,7 +51,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.mauro.offlinefirst.R
 import com.mauro.offlinefirst.presentation.albumdetail.components.DeezerButton
-import androidx.compose.runtime.collectAsState
 import com.mauro.offlinefirst.presentation.albumdetail.PlayerState
 import com.mauro.offlinefirst.presentation.components.PlaybackControls
 import com.mauro.offlinefirst.presentation.home.components.topTracksSection
@@ -72,7 +71,6 @@ fun ArtistDetailScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val isPlaying = uiState.playerState == PlayerState.PLAYING
-    val isShuffleActive by viewModel.isShuffleActive.collectAsState(initial = false)
     val density = LocalDensity.current
     val heroHeight = with(LocalWindowInfo.current.containerSize) {
         with(density) { height.toDp() * 0.52f }
@@ -266,10 +264,10 @@ fun ArtistDetailScreen(
                                 }
 
                                 PlaybackControls(
-                                    isShuffleActive = isShuffleActive,
+                                    isShuffleActive = uiState.isShuffleActive,
                                     isPlaying = isPlaying,
                                     onShuffleClick = { viewModel.toggleShuffle() },
-                                    onPlayClick = { viewModel.playSongs() }
+                                    onPlayClick = { viewModel.onPlayClick() }
                                 )
                             }
                         }

@@ -11,7 +11,10 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -31,6 +34,8 @@ class PlayerManager @Inject constructor(
 ) {
     private val _playerState = MutableStateFlow(AudioPlayerState())
     val playerState: StateFlow<AudioPlayerState> = _playerState.asStateFlow()
+    private val _songCompleted = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    val songCompleted: SharedFlow<Unit> = _songCompleted.asSharedFlow()
 
     val player: ExoPlayer = ExoPlayer.Builder(context).build().apply {
         addListener(object : Player.Listener {
@@ -40,8 +45,15 @@ class PlayerManager @Inject constructor(
                         _playerState.value.copy(isLoading = true, isPlaying = false)
                     Player.STATE_READY -> _playerState.value =
                         _playerState.value.copy(isLoading = false, isPlaying = isPlaying)
-                    Player.STATE_ENDED -> _playerState.value =
-                        AudioPlayerState()
+                    Player.STATE_ENDED -> {
+                        _playerState.value = _playerState.value.copy(
+                            isPlaying = false,
+                            isLoading = false,
+                            currentPositionMs = player.duration.coerceAtLeast(0L),
+                            totalDurationMs = player.duration.coerceAtLeast(0L)
+                        )
+                        _songCompleted.tryEmit(Unit)
+                    }
                     else -> Unit
                 }
             }
@@ -51,17 +63,36 @@ class PlayerManager @Inject constructor(
         })
     }
 
+    fun playSong(id: String, previewUrl: String) {
+        player.stop()
+        player.setMediaItem(MediaItem.fromUri(previewUrl))
+        player.prepare()
+        player.play()
+        _playerState.value = AudioPlayerState(
+            currentPlayingId = id,
+            isPlaying = true,
+            isLoading = true
+        )
+    }
+
     fun play(id: String, previewUrl: String) {
         if (_playerState.value.currentPlayingId == id) {
-            if (player.isPlaying) player.pause()
-            else player.play()
+            if (player.isPlaying) pause()
+            else resume()
         } else {
-            player.stop()
-            player.setMediaItem(MediaItem.fromUri(previewUrl))
-            player.prepare()
-            player.play()
-            _playerState.value = _playerState.value.copy(currentPlayingId = id)
+            playSong(id, previewUrl)
         }
+    }
+
+    fun pause() {
+        player.pause()
+        _playerState.value = _playerState.value.copy(isPlaying = false, isLoading = false)
+    }
+
+    fun resume() {
+        if (_playerState.value.currentPlayingId == null) return
+        player.play()
+        _playerState.value = _playerState.value.copy(isPlaying = true, isLoading = false)
     }
 
     fun stop() {
