@@ -17,7 +17,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.mauro.offlinefirst.R
 
 @Composable
 fun OfflineBanner() {
@@ -31,6 +33,6 @@ fun OfflineBanner() {
     ) {
         Icon(Icons.Default.WifiOff, contentDescription = null, tint = Color.White.copy(alpha = 0.8f), modifier = Modifier.size(16.dp))
         Spacer(modifier = Modifier.width(8.dp))
-        Text("Sin conexión — mostrando datos locales", color = Color.White.copy(alpha = 0.8f), style = MaterialTheme.typography.bodySmall)
+        Text(stringResource(R.string.offline_showing_local), color = Color.White.copy(alpha = 0.8f), style = MaterialTheme.typography.bodySmall)
     }
 }

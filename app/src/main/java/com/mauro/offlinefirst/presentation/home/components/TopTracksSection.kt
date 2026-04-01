@@ -1,5 +1,6 @@
 package com.mauro.offlinefirst.presentation.home.components
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListScope
@@ -10,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -19,7 +21,7 @@ import com.mauro.offlinefirst.presentation.components.SongItem
 
 fun LazyListScope.topTracksSection(
     songs: List<Song>,
-    title: String = "Top Tracks",
+    @StringRes titleRes: Int,
     currentPlayingId: String?,
     totalDurationMs: Long,
     currentPositionMs: Long,
@@ -29,7 +31,7 @@ fun LazyListScope.topTracksSection(
     showNavigateAction: (Song) -> Boolean = { true }
 ) {
     item {
-        TopTracksSectionHeader(title = title)
+        TopTracksSectionHeader(titleRes = titleRes)
     }
 
     itemsIndexed(items = songs, key = { _, song -> song.id }) { _, song ->
@@ -53,13 +55,13 @@ fun LazyListScope.topTracksSection(
 }
 
 @Composable
-private fun TopTracksSectionHeader(title: String) {
+private fun TopTracksSectionHeader(@StringRes titleRes: Int) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.padding(horizontal = 16.dp, vertical = 2.dp)
     ) {
         Text(
-            text = title,
+            text = stringResource(titleRes),
             style = MaterialTheme.typography.titleMedium.copy(
                 fontWeight = FontWeight.Bold,
                 fontSize = 18.sp,

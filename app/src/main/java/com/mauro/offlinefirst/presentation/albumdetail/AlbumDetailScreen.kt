@@ -41,11 +41,13 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
+import com.mauro.offlinefirst.R
 import com.mauro.offlinefirst.presentation.albumdetail.components.AlbumSongItem
 import com.mauro.offlinefirst.presentation.albumdetail.components.DeezerButton
 import com.mauro.offlinefirst.presentation.components.formatDate
@@ -90,7 +92,6 @@ fun AlbumDetailScreen(
                     title = {
                         Text(
                             text = song?.artist ?: "",
-                            fontFamily = FontFamily.SansSerif,
                             fontWeight = FontWeight.Bold
                         )
                     },
@@ -98,7 +99,7 @@ fun AlbumDetailScreen(
                         IconButton(onClick = onNavigateBack) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Volver"
+                                contentDescription = stringResource(R.string.back)
                             )
                         }
                     },
@@ -139,12 +140,11 @@ fun AlbumDetailScreen(
                             text = if (currentSong.albumTitle.isNotEmpty())
                                 currentSong.albumTitle
                             else uiState.albumSongs.firstOrNull()?.albumTitle ?: "",
-                            style = MaterialTheme.typography.headlineLarge.copy(
-                                fontWeight = FontWeight.Bold,
-                                color = Color.White
-                            )
+                            fontSize = 32.sp,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = Color.White,
+                            lineHeight = 36.sp
                         )
-
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -222,7 +222,7 @@ fun AlbumDetailScreen(
                             }
                             uiState.albumSongs.isEmpty() -> {
                                 Text(
-                                    text = "No hay canciones disponibles",
+                                    text = stringResource(R.string.no_songs_available),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = Color.White.copy(alpha = 0.4f),
                                     modifier = Modifier.padding(vertical = 8.dp)
@@ -270,7 +270,7 @@ fun AlbumDetailScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "Canción no encontrada",
+                    text = stringResource(R.string.song_not_found),
                     style = MaterialTheme.typography.bodyLarge,
                     color = Color.White.copy(alpha = 0.6f)
                 )

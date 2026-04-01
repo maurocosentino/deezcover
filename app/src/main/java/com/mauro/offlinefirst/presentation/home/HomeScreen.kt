@@ -45,12 +45,15 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
+import com.mauro.offlinefirst.R
 import com.mauro.offlinefirst.domain.model.Album
 import com.mauro.offlinefirst.domain.model.Artist
 import com.mauro.offlinefirst.domain.model.Song
@@ -151,8 +154,14 @@ fun HomeScreen(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
+                            Icon(
+                                painter = painterResource(R.drawable.deezer_logo),
+                                contentDescription = null,
+                                tint = Color.White,
+                                modifier = Modifier.size(22.dp)
+                            )
                             Text(
-                                text = ("Deezcover"),
+                                text = stringResource(R.string.brand_name),
                                 color = Color.White,
                                 fontWeight = FontWeight.SemiBold,
                                 style = MaterialTheme.typography.titleLarge,
@@ -169,7 +178,7 @@ fun HomeScreen(
                         IconButton(onClick = { viewModel.syncSongs() }) {
                             Icon(
                                 imageVector = Icons.Outlined.Sync,
-                                contentDescription = "Sincronizar",
+                                contentDescription = stringResource(R.string.sync),
                                 tint = Color.White,
                                 modifier = if (uiState.isSyncing) Modifier.rotate(syncRotation) else Modifier
                             )
@@ -361,7 +370,11 @@ private fun androidx.compose.foundation.lazy.LazyListScope.localResultsSection(
             TopAlbumsSection(
                 albums = albums,
                 isLoading = false,
-                title = if (hasSearchQuery) "Albums" else "Top Álbumes",
+                title = if (hasSearchQuery) {
+                    stringResource(R.string.search_section_albums)
+                } else {
+                    stringResource(R.string.home_top_albums)
+                },
                 onAlbumClick = onAlbumClick
             )
         }
@@ -371,7 +384,11 @@ private fun androidx.compose.foundation.lazy.LazyListScope.localResultsSection(
         item {
             TopArtistsSection(
                 artists = artists,
-                title = if (hasSearchQuery) "Artists" else "Top Artists",
+                title = if (hasSearchQuery) {
+                    stringResource(R.string.search_section_artists)
+                } else {
+                    stringResource(R.string.home_top_artists)
+                },
                 onArtistClick = onArtistClick
             )
         }
@@ -386,7 +403,11 @@ private fun androidx.compose.foundation.lazy.LazyListScope.localResultsSection(
     if (tracks.isNotEmpty()) {
         topTracksSection(
             songs = tracks,
-            title = if (hasSearchQuery) "Tracks" else "Top Tracks",
+            titleRes = if (hasSearchQuery) {
+                R.string.search_section_tracks
+            } else {
+                R.string.home_top_tracks
+            },
             currentPlayingId = currentPlayingId,
             totalDurationMs = totalDurationMs,
             currentPositionMs = currentPositionMs,
@@ -416,7 +437,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.remoteResultsSection(
     item {
         HorizontalDivider(color = Color.White.copy(alpha = 0.08f))
         SectionHeader(
-            title = "Deezer Results",
+            title = stringResource(R.string.deezer_results),
             modifier = Modifier.padding(horizontal = HomeHorizontalPadding)
         )
     }
@@ -425,7 +446,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.remoteResultsSection(
         isSearchLoading -> {
             item {
                 SearchFeedbackState(
-                    text = "Searching Deezer...",
+                    text = stringResource(R.string.searching_deezer),
                     loading = true
                 )
             }
@@ -436,7 +457,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.remoteResultsSection(
                 SearchFeedbackState(
                     text = searchError,
                     loading = false,
-                    actionLabel = "Retry",
+                    actionLabel = stringResource(R.string.retry),
                     onAction = onRetry
                 )
             }
@@ -445,7 +466,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.remoteResultsSection(
         remoteTracks.isEmpty() && remoteAlbums.isEmpty() && remoteArtists.isEmpty() -> {
             item {
                 SearchFeedbackState(
-                    text = "No Deezer results for this search",
+                    text = stringResource(R.string.no_deezer_results),
                     loading = false
                 )
             }
@@ -457,7 +478,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.remoteResultsSection(
                     TopAlbumsSection(
                         albums = remoteAlbums,
                         isLoading = false,
-                        title = "Albums",
+                        title = stringResource(R.string.search_section_albums),
                         onAlbumClick = onAlbumClick
                     )
                 }
@@ -467,7 +488,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.remoteResultsSection(
                 item {
                     TopArtistsSection(
                         artists = remoteArtists,
-                        title = "Artists",
+                        title = stringResource(R.string.search_section_artists),
                         onArtistClick = onArtistClick
                     )
                 }
@@ -482,7 +503,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.remoteResultsSection(
             if (remoteTracks.isNotEmpty()) {
                 topTracksSection(
                     songs = remoteTracks,
-                    title = "Tracks",
+                    titleRes = R.string.search_section_tracks,
                     currentPlayingId = currentPlayingId,
                     totalDurationMs = totalDurationMs,
                     currentPositionMs = currentPositionMs,
@@ -510,7 +531,7 @@ private fun SearchFeedbackState(
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         SectionHeader(
-            title = "Deezer Results",
+            title = stringResource(R.string.deezer_results),
             modifier = Modifier.padding(horizontal = 16.dp)
         )
         if (loading) {
@@ -560,7 +581,7 @@ private fun SearchEmptyState(query: String) {
                 modifier = Modifier.size(40.dp)
             )
             Text(
-                text = "No results for",
+                text = stringResource(R.string.no_results_for),
                 style = MaterialTheme.typography.bodyLarge,
                 color = Color.White.copy(alpha = 0.56f)
             )

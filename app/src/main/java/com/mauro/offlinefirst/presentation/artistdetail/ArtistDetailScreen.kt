@@ -40,12 +40,14 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
-import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
+import com.mauro.offlinefirst.R
 import com.mauro.offlinefirst.presentation.albumdetail.components.DeezerButton
 import com.mauro.offlinefirst.presentation.home.components.topTracksSection
 import java.text.DecimalFormat
@@ -142,7 +144,6 @@ fun ArtistDetailScreen(
                             title = {
                                 Text(
                                     text = uiState.artistName,
-                                    fontFamily = FontFamily.SansSerif,
                                     fontWeight = FontWeight.Bold,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis,
@@ -153,7 +154,7 @@ fun ArtistDetailScreen(
                                 IconButton(onClick = onNavigateBack) {
                                     Icon(
                                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                        contentDescription = "Volver"
+                                        contentDescription = stringResource(R.string.back)
                                     )
                                 }
                             },
@@ -220,16 +221,15 @@ fun ArtistDetailScreen(
                                     ) {
                                         Text(
                                             text = uiState.artistName,
-                                            style = MaterialTheme.typography.headlineLarge.copy(
-                                                color = Color.White,
-                                                fontFamily = FontFamily.SansSerif,
-                                                fontWeight = FontWeight.Bold
-                                            ),
+                                            fontSize = 34.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = Color.White,
+                                            lineHeight = 38.sp,
                                             maxLines = 2,
                                             overflow = TextOverflow.Ellipsis
                                         )
                                         Text(
-                                            text = "Artista",
+                                            text = stringResource(R.string.artist_label),
                                             style = MaterialTheme.typography.labelMedium.copy(
                                                 color = Color.White.copy(alpha = 0.72f),
                                                 fontWeight = FontWeight.Medium
@@ -251,7 +251,7 @@ fun ArtistDetailScreen(
 
                         topTracksSection(
                             songs = uiState.topTracks,
-                            title = "Top 10 tracks",
+                            titleRes = R.string.top_10_tracks,
                             currentPlayingId = uiState.currentPlayingId,
                             totalDurationMs = uiState.totalDurationMs,
                             currentPositionMs = uiState.currentPositionMs,
@@ -289,8 +289,9 @@ fun ArtistDetailScreen(
     }
 }
 
+@Composable
 private fun buildArtistInfo(fanCount: Long?): String =
-    fanCount?.let { "${formatCompactCount(it)} fans" }.orEmpty()
+    fanCount?.let { stringResource(R.string.artist_fans, formatCompactCount(it)) }.orEmpty()
 
 private fun rememberArtistDeezerUrl(artistId: String): String =
     artistId.takeIf { it.isNotBlank() }?.let { "https://www.deezer.com/artist/$it" }.orEmpty()

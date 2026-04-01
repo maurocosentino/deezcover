@@ -22,11 +22,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.mauro.offlinefirst.R
 import com.mauro.offlinefirst.domain.model.Album
 
 @Composable
@@ -86,7 +88,7 @@ fun AlbumCard(
             ) {
                 Icon(
                     imageVector        = Icons.Default.ArrowCircleRight,
-                    contentDescription = "Ver álbum",
+                    contentDescription = stringResource(R.string.view_album),
                     tint               = Color.White.copy(alpha = 0.35f),
                     modifier           = Modifier.size(12.dp)
                 )

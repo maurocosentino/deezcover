@@ -34,7 +34,7 @@ private val ArtistAccent = Color(0xFF00C8FF)
 @Composable
 fun TopArtistsSection(
     artists: List<Artist>,
-    title: String = "Top Artists",
+    title: String,
     onArtistClick: (Artist) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -67,14 +67,14 @@ private fun ArtistStoryItem(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier
-            .width(88.dp)
+            .width(78.dp)
             .clickable(onClick = onClick)
     ) {
         Box(contentAlignment = Alignment.Center) {
             Surface(
                 shape = CircleShape,
                 color = Color.White.copy(alpha = 0.04f),
-                border = BorderStroke(2.dp, ArtistAccent.copy(alpha = 0.75f))
+                border = BorderStroke(2.dp, ArtistAccent.copy(alpha = 0.70f))
             ) {
                 AsyncImage(
                     model = artist.imageUrl,

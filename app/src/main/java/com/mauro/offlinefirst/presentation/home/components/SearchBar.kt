@@ -26,9 +26,11 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import com.mauro.offlinefirst.R
 
 private val SearchField = Color(0x3311181F)
 private val SearchAccent = Color(0xFF00C8FF)
@@ -63,13 +65,13 @@ fun SearchBar(
                 verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(2.dp)
             ) {
                 Text(
-                    text = "Search",
+                    text = stringResource(R.string.search_title),
                     style = MaterialTheme.typography.titleMedium,
                     color = Color.White,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = "Explore local content and Deezer in one place",
+                    text = stringResource(R.string.search_subtitle),
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.White.copy(alpha = 0.56f)
                 )
@@ -86,7 +88,7 @@ fun SearchBar(
                     Icon(
                         imageVector = Icons.Default.Search,
                         contentDescription = null,
-                        tint = SearchAccent
+                        tint = Color.White.copy(alpha = 0.2f)
                     )
                 },
                 trailingIcon = {
@@ -94,7 +96,7 @@ fun SearchBar(
                         IconButton(onClick = { onSearchQueryChange("") }) {
                             Icon(
                                 imageVector = Icons.Default.Close,
-                                contentDescription = "Limpiar",
+                                contentDescription = stringResource(R.string.clear_search),
                                 tint = Color.White.copy(alpha = 0.72f)
                             )
                         }
@@ -102,7 +104,7 @@ fun SearchBar(
                 },
                 placeholder = {
                     Text(
-                        text = "Search songs, artists...",
+                        text = stringResource(R.string.search_placeholder),
                         style = MaterialTheme.typography.bodyLarge,
                         color = Color.White.copy(alpha = 0.2f)
                     )
@@ -126,7 +128,12 @@ fun SearchBar(
 
             if (!isConnected && !isFocused && searchQuery.isBlank()) {
                 Text(
-                    text = "Available now: $totalSongsCount tracks, $totalAlbumsCount albums, $totalArtistsCount artists",
+                    text = stringResource(
+                        R.string.available_now,
+                        totalSongsCount,
+                        totalAlbumsCount,
+                        totalArtistsCount
+                    ),
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.White.copy(alpha = 0.25f),
                     modifier = Modifier.padding(top = 8.dp)

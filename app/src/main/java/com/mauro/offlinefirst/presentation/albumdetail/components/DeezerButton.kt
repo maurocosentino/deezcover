@@ -29,8 +29,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.mauro.offlinefirst.R
 import com.mauro.offlinefirst.ui.theme.DeezerColor
 
 @Composable
@@ -77,7 +79,7 @@ fun DeezerButton(
 
             Spacer(modifier = Modifier.width(2.dp))
             Text(
-                text = "Escuchar en Deezer",
+                text = stringResource(R.string.listen_on_deezer),
                 style = MaterialTheme.typography.labelMedium,
                 color = Color.White,
                 maxLines = 1,
@@ -98,7 +100,7 @@ fun DeezerButton(
         ) {
             Icon(imageVector = Icons.Default.PlayArrow, contentDescription = null)
             Spacer(modifier = Modifier.width(8.dp))
-            Text(text = "Escuchar en Deezer", style = MaterialTheme.typography.labelLarge)
+            Text(text = stringResource(R.string.listen_on_deezer), style = MaterialTheme.typography.labelLarge)
         }
     }
 }

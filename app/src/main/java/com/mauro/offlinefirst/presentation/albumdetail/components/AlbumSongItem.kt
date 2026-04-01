@@ -20,10 +20,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mauro.offlinefirst.R
 import com.mauro.offlinefirst.domain.model.Song
 import com.mauro.offlinefirst.presentation.albumdetail.PlayerState
 
@@ -124,7 +126,7 @@ fun AlbumSongItem(
                 isPlaying && playerState == PlayerState.PLAYING -> {
                     Icon(
                         imageVector = Icons.Default.PauseCircle,
-                        contentDescription = "Pausar",
+                        contentDescription = stringResource(R.string.pause),
                         tint = AccentCyan,
                         modifier = Modifier.size(22.dp)
                     )
@@ -132,7 +134,7 @@ fun AlbumSongItem(
                 else -> {
                     Icon(
                         imageVector = Icons.Default.PlayCircle,
-                        contentDescription = "Reproducir",
+                        contentDescription = stringResource(R.string.play),
                         tint = Color.White.copy(alpha = 0.5f),
                         modifier = Modifier.size(22.dp)
                     )

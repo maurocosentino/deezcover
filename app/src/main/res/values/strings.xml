@@ -1,3 +1,33 @@
 <resources>
     <string name="app_name">Deezcover</string>
+    <string name="brand_name">Deezcover</string>
+    <string name="sync">Sincronizar</string>
+    <string name="home_top_albums">Top Álbumes</string>
+    <string name="home_top_artists">Top Artistas</string>
+    <string name="home_top_tracks">Top Canciones</string>
+    <string name="search_section_albums">Álbumes</string>
+    <string name="search_section_artists">Artistas</string>
+    <string name="search_section_tracks">Canciones</string>
+    <string name="deezer_results">Resultados de Deezer</string>
+    <string name="searching_deezer">Buscando en Deezer...</string>
+    <string name="retry">Reintentar</string>
+    <string name="no_deezer_results">No hay resultados de Deezer para esta búsqueda</string>
+    <string name="no_results_for">Sin resultados para</string>
+    <string name="search_title">Buscar</string>
+    <string name="search_subtitle">Explora contenido local y Deezer en un solo lugar</string>
+    <string name="clear_search">Limpiar</string>
+    <string name="search_placeholder">Buscar canciones, artistas...</string>
+    <string name="available_now">Disponible ahora: %1$d canciones, %2$d álbumes, %3$d artistas</string>
+    <string name="view_album">Ver álbum</string>
+    <string name="no_songs_available">No hay canciones disponibles</string>
+    <string name="connect_to_sync">Conéctate a internet para sincronizar</string>
+    <string name="offline_showing_local">Sin conexión, mostrando datos locales</string>
+    <string name="back">Volver</string>
+    <string name="song_not_found">Canción no encontrada</string>
+    <string name="listen_on_deezer">Escuchar en Deezer</string>
+    <string name="artist_label">Artista</string>
+    <string name="top_10_tracks">Top 10 canciones</string>
+    <string name="artist_fans">%1$s seguidores</string>
+    <string name="pause">Pausar</string>
+    <string name="play">Reproducir</string>
 </resources>
