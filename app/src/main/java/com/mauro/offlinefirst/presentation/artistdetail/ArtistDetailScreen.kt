@@ -270,7 +270,14 @@ fun ArtistDetailScreen(
                                 }
 
                                 PlaybackControls(
-                                    onPlayClick = { playerViewModel.playSongs(uiState.topTracks) }
+                                    isPlaying = playerUiState.isPlaying && playerViewModel.isCurrentQueue(uiState.topTracks),
+                                    onPlayClick = {
+                                        if (playerUiState.isPlaying && playerViewModel.isCurrentQueue(uiState.topTracks)) {
+                                            playerViewModel.togglePlayPause()
+                                        } else {
+                                            playerViewModel.playSongs(uiState.topTracks)
+                                        }
+                                    }
                                 )
                             }
                         }

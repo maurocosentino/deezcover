@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -17,6 +18,7 @@ import com.mauro.offlinefirst.ui.theme.DeezerColor
 
 @Composable
 fun PlaybackControls(
+    isPlaying: Boolean,
     onPlayClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -31,8 +33,8 @@ fun PlaybackControls(
                 .background(DeezerColor)
         ) {
             Icon(
-                imageVector = Icons.Default.PlayArrow,
-                contentDescription = "Play",
+                imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
+                contentDescription = if (isPlaying) "Pause" else "Play",
                 tint = Color.White
             )
         }

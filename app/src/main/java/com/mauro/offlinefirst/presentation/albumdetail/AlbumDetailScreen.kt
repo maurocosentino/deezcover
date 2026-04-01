@@ -220,7 +220,14 @@ fun AlbumDetailScreen(
                         }
 
                         PlaybackControls(
-                            onPlayClick = { playerViewModel.playSongs(uiState.albumSongs) }
+                            isPlaying = playerUiState.isPlaying,
+                            onPlayClick = {
+                                if (playerUiState.isPlaying && playerViewModel.isCurrentQueue(uiState.albumSongs)) {
+                                    playerViewModel.togglePlayPause()
+                                } else {
+                                    playerViewModel.playSongs(uiState.albumSongs)
+                                }
+                            }
                         )
                     }
 
