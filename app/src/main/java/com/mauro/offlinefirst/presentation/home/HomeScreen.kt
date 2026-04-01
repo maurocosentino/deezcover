@@ -54,6 +54,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -71,6 +72,7 @@ import com.mauro.offlinefirst.presentation.home.components.SectionHeader
 import com.mauro.offlinefirst.presentation.home.components.TopAlbumsSection
 import com.mauro.offlinefirst.presentation.home.components.TopArtistsSection
 import com.mauro.offlinefirst.presentation.home.components.topTracksSection
+import com.mauro.offlinefirst.ui.theme.AldotheApacheFamily
 import com.mauro.offlinefirst.ui.theme.DeezerColor
 
 private val GradientTop = Color(0xFF000000)
@@ -159,33 +161,12 @@ fun HomeScreen(
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Text(
-                                text = buildAnnotatedString {
-                                    withStyle(
-                                        SpanStyle(
-                                            color = Color.White,
-                                            fontWeight = FontWeight.Bold
-                                        )
-                                    ) {
-                                        append("Deez")
-                                    }
-                                    withStyle(
-                                        SpanStyle(
-                                            color = DeezerColor,
-                                            fontWeight = FontWeight.Bold
-                                        )
-                                    ) {
-                                        append("cover")
-                                    }
-                                },
+                                text = ("Deezcover"),
+                                color = Color.White,
+                                fontWeight = FontWeight.SemiBold,
                                 style = MaterialTheme.typography.titleLarge,
-                                fontFamily = FontFamily.SansSerif,
+                                fontFamily = AldotheApacheFamily,
                                 letterSpacing = 1.1.sp
-                            )
-                            Icon(
-                                painter = painterResource(R.drawable.ic_deezcover_mark),
-                                contentDescription = stringResource(R.string.app_name),
-                                tint = DeezerColor,
-                                modifier = Modifier.size(18.dp)
                             )
                         }
                     },
