@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Album
 import androidx.compose.material.icons.filled.ArrowCircleRight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -87,7 +88,7 @@ fun AlbumCard(
                 modifier = Modifier.size(28.dp)
             ) {
                 Icon(
-                    imageVector        = Icons.Default.ArrowCircleRight,
+                    imageVector        = Icons.Default.Album,
                     contentDescription = stringResource(R.string.view_album),
                     tint               = Color.White.copy(alpha = 0.35f),
                     modifier           = Modifier.size(12.dp)

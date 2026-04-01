@@ -338,7 +338,11 @@ fun ArtistDetailScreen(
                 onPreviousClick = playerViewModel::playPrevious,
                 onPlayPauseClick = playerViewModel::togglePlayPause,
                 onNextClick = playerViewModel::playNext,
-                onClick = { onMiniPlayerClick(song.id) },
+                onClick = {
+                    viewModel.navigateToAlbum(song) { resolvedSongId ->
+                        onMiniPlayerClick(resolvedSongId)
+                    }
+                },
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
