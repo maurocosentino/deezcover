@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowCircleRight
@@ -29,6 +30,7 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -42,6 +44,7 @@ private val AccentCyan = Color(0xFF00C8FF)
 @Composable
 fun SongItem(
     song: Song,
+    trackNumber: Int? = null,
     isPlaying: Boolean,
     playerState: PlayerState,
     onPlayClick: () -> Unit,
@@ -61,6 +64,21 @@ fun SongItem(
             .clickable(onClick = onPlayClick)
             .padding(horizontal = 16.dp, vertical = 10.dp)
     ) {
+        if (trackNumber != null) {
+            Text(
+                text = trackNumber.toString(),
+                style = MaterialTheme.typography.bodySmall.copy(
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color.White.copy(alpha = 0.45f)
+                ),
+                textAlign = TextAlign.End,
+                modifier = Modifier.width(24.dp)
+            )
+
+            Spacer(modifier = Modifier.width(12.dp))
+        }
+
         AsyncImage(
             model = song.albumArt,
             contentDescription = song.title,

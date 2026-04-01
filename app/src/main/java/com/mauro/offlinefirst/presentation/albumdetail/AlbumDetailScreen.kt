@@ -147,7 +147,7 @@ fun AlbumDetailScreen(
                         )
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(5.dp),
                             modifier = Modifier.clickable(
                                 enabled = currentSong.artistId.isNotBlank(),
                                 onClick = {
@@ -165,13 +165,14 @@ fun AlbumDetailScreen(
                                     contentDescription = currentSong.artist,
                                     contentScale = ContentScale.Crop,
                                     modifier = Modifier
-                                        .size(24.dp)
+                                        .size(20.dp)
                                         .clip(CircleShape)
                                 )
                             }
                             Text(
                                 text = currentSong.artist,
-                                style = MaterialTheme.typography.bodyMedium.copy(
+                                style = MaterialTheme.typography.bodySmall.copy(
+                                    fontSize = 12.sp,
                                     color = Color.White.copy(alpha = 0.8f),
                                     fontWeight = FontWeight.SemiBold
                                 )
@@ -179,12 +180,14 @@ fun AlbumDetailScreen(
                             if (uiState.albumReleaseDate.isNotEmpty()) {
                                 Text(
                                     text = "•",
+                                    fontSize = 12.sp,
                                     color = Color.White.copy(alpha = 0.4f)
                                 )
                                 Text(
                                     text = "${uiState.albumType} • ${formatDate(uiState.albumReleaseDate)}",
-                                    style = MaterialTheme.typography.bodySmall.copy(
-                                        color = Color.White.copy(alpha = 0.5f)
+                                    style = MaterialTheme.typography.labelSmall.copy(
+                                        fontSize = 12.sp,
+                                        color = Color.White.copy(alpha = 0.6f)
                                     )
                                 )
                             }

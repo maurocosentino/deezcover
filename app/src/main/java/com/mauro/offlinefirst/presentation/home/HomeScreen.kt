@@ -158,15 +158,15 @@ fun HomeScreen(
                                 painter = painterResource(R.drawable.deezer_logo),
                                 contentDescription = null,
                                 tint = Color.White,
-                                modifier = Modifier.size(22.dp)
+                                modifier = Modifier.size(26.dp)
                             )
                             Text(
                                 text = stringResource(R.string.brand_name),
                                 color = Color.White,
                                 fontWeight = FontWeight.SemiBold,
-                                style = MaterialTheme.typography.titleLarge,
+                                style = MaterialTheme.typography.headlineSmall,
                                 fontFamily = AldotheApacheFamily,
-                                letterSpacing = 1.1.sp
+                                letterSpacing = 1.5.sp
                             )
                         }
                     },
@@ -413,7 +413,8 @@ private fun androidx.compose.foundation.lazy.LazyListScope.localResultsSection(
             currentPositionMs = currentPositionMs,
             playerState = playerState,
             onPlayClick = onPlayClick,
-            onSongClick = onSongClick
+            onSongClick = onSongClick,
+            showTrackNumbers = !hasSearchQuery
         )
     }
 }

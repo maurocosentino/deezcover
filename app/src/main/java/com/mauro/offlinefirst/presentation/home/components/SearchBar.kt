@@ -66,7 +66,7 @@ fun SearchBar(
             ) {
                 Text(
                     text = stringResource(R.string.search_title),
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.headlineSmall,
                     color = Color.White,
                     fontWeight = FontWeight.Bold
                 )

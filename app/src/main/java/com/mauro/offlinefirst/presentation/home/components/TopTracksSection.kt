@@ -28,13 +28,14 @@ fun LazyListScope.topTracksSection(
     playerState: PlayerState,
     onPlayClick: (Song) -> Unit,
     onSongClick: (Song) -> Unit,
+    showTrackNumbers: Boolean = false,
     showNavigateAction: (Song) -> Boolean = { true }
 ) {
     item {
         TopTracksSectionHeader(titleRes = titleRes)
     }
 
-    itemsIndexed(items = songs, key = { _, song -> song.id }) { _, song ->
+    itemsIndexed(items = songs, key = { _, song -> song.id }) { index, song ->
         val isPlaying = currentPlayingId == song.id
         val remainingSeconds = if (isPlaying && totalDurationMs > 0) {
             (totalDurationMs - currentPositionMs).coerceAtLeast(0L) / 1000
@@ -44,6 +45,7 @@ fun LazyListScope.topTracksSection(
 
         SongItem(
             song = song,
+            trackNumber = if (showTrackNumbers) index + 1 else null,
             isPlaying = isPlaying,
             playerState = playerState,
             remainingSeconds = remainingSeconds,

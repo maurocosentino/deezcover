@@ -110,4 +110,22 @@ class ArtistDetailViewModel @Inject constructor(
             }
         }
     }
+    private val _isShuffleActive = MutableStateFlow(false)
+    val isShuffleActive = _isShuffleActive.asStateFlow()
+
+    fun toggleShuffle() {
+        _isShuffleActive.value = !_isShuffleActive.value
+    }
+    fun playSongs() {
+        val songs = uiState.value.topTracks
+        if (songs.isEmpty()) return
+
+        val finalList = if (_isShuffleActive.value) {
+            songs.shuffled()
+        } else {
+            songs
+        }
+
+        togglePlayPause(finalList.first())
+    }
 }

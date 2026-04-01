@@ -26,6 +26,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
@@ -34,6 +35,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -49,6 +51,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.mauro.offlinefirst.R
 import com.mauro.offlinefirst.presentation.albumdetail.components.DeezerButton
+import androidx.compose.runtime.collectAsState
+import com.mauro.offlinefirst.presentation.albumdetail.PlayerState
+import com.mauro.offlinefirst.presentation.components.PlaybackControls
 import com.mauro.offlinefirst.presentation.home.components.topTracksSection
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
@@ -66,6 +71,8 @@ fun ArtistDetailScreen(
     viewModel: ArtistDetailViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val isPlaying = uiState.playerState == PlayerState.PLAYING
+    val isShuffleActive by viewModel.isShuffleActive.collectAsState(initial = false)
     val density = LocalDensity.current
     val heroHeight = with(LocalWindowInfo.current.containerSize) {
         with(density) { height.toDp() * 0.52f }
@@ -98,6 +105,7 @@ fun ArtistDetailScreen(
         targetValue = if (isCollapsed) Color.Black.copy(alpha = 0.94f) else Color.Transparent,
         label = "artist_top_bar_container_color"
     )
+
 
     Box(
         modifier = Modifier
@@ -208,7 +216,7 @@ fun ArtistDetailScreen(
                                 )
 
                                 Row(
-                                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.Bottom,
                                     modifier = Modifier
                                         .alpha(expandedHeaderAlpha)
@@ -221,31 +229,48 @@ fun ArtistDetailScreen(
                                     ) {
                                         Text(
                                             text = uiState.artistName,
-                                            fontSize = 34.sp,
+                                            fontSize = 26.sp,
                                             fontWeight = FontWeight.Bold,
                                             color = Color.White,
-                                            lineHeight = 38.sp,
+                                            lineHeight = 34.sp,
                                             maxLines = 2,
                                             overflow = TextOverflow.Ellipsis
                                         )
                                         Text(
                                             text = stringResource(R.string.artist_label),
-                                            style = MaterialTheme.typography.labelMedium.copy(
+                                            style = MaterialTheme.typography.labelSmall.copy(
                                                 color = Color.White.copy(alpha = 0.72f),
                                                 fontWeight = FontWeight.Medium
                                             ),
                                             modifier = Modifier.padding(top = 4.dp)
                                         )
                                     }
-
-                                    if (deezerUrl.isNotEmpty()) {
-                                        DeezerButton(
-                                            url = deezerUrl,
-                                            compact = true,
-                                            modifier = Modifier.wrapContentWidth()
-                                        )
-                                    }
                                 }
+                            }
+                        }
+
+                        item {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                if (deezerUrl.isNotEmpty()) {
+                                    DeezerButton(
+                                        url = deezerUrl,
+                                        compact = true,
+                                        modifier = Modifier.scale(0.85f)
+                                    )
+                                }
+
+                                PlaybackControls(
+                                    isShuffleActive = isShuffleActive,
+                                    isPlaying = isPlaying,
+                                    onShuffleClick = { viewModel.toggleShuffle() },
+                                    onPlayClick = { viewModel.playSongs() }
+                                )
                             }
                         }
 
@@ -258,6 +283,7 @@ fun ArtistDetailScreen(
                             playerState = uiState.playerState,
                             onPlayClick = viewModel::togglePlayPause,
                             onSongClick = { song -> viewModel.navigateToAlbum(song, onSongClick) },
+                            showTrackNumbers = true,
                             showNavigateAction = { song -> song.albumId.isNotBlank() }
                         )
 
