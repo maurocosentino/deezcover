@@ -111,9 +111,9 @@ class PlayerViewModel @Inject constructor(
     }
 
     fun isCurrentQueue(songs: List<Song>): Boolean {
-        val currentQueue = uiState.value.currentQueue
-        if (currentQueue.size != songs.size) return false
-        return currentQueue.map(Song::id) == songs.map(Song::id)
+        val original = uiState.value.originalQueue
+        if (original.size != songs.size) return false
+        return original.map(Song::id) == songs.map(Song::id)
     }
 
     fun stopPlayback() {

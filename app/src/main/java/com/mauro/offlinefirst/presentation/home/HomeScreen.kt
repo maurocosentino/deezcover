@@ -170,6 +170,7 @@ fun HomeScreen(
                             )
                             Text(
                                 text = stringResource(R.string.brand_name),
+                                fontSize = 24.sp,
                                 color = Color.White,
                                 fontWeight = FontWeight.SemiBold,
                                 style = MaterialTheme.typography.headlineSmall,

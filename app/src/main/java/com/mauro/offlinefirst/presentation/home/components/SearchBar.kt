@@ -66,12 +66,14 @@ fun SearchBar(
             ) {
                 Text(
                     text = stringResource(R.string.search_title),
+                    Modifier.padding(8.dp),
                     style = MaterialTheme.typography.headlineSmall,
                     color = Color.White,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
                     text = stringResource(R.string.search_subtitle),
+                    Modifier.padding(8.dp),
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.White.copy(alpha = 0.56f)
                 )
