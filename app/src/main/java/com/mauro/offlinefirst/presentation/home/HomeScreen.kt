@@ -65,6 +65,7 @@ import com.mauro.offlinefirst.presentation.home.components.SectionHeader
 import com.mauro.offlinefirst.presentation.home.components.TopAlbumsSection
 import com.mauro.offlinefirst.presentation.home.components.TopArtistsSection
 import com.mauro.offlinefirst.presentation.home.components.topTracksSection
+import com.mauro.offlinefirst.presentation.player.PlayerViewModel
 import com.mauro.offlinefirst.ui.theme.AldotheApacheFamily
 
 private val GradientTop = Color(0xFF000000)
@@ -79,7 +80,8 @@ fun HomeScreen(
     onSongClick: (String) -> Unit,
     onAlbumClick: (String) -> Unit,
     onArtistClick: (artistId: String, artistName: String, artistImageUrl: String) -> Unit,
-    viewModel: HomeViewModel = hiltViewModel()
+    viewModel: HomeViewModel = hiltViewModel(),
+    playerViewModel: PlayerViewModel
 ) {
     val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
     LaunchedEffect(lifecycleOwner) {
@@ -89,6 +91,7 @@ fun HomeScreen(
     }
 
     val uiState by viewModel.uiState.collectAsState()
+    val playerUiState by playerViewModel.uiState.collectAsState()
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -260,12 +263,19 @@ fun HomeScreen(
                                             remoteArtists = remoteArtists,
                                             isSearchLoading = uiState.isSearchLoading,
                                             searchError = uiState.searchError,
-                                            currentPlayingId = uiState.currentPlayingId,
-                                            totalDurationMs = uiState.totalDurationMs,
-                                            currentPositionMs = uiState.currentPositionMs,
-                                            playerState = uiState.listPlayerState,
+                                            currentPlayingId = playerUiState.currentPlayingId,
+                                            totalDurationMs = playerUiState.totalDurationMs,
+                                            currentPositionMs = playerUiState.currentPositionMs,
+                                            playerState = playerUiState.playerState,
                                             onRetry = viewModel::retrySearch,
-                                            onPlayClick = { song -> viewModel.togglePlayPause(song) },
+                                            onPlayClick = { song ->
+                                                val songIndex = remoteTracks.indexOfFirst { it.id == song.id }
+                                                if (playerUiState.currentSong?.id == song.id) {
+                                                    playerViewModel.togglePlayPause()
+                                                } else if (songIndex != -1) {
+                                                    playerViewModel.playSongs(remoteTracks, songIndex)
+                                                }
+                                            },
                                             onTrackClick = { song ->
                                                 if (song.albumId.isNotBlank()) {
                                                     viewModel.navigateToAlbum(
@@ -294,11 +304,18 @@ fun HomeScreen(
                                             tracks = localTracks,
                                             albums = localAlbums,
                                             artists = localArtists,
-                                            currentPlayingId = uiState.currentPlayingId,
-                                            totalDurationMs = uiState.totalDurationMs,
-                                            currentPositionMs = uiState.currentPositionMs,
-                                            playerState = uiState.listPlayerState,
-                                            onPlayClick = { song -> viewModel.togglePlayPause(song) },
+                                            currentPlayingId = playerUiState.currentPlayingId,
+                                            totalDurationMs = playerUiState.totalDurationMs,
+                                            currentPositionMs = playerUiState.currentPositionMs,
+                                            playerState = playerUiState.playerState,
+                                            onPlayClick = { song ->
+                                                val songIndex = localTracks.indexOfFirst { it.id == song.id }
+                                                if (playerUiState.currentSong?.id == song.id) {
+                                                    playerViewModel.togglePlayPause()
+                                                } else if (songIndex != -1) {
+                                                    playerViewModel.playSongs(localTracks, songIndex)
+                                                }
+                                            },
                                             onSongClick = { song -> onSongClick(song.id) },
                                             onAlbumClick = { album ->
                                                 viewModel.navigateToAlbum(
@@ -319,11 +336,18 @@ fun HomeScreen(
                                         tracks = localTracks,
                                         albums = localAlbums,
                                         artists = localArtists,
-                                        currentPlayingId = uiState.currentPlayingId,
-                                        totalDurationMs = uiState.totalDurationMs,
-                                        currentPositionMs = uiState.currentPositionMs,
-                                        playerState = uiState.listPlayerState,
-                                        onPlayClick = { song -> viewModel.togglePlayPause(song) },
+                                        currentPlayingId = playerUiState.currentPlayingId,
+                                        totalDurationMs = playerUiState.totalDurationMs,
+                                        currentPositionMs = playerUiState.currentPositionMs,
+                                        playerState = playerUiState.playerState,
+                                        onPlayClick = { song ->
+                                            val songIndex = localTracks.indexOfFirst { it.id == song.id }
+                                            if (playerUiState.currentSong?.id == song.id) {
+                                                playerViewModel.togglePlayPause()
+                                            } else if (songIndex != -1) {
+                                                playerViewModel.playSongs(localTracks, songIndex)
+                                            }
+                                        },
                                         onSongClick = { song -> onSongClick(song.id) },
                                         onAlbumClick = { album ->
                                             viewModel.navigateToAlbum(

@@ -3,7 +3,6 @@ package com.mauro.offlinefirst.presentation.home
 import com.mauro.offlinefirst.domain.model.Album
 import com.mauro.offlinefirst.domain.model.Artist
 import com.mauro.offlinefirst.domain.model.Song
-import com.mauro.offlinefirst.presentation.albumdetail.PlayerState
 
 data class HomeUiState(
     val searchQuery: String = "",
@@ -22,9 +21,5 @@ data class HomeUiState(
     val isSyncing: Boolean = false,
     val errorMessage: String? = null,
     val searchError: String? = null,
-    val isConnected: Boolean = true,
-    val currentPlayingId: String? = null,
-    val listPlayerState: PlayerState = PlayerState.IDLE,
-    val currentPositionMs: Long = 0L,
-    val totalDurationMs: Long = 0L
+    val isConnected: Boolean = true
 )

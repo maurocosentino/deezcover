@@ -54,6 +54,7 @@ import com.mauro.offlinefirst.presentation.albumdetail.components.DeezerButton
 import com.mauro.offlinefirst.presentation.components.MiniPlayer
 import com.mauro.offlinefirst.presentation.components.PlaybackControls
 import com.mauro.offlinefirst.presentation.home.components.topTracksSection
+import com.mauro.offlinefirst.presentation.player.PlayerViewModel
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
 import java.util.Locale
@@ -67,11 +68,13 @@ private val GradientBottom = Color(0xFF000715)
 fun ArtistDetailScreen(
     onNavigateBack: () -> Unit,
     onSongClick: (String) -> Unit,
+    playerViewModel: PlayerViewModel,
     viewModel: ArtistDetailViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val isPlaying = uiState.isPlaying
-    val miniPlayerVisible = uiState.currentSong != null
+    val playerUiState by playerViewModel.uiState.collectAsState()
+    val isPlaying = playerUiState.isPlaying
+    val miniPlayerVisible = playerUiState.currentSong != null
     val contentBottomSpacing = if (miniPlayerVisible) 116.dp else 32.dp
     val density = LocalDensity.current
     val heroHeight = with(LocalWindowInfo.current.containerSize) {
@@ -268,10 +271,16 @@ fun ArtistDetailScreen(
                                 }
 
                                 PlaybackControls(
-                                    isShuffleActive = uiState.isShuffleActive,
+                                    isShuffleActive = playerUiState.isShuffleActive,
                                     isPlaying = isPlaying,
-                                    onShuffleClick = { viewModel.toggleShuffle() },
-                                    onPlayClick = { viewModel.onPlayClick() }
+                                    onShuffleClick = playerViewModel::toggleShuffle,
+                                    onPlayClick = {
+                                        if (playerUiState.currentSong?.id in uiState.topTracks.map { it.id }) {
+                                            playerViewModel.togglePlayPause()
+                                        } else {
+                                            playerViewModel.playSongs(uiState.topTracks)
+                                        }
+                                    }
                                 )
                             }
                         }
@@ -279,11 +288,18 @@ fun ArtistDetailScreen(
                         topTracksSection(
                             songs = uiState.topTracks,
                             titleRes = R.string.top_10_tracks,
-                            currentPlayingId = uiState.currentPlayingId,
-                            totalDurationMs = uiState.totalDurationMs,
-                            currentPositionMs = uiState.currentPositionMs,
-                            playerState = uiState.playerState,
-                            onPlayClick = viewModel::togglePlayPause,
+                            currentPlayingId = playerUiState.currentPlayingId,
+                            totalDurationMs = playerUiState.totalDurationMs,
+                            currentPositionMs = playerUiState.currentPositionMs,
+                            playerState = playerUiState.playerState,
+                            onPlayClick = { song ->
+                                val songIndex = uiState.topTracks.indexOfFirst { it.id == song.id }
+                                if (playerUiState.currentSong?.id == song.id) {
+                                    playerViewModel.togglePlayPause()
+                                } else if (songIndex != -1) {
+                                    playerViewModel.playSongs(uiState.topTracks, songIndex)
+                                }
+                            },
                             onSongClick = { song -> viewModel.navigateToAlbum(song, onSongClick) },
                             showTrackNumbers = true,
                             showNavigateAction = { song -> song.albumId.isNotBlank() }
@@ -315,18 +331,12 @@ fun ArtistDetailScreen(
             }
         }
 
-        uiState.currentSong?.let { song ->
+        playerUiState.currentSong?.let { song ->
             MiniPlayer(
                 song = song,
                 isPlaying = isPlaying,
-                onPlayPauseClick = {
-                    if (isPlaying) {
-                        viewModel.togglePlayPause(song)
-                    } else {
-                        viewModel.onPlayClick()
-                    }
-                },
-                onNextClick = viewModel::playNextSong,
+                onPlayPauseClick = playerViewModel::togglePlayPause,
+                onNextClick = playerViewModel::playNext,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()

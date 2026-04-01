@@ -1,5 +1,6 @@
 package com.mauro.offlinefirst.presentation.navigation
 
+import androidx.activity.ComponentActivity
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -8,6 +9,8 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -16,6 +19,7 @@ import androidx.navigation.navArgument
 import com.mauro.offlinefirst.presentation.albumdetail.AlbumDetailScreen
 import com.mauro.offlinefirst.presentation.artistdetail.ArtistDetailScreen
 import com.mauro.offlinefirst.presentation.home.HomeScreen
+import com.mauro.offlinefirst.presentation.player.PlayerViewModel
 
 private const val NavigationAnimationDurationMs = 320
 
@@ -53,6 +57,9 @@ private fun backwardExitTransition(): ExitTransition {
 
 @Composable
 fun NavGraph(navController: NavHostController) {
+    val activity = LocalContext.current as ComponentActivity
+    val playerViewModel: PlayerViewModel = hiltViewModel(activity)
+
     NavHost(
         navController = navController,
         startDestination = Screen.Home.route
@@ -75,7 +82,8 @@ fun NavGraph(navController: NavHostController) {
                     navController.navigate(
                         Screen.ArtistDetail.createRoute(artistId, artistName, artistImageUrl)
                     )
-                }
+                },
+                playerViewModel = playerViewModel
             )
         }
 
@@ -95,7 +103,8 @@ fun NavGraph(navController: NavHostController) {
                     navController.navigate(
                         Screen.ArtistDetail.createRoute(artistId, artistName, artistImageUrl)
                     )
-                }
+                },
+                playerViewModel = playerViewModel
             )
         }
 
@@ -115,7 +124,8 @@ fun NavGraph(navController: NavHostController) {
                 onNavigateBack = { navController.popBackStack() },
                 onSongClick = { songId ->
                     navController.navigate(Screen.AlbumDetail.createRoute(songId))
-                }
+                },
+                playerViewModel = playerViewModel
             )
         }
     }

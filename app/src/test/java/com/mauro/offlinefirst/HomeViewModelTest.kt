@@ -2,8 +2,6 @@ package com.mauro.offlinefirst
 
 import app.cash.turbine.test
 import com.mauro.offlinefirst.data.network.NetworkStatusDataSource
-import com.mauro.offlinefirst.data.player.AudioPlayerState
-import com.mauro.offlinefirst.data.player.PlayerManager
 import com.mauro.offlinefirst.domain.model.SearchResult
 import com.mauro.offlinefirst.domain.model.Song
 import com.mauro.offlinefirst.domain.repository.SongRepository
@@ -13,7 +11,6 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
@@ -33,7 +30,6 @@ class HomeViewModelTest {
 
     private lateinit var songRepository: SongRepository
     private lateinit var networkStatusDataSource: NetworkStatusDataSource
-    private lateinit var playerManager: PlayerManager
     private lateinit var viewModel: HomeViewModel
 
     @Before
@@ -41,8 +37,6 @@ class HomeViewModelTest {
         Dispatchers.setMain(testDispatcher)
         songRepository = mockk()
         networkStatusDataSource = mockk()
-        playerManager = mockk()
-        every { playerManager.playerState } returns MutableStateFlow(AudioPlayerState())
     }
 
     @After
@@ -51,7 +45,7 @@ class HomeViewModelTest {
     }
 
     private fun createViewModel() {
-        viewModel = HomeViewModel(songRepository, networkStatusDataSource, playerManager)
+        viewModel = HomeViewModel(songRepository, networkStatusDataSource)
     }
 
     private fun stubCommonRepositoryState() {

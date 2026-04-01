@@ -55,6 +55,7 @@ import com.mauro.offlinefirst.presentation.components.MiniPlayer
 import com.mauro.offlinefirst.presentation.components.PlaybackControls
 import com.mauro.offlinefirst.presentation.components.formatDate
 import com.mauro.offlinefirst.presentation.components.formatSongCount
+import com.mauro.offlinefirst.presentation.player.PlayerViewModel
 
 private val GradientTop = Color(0xFF01051C)
 private val GradientMiddle = Color(0xFF000000)
@@ -66,11 +67,13 @@ private val GradientBottom = Color(0xFF000715)
 fun AlbumDetailScreen(
     onNavigateBack: () -> Unit,
     onArtistClick: (artistId: String, artistName: String, artistImageUrl: String) -> Unit,
+    playerViewModel: PlayerViewModel,
     viewModel: AlbumDetailViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val playerUiState by playerViewModel.uiState.collectAsState()
     val song = uiState.song
-    val miniPlayerVisible = uiState.currentSong != null
+    val miniPlayerVisible = playerUiState.currentSong != null
     val contentBottomSpacing = if (miniPlayerVisible) 116.dp else 32.dp
     val albumDeezerUrl = rememberAlbumDeezerUrl(song?.albumId.orEmpty())
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
@@ -217,10 +220,16 @@ fun AlbumDetailScreen(
                         }
 
                         PlaybackControls(
-                            isShuffleActive = uiState.isShuffleActive,
-                            isPlaying = uiState.isPlaying,
-                            onShuffleClick = viewModel::toggleShuffle,
-                            onPlayClick = viewModel::onPlayClick
+                            isShuffleActive = playerUiState.isShuffleActive,
+                            isPlaying = playerUiState.isPlaying,
+                            onShuffleClick = playerViewModel::toggleShuffle,
+                            onPlayClick = {
+                                if (playerUiState.currentSong?.id in uiState.albumSongs.map { it.id }) {
+                                    playerViewModel.togglePlayPause()
+                                } else {
+                                    playerViewModel.playSongs(uiState.albumSongs)
+                                }
+                            }
                         )
                     }
 
@@ -253,9 +262,9 @@ fun AlbumDetailScreen(
                             }
                             else -> {
                                 uiState.albumSongs.forEachIndexed { index, albumSong ->
-                                    val isPlaying = uiState.currentAlbumPlayingId == albumSong.id
-                                    val remainingSeconds = if (isPlaying && uiState.totalDurationMs > 0)
-                                        (uiState.totalDurationMs - uiState.currentPositionMs)
+                                    val isPlaying = playerUiState.currentPlayingId == albumSong.id
+                                    val remainingSeconds = if (isPlaying && playerUiState.totalDurationMs > 0)
+                                        (playerUiState.totalDurationMs - playerUiState.currentPositionMs)
                                             .coerceAtLeast(0L) / 1000
                                     else 0L
 
@@ -264,8 +273,15 @@ fun AlbumDetailScreen(
                                         song = albumSong,
                                         isPlaying = isPlaying,
                                         remainingSeconds = remainingSeconds,
-                                        playerState = uiState.albumPlayerState,
-                                        onPlayClick = { viewModel.toggleAlbumPlayPause(albumSong) }
+                                        playerState = playerUiState.playerState,
+                                        onPlayClick = {
+                                            val songIndex = uiState.albumSongs.indexOfFirst { it.id == albumSong.id }
+                                            if (playerUiState.currentSong?.id == albumSong.id) {
+                                                playerViewModel.togglePlayPause()
+                                            } else if (songIndex != -1) {
+                                                playerViewModel.playSongs(uiState.albumSongs, songIndex)
+                                            }
+                                        }
                                     )
                                     if (index < uiState.albumSongs.lastIndex) {
                                         HorizontalDivider(
@@ -302,18 +318,12 @@ fun AlbumDetailScreen(
             }
         }
 
-        uiState.currentSong?.let { activeSong ->
+        playerUiState.currentSong?.let { activeSong ->
             MiniPlayer(
                 song = activeSong,
-                isPlaying = uiState.isPlaying,
-                onPlayPauseClick = {
-                    if (uiState.isPlaying) {
-                        viewModel.toggleAlbumPlayPause(activeSong)
-                    } else {
-                        viewModel.onPlayClick()
-                    }
-                },
-                onNextClick = viewModel::playNextSong,
+                isPlaying = playerUiState.isPlaying,
+                onPlayPauseClick = playerViewModel::togglePlayPause,
+                onNextClick = playerViewModel::playNext,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()

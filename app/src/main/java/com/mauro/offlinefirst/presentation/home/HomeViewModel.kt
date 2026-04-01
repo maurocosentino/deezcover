@@ -3,12 +3,10 @@ package com.mauro.offlinefirst.presentation.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mauro.offlinefirst.data.network.NetworkStatusDataSource
-import com.mauro.offlinefirst.data.player.PlayerManager
 import com.mauro.offlinefirst.domain.model.Album
 import com.mauro.offlinefirst.domain.model.Artist
 import com.mauro.offlinefirst.domain.model.Song
 import com.mauro.offlinefirst.domain.repository.SongRepository
-import com.mauro.offlinefirst.presentation.albumdetail.PlayerState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,8 +26,7 @@ private const val SEARCH_DEBOUNCE_MS = 300L
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val songRepository: SongRepository,
-    private val networkStatusDataSource: NetworkStatusDataSource,
-    private val playerManager: PlayerManager
+    private val networkStatusDataSource: NetworkStatusDataSource
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
@@ -43,29 +40,6 @@ class HomeViewModel @Inject constructor(
         syncSongs()
         syncAlbums()
         observeConnectivity()
-        observePlayerState()
-    }
-    private fun observePlayerState() {
-        viewModelScope.launch {
-            playerManager.playerState.collect { state ->
-                _uiState.update {
-                    it.copy(
-                        currentPlayingId = state.currentPlayingId,
-                        currentPositionMs = state.currentPositionMs,
-                        totalDurationMs = state.totalDurationMs,
-                        listPlayerState = when {
-                            state.isLoading -> PlayerState.LOADING
-                            state.isPlaying -> PlayerState.PLAYING
-                            state.currentPlayingId != null -> PlayerState.PAUSED
-                            else -> PlayerState.IDLE
-                        }
-                    )
-                }
-            }
-        }
-    }
-    fun togglePlayPause(song: Song) {
-        playerManager.play(song.id, song.previewUrl)
     }
 
     fun onSearchQueryChange(query: String) {
