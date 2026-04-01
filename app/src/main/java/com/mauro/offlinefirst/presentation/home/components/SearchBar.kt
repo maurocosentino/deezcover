@@ -1,7 +1,6 @@
 package com.mauro.offlinefirst.presentation.home.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -31,8 +30,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 
-private val SearchOverlay = Color(0xE6141822)
-private val SearchField = Color(0x6611181F)
+private val SearchField = Color(0x3311181F)
 private val SearchAccent = Color(0xFF00C8FF)
 
 @Composable
@@ -50,28 +48,30 @@ fun SearchBar(
 
     Surface(
         modifier = modifier.fillMaxWidth(),
-        color = SearchOverlay,
-        shape = RoundedCornerShape(28.dp),
-        tonalElevation = 10.dp,
-        shadowElevation = 18.dp
+        color = Color.Transparent,
+        shape = RoundedCornerShape(24.dp),
+        tonalElevation = 0.dp,
+        shadowElevation = 0.dp
     ) {
         Column(
             modifier = Modifier
-                .background(Color(0xFF000000))
-                .padding(horizontal = 18.dp, vertical = 18.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp)
+                .background(Color.Transparent)
+                .padding(vertical = 4.dp)
         ) {
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Column(
+                modifier = Modifier.padding(bottom = 10.dp),
+                verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(2.dp)
+            ) {
                 Text(
                     text = "Search",
-                    style = MaterialTheme.typography.titleLarge,
+                    style = MaterialTheme.typography.titleMedium,
                     color = Color.White,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
                     text = "Explore local content and Deezer in one place",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White.copy(alpha = 0.62f)
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.White.copy(alpha = 0.56f)
                 )
             }
 
@@ -108,7 +108,7 @@ fun SearchBar(
                     )
                 },
                 singleLine = true,
-                shape = RoundedCornerShape(22.dp),
+                shape = RoundedCornerShape(20.dp),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = SearchAccent.copy(alpha = 0.75f),
@@ -128,7 +128,8 @@ fun SearchBar(
                 Text(
                     text = "Available now: $totalSongsCount tracks, $totalAlbumsCount albums, $totalArtistsCount artists",
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.White.copy(alpha = 0.25f)
+                    color = Color.White.copy(alpha = 0.25f),
+                    modifier = Modifier.padding(top = 8.dp)
                 )
             }
         }

@@ -13,9 +13,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -47,20 +45,12 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
-import com.mauro.offlinefirst.R
 import com.mauro.offlinefirst.domain.model.Album
 import com.mauro.offlinefirst.domain.model.Artist
 import com.mauro.offlinefirst.domain.model.Song
@@ -73,11 +63,12 @@ import com.mauro.offlinefirst.presentation.home.components.TopAlbumsSection
 import com.mauro.offlinefirst.presentation.home.components.TopArtistsSection
 import com.mauro.offlinefirst.presentation.home.components.topTracksSection
 import com.mauro.offlinefirst.ui.theme.AldotheApacheFamily
-import com.mauro.offlinefirst.ui.theme.DeezerColor
 
 private val GradientTop = Color(0xFF000000)
 private val GradientMiddle = Color(0xFF000409)
 private val GradientBottom = Color(0xFF000715)
+private val HomeHorizontalPadding = 16.dp
+private val HomeSectionSpacing = 12.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -225,11 +216,14 @@ fun HomeScreen(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .padding(paddingValues),
-                            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 24.dp),
-                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                            contentPadding = PaddingValues(
+                                start = HomeHorizontalPadding,
+                                end = HomeHorizontalPadding,
+                                bottom = 24.dp
+                            ),
+                            verticalArrangement = Arrangement.spacedBy(HomeSectionSpacing)
                         ) {
                             item {
-                                Spacer(modifier = Modifier.height(8.dp))
                                 SearchBar(
                                     searchQuery = uiState.searchQuery,
                                     onSearchQueryChange = viewModel::onSearchQueryChange,
@@ -237,7 +231,8 @@ fun HomeScreen(
                                     totalAlbumsCount = uiState.chartAlbums.size,
                                     totalArtistsCount = uiState.topArtists.size,
                                     isConnected = uiState.isConnected,
-                                    focusRequester = focusRequester
+                                    focusRequester = focusRequester,
+                                    modifier = Modifier.padding(top = 2.dp)
                                 )
                             }
 
@@ -385,7 +380,6 @@ private fun androidx.compose.foundation.lazy.LazyListScope.localResultsSection(
     if ((albums.isNotEmpty() || artists.isNotEmpty()) && tracks.isNotEmpty()) {
         item {
             HorizontalDivider(color = Color.White.copy(alpha = 0.06f))
-            Spacer(modifier = Modifier.height(4.dp))
         }
     }
 
@@ -421,10 +415,9 @@ private fun androidx.compose.foundation.lazy.LazyListScope.remoteResultsSection(
 ) {
     item {
         HorizontalDivider(color = Color.White.copy(alpha = 0.08f))
-        Spacer(modifier = Modifier.height(4.dp))
         SectionHeader(
             title = "Deezer Results",
-            modifier = Modifier.padding(horizontal = 16.dp)
+            modifier = Modifier.padding(horizontal = HomeHorizontalPadding)
         )
     }
 
@@ -483,7 +476,6 @@ private fun androidx.compose.foundation.lazy.LazyListScope.remoteResultsSection(
             if ((remoteAlbums.isNotEmpty() || remoteArtists.isNotEmpty()) && remoteTracks.isNotEmpty()) {
                 item {
                     HorizontalDivider(color = Color.White.copy(alpha = 0.06f))
-                    Spacer(modifier = Modifier.height(4.dp))
                 }
             }
 

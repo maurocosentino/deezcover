@@ -56,7 +56,7 @@ fun LazyListScope.topTracksSection(
 private fun TopTracksSectionHeader(title: String) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+        modifier = Modifier.padding(horizontal = 16.dp, vertical = 2.dp)
     ) {
         Text(
             text = title,

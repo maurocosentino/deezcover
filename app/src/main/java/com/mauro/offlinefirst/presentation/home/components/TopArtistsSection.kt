@@ -6,9 +6,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -42,12 +42,12 @@ fun TopArtistsSection(
 
     SectionHeader(
         title = title,
-        modifier = modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+        modifier = modifier.padding(horizontal = 16.dp, vertical = 2.dp)
     )
 
     LazyRow(
         contentPadding = PaddingValues(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         items(items = artists, key = { it.id }) { artist ->
             ArtistStoryItem(
@@ -63,16 +63,14 @@ private fun ArtistStoryItem(
     artist: Artist,
     onClick: () -> Unit
 ) {
-    Box(
-        contentAlignment = Alignment.TopCenter,
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier
-            .size(width = 92.dp, height = 122.dp)
+            .width(88.dp)
             .clickable(onClick = onClick)
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(6.dp)
-        ) {
+        Box(contentAlignment = Alignment.Center) {
             Surface(
                 shape = CircleShape,
                 color = Color.White.copy(alpha = 0.04f),
@@ -88,19 +86,19 @@ private fun ArtistStoryItem(
                         .clip(CircleShape)
                 )
             }
-
-            Text(
-                text = artist.name,
-                style = MaterialTheme.typography.bodySmall.copy(
-                    color = Color.White,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 12.sp
-                ),
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
-            )
         }
+
+        Text(
+            text = artist.name,
+            style = MaterialTheme.typography.bodySmall.copy(
+                color = Color.White,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 12.sp
+            ),
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.width(88.dp)
+        )
     }
 }
