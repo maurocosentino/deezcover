@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -26,7 +27,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
@@ -51,7 +51,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.mauro.offlinefirst.R
 import com.mauro.offlinefirst.presentation.albumdetail.components.DeezerButton
-import com.mauro.offlinefirst.presentation.albumdetail.PlayerState
+import com.mauro.offlinefirst.presentation.components.MiniPlayer
 import com.mauro.offlinefirst.presentation.components.PlaybackControls
 import com.mauro.offlinefirst.presentation.home.components.topTracksSection
 import java.text.DecimalFormat
@@ -70,7 +70,9 @@ fun ArtistDetailScreen(
     viewModel: ArtistDetailViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val isPlaying = uiState.playerState == PlayerState.PLAYING
+    val isPlaying = uiState.isPlaying
+    val miniPlayerVisible = uiState.currentSong != null
+    val contentBottomSpacing = if (miniPlayerVisible) 116.dp else 32.dp
     val density = LocalDensity.current
     val heroHeight = with(LocalWindowInfo.current.containerSize) {
         with(density) { height.toDp() * 0.52f }
@@ -173,10 +175,12 @@ fun ArtistDetailScreen(
                             )
                         )
                     }
-                ) { _ ->
+                ) { innerPadding ->
                     LazyColumn(
                         state = listState,
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding)
                     ) {
                         item {
                             Box(
@@ -303,12 +307,32 @@ fun ArtistDetailScreen(
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(32.dp)
+                                    .height(contentBottomSpacing)
                             )
                         }
                     }
                 }
             }
+        }
+
+        uiState.currentSong?.let { song ->
+            MiniPlayer(
+                song = song,
+                isPlaying = isPlaying,
+                onPlayPauseClick = {
+                    if (isPlaying) {
+                        viewModel.togglePlayPause(song)
+                    } else {
+                        viewModel.onPlayClick()
+                    }
+                },
+                onNextClick = viewModel::playNextSong,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 12.dp)
+                    .navigationBarsPadding()
+            )
         }
     }
 }

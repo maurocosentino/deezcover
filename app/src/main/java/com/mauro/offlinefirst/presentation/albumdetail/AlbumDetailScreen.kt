@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -50,6 +51,8 @@ import coil.compose.AsyncImage
 import com.mauro.offlinefirst.R
 import com.mauro.offlinefirst.presentation.albumdetail.components.AlbumSongItem
 import com.mauro.offlinefirst.presentation.albumdetail.components.DeezerButton
+import com.mauro.offlinefirst.presentation.components.MiniPlayer
+import com.mauro.offlinefirst.presentation.components.PlaybackControls
 import com.mauro.offlinefirst.presentation.components.formatDate
 import com.mauro.offlinefirst.presentation.components.formatSongCount
 
@@ -67,6 +70,8 @@ fun AlbumDetailScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val song = uiState.song
+    val miniPlayerVisible = uiState.currentSong != null
+    val contentBottomSpacing = if (miniPlayerVisible) 116.dp else 32.dp
     val albumDeezerUrl = rememberAlbumDeezerUrl(song?.albumId.orEmpty())
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
         rememberTopAppBarState()
@@ -194,13 +199,28 @@ fun AlbumDetailScreen(
                         }
                     }
 
-                    if (albumDeezerUrl.isNotEmpty()) {
-                        DeezerButton(
-                            url = albumDeezerUrl,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp)
-                                .padding(bottom = 16.dp)
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        if (albumDeezerUrl.isNotEmpty()) {
+                            DeezerButton(
+                                url = albumDeezerUrl,
+                                compact = true,
+                                modifier = Modifier.weight(1f, fill = false)
+                            )
+                        } else {
+                            Spacer(modifier = Modifier)
+                        }
+
+                        PlaybackControls(
+                            isShuffleActive = uiState.isShuffleActive,
+                            isPlaying = uiState.isPlaying,
+                            onShuffleClick = viewModel::toggleShuffle,
+                            onPlayClick = viewModel::onPlayClick
                         )
                     }
 
@@ -266,6 +286,8 @@ fun AlbumDetailScreen(
                                 }
                             }
                         }
+
+                        Spacer(modifier = Modifier.height(contentBottomSpacing))
                     }
                 }
             } ?: Box(
@@ -278,6 +300,26 @@ fun AlbumDetailScreen(
                     color = Color.White.copy(alpha = 0.6f)
                 )
             }
+        }
+
+        uiState.currentSong?.let { activeSong ->
+            MiniPlayer(
+                song = activeSong,
+                isPlaying = uiState.isPlaying,
+                onPlayPauseClick = {
+                    if (uiState.isPlaying) {
+                        viewModel.toggleAlbumPlayPause(activeSong)
+                    } else {
+                        viewModel.onPlayClick()
+                    }
+                },
+                onNextClick = viewModel::playNextSong,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 12.dp)
+                    .navigationBarsPadding()
+            )
         }
     }
 }

@@ -52,6 +52,7 @@ class ArtistDetailViewModel @Inject constructor(
                         currentSong = currentSongOrNull(),
                         currentSongIndex = currentSongIndex,
                         currentQueue = currentQueue,
+                        isPlaying = state.isPlaying,
                         currentPlayingId = state.currentPlayingId,
                         currentPositionMs = state.currentPositionMs,
                         totalDurationMs = state.totalDurationMs,
@@ -192,7 +193,7 @@ class ArtistDetailViewModel @Inject constructor(
         playerManager.resume()
     }
 
-    private fun playNextSong() {
+    fun playNextSong() {
         val nextIndex = currentSongIndex + 1
         if (nextIndex !in currentQueue.indices) {
             clearQueue()

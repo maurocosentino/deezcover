@@ -27,6 +27,8 @@ class AlbumDetailViewModel @Inject constructor(
     private val networkStatusDataSource: NetworkStatusDataSource,
     private val playerManager: PlayerManager
 ) : ViewModel() {
+    private var currentQueue: List<Song> = emptyList()
+    private var currentSongIndex: Int = -1
 
     private val songId: String = checkNotNull(savedStateHandle["songId"])
 
@@ -37,6 +39,7 @@ class AlbumDetailViewModel @Inject constructor(
         observeSong()
         observeConnectivity()
         observePlayerState()
+        observeSongCompletion()
     }
 
     private fun observePlayerState() {
@@ -44,6 +47,10 @@ class AlbumDetailViewModel @Inject constructor(
             playerManager.playerState.collect { state ->
                 _uiState.update {
                     it.copy(
+                        currentSong = currentSongOrNull(),
+                        currentSongIndex = currentSongIndex,
+                        currentQueue = currentQueue,
+                        isPlaying = state.isPlaying,
                         currentAlbumPlayingId = state.currentPlayingId,
                         currentPositionMs = state.currentPositionMs,
                         totalDurationMs = state.totalDurationMs,
@@ -55,6 +62,14 @@ class AlbumDetailViewModel @Inject constructor(
                         }
                     )
                 }
+            }
+        }
+    }
+
+    private fun observeSongCompletion() {
+        viewModelScope.launch {
+            playerManager.songCompleted.collect {
+                playNextSong()
             }
         }
     }
@@ -120,7 +135,126 @@ class AlbumDetailViewModel @Inject constructor(
         }
     }
     fun toggleAlbumPlayPause(song: Song) {
-        playerManager.play(song.id, song.previewUrl)
+        val isCurrentSong = currentSongOrNull()?.id == song.id
+        when {
+            isCurrentSong && uiState.value.albumPlayerState == PlayerState.PLAYING -> pausePlayback()
+            isCurrentSong && uiState.value.albumPlayerState == PlayerState.PAUSED -> resumePlayback()
+            else -> playSelectedSong(song)
+        }
+    }
+
+    fun toggleShuffle() {
+        val nextShuffleState = !uiState.value.isShuffleActive
+        _uiState.update { it.copy(isShuffleActive = nextShuffleState) }
+
+        val currentSong = currentSongOrNull() ?: return
+        val songs = uiState.value.albumSongs
+        if (songs.isEmpty()) return
+
+        currentQueue = buildQueue(
+            songs = songs,
+            selectedSong = currentSong,
+            isShuffleActive = nextShuffleState
+        )
+        currentSongIndex = currentQueue.indexOfFirst { it.id == currentSong.id }
+        syncPlaybackState()
+    }
+
+    fun onPlayClick() {
+        val songs = uiState.value.albumSongs
+        if (songs.isEmpty()) return
+
+        when (uiState.value.albumPlayerState) {
+            PlayerState.PLAYING -> pausePlayback()
+            PlayerState.PAUSED -> resumePlayback()
+            else -> {
+                if (currentSongOrNull() != null) {
+                    resumePlayback()
+                } else {
+                    val queue = buildQueue(
+                        songs = songs,
+                        selectedSong = null,
+                        isShuffleActive = uiState.value.isShuffleActive
+                    )
+                    playSongAt(queue = queue, index = 0)
+                }
+            }
+        }
+    }
+
+    fun playNextSong() {
+        val nextIndex = currentSongIndex + 1
+        if (nextIndex !in currentQueue.indices) {
+            clearQueue()
+            playerManager.stop()
+            return
+        }
+
+        playSongAt(queue = currentQueue, index = nextIndex)
+    }
+
+    private fun playSelectedSong(song: Song) {
+        val songs = uiState.value.albumSongs
+        if (songs.isEmpty()) return
+
+        val queue = buildQueue(
+            songs = songs,
+            selectedSong = song,
+            isShuffleActive = uiState.value.isShuffleActive
+        )
+        val songIndex = queue.indexOfFirst { it.id == song.id }
+        if (songIndex == -1) return
+
+        playSongAt(queue = queue, index = songIndex)
+    }
+
+    private fun pausePlayback() {
+        playerManager.pause()
+    }
+
+    private fun resumePlayback() {
+        if (currentSongOrNull() == null) return
+        playerManager.resume()
+    }
+
+    private fun playSongAt(queue: List<Song>, index: Int) {
+        val song = queue.getOrNull(index) ?: return
+        currentQueue = queue
+        currentSongIndex = index
+        syncPlaybackState()
+        playerManager.playSong(song.id, song.previewUrl)
+    }
+
+    private fun clearQueue() {
+        currentQueue = emptyList()
+        currentSongIndex = -1
+        syncPlaybackState()
+    }
+
+    private fun syncPlaybackState() {
+        _uiState.update {
+            it.copy(
+                currentSong = currentSongOrNull(),
+                currentSongIndex = currentSongIndex,
+                currentQueue = currentQueue
+            )
+        }
+    }
+
+    private fun currentSongOrNull(): Song? = currentQueue.getOrNull(currentSongIndex)
+
+    private fun buildQueue(
+        songs: List<Song>,
+        selectedSong: Song?,
+        isShuffleActive: Boolean
+    ): List<Song> {
+        if (songs.isEmpty()) return emptyList()
+
+        return when {
+            !isShuffleActive -> songs
+            selectedSong == null -> songs.shuffled()
+            else -> listOf(selectedSong) + songs.filterNot { it.id == selectedSong.id }.shuffled()
+        }
     }
 
     override fun onCleared() {

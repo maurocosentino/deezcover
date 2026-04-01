@@ -15,6 +15,7 @@ data class ArtistDetailUiState(
     val currentSong: Song? = null,
     val currentSongIndex: Int = -1,
     val currentQueue: List<Song> = emptyList(),
+    val isPlaying: Boolean = false,
     val isShuffleActive: Boolean = false,
     val currentPlayingId: String? = null,
     val playerState: PlayerState = PlayerState.IDLE,
