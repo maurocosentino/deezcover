@@ -6,20 +6,23 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.mauro.offlinefirst.data.local.dao.AlbumDao
 import com.mauro.offlinefirst.data.local.dao.ArtistDao
+import com.mauro.offlinefirst.data.local.dao.NewReleaseDao
 import com.mauro.offlinefirst.data.local.dao.SongDao
 import com.mauro.offlinefirst.data.local.entity.AlbumEntity
 import com.mauro.offlinefirst.data.local.entity.ArtistEntity
+import com.mauro.offlinefirst.data.local.entity.NewReleaseEntity
 import com.mauro.offlinefirst.data.local.entity.SongEntity
 
 @Database(
-    entities = [SongEntity::class, AlbumEntity::class, ArtistEntity::class],
-    version = 4,
+    entities = [SongEntity::class, AlbumEntity::class, ArtistEntity::class, NewReleaseEntity::class],
+    version = 5,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun songDao(): SongDao
     abstract fun albumDao(): AlbumDao
     abstract fun artistDao(): ArtistDao
+    abstract fun newReleaseDao(): NewReleaseDao
 
     companion object {
         const val DATABASE_NAME = "offline_first_db_v13"
@@ -47,6 +50,24 @@ abstract class AppDatabase : RoomDatabase() {
                         sortOrder INTEGER NOT NULL DEFAULT 0
                     )
                 """.trimIndent())
+            }
+        }
+        val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS new_releases (
+                        albumId INTEGER NOT NULL PRIMARY KEY,
+                        title TEXT NOT NULL,
+                        coverUrl TEXT NOT NULL,
+                        artistName TEXT NOT NULL,
+                        releaseDate TEXT NOT NULL,
+                        pageIndex INTEGER NOT NULL,
+                        sortOrder INTEGER NOT NULL,
+                        lastUpdated INTEGER NOT NULL
+                    )
+                    """.trimIndent()
+                )
             }
         }
     }

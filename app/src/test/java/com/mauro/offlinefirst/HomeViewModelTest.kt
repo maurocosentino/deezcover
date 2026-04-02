@@ -1,17 +1,22 @@
 package com.mauro.offlinefirst
 
+import android.util.Log
 import app.cash.turbine.test
 import com.mauro.offlinefirst.data.network.NetworkStatusDataSource
 import com.mauro.offlinefirst.domain.model.Album
 import com.mauro.offlinefirst.domain.model.Artist
+import com.mauro.offlinefirst.domain.model.NewRelease
 import com.mauro.offlinefirst.domain.model.SearchResult
 import com.mauro.offlinefirst.domain.model.Song
 import com.mauro.offlinefirst.domain.repository.SongRepository
+import com.mauro.offlinefirst.domain.usecase.GetNewReleasesUseCase
 import com.mauro.offlinefirst.presentation.home.HomeViewModel
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkStatic
+import io.mockk.unmockkStatic
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
@@ -33,6 +38,7 @@ class HomeViewModelTest {
 
     private lateinit var songRepository: SongRepository
     private lateinit var networkStatusDataSource: NetworkStatusDataSource
+    private lateinit var getNewReleasesUseCase: GetNewReleasesUseCase
     private lateinit var viewModel: HomeViewModel
 
     @Before
@@ -40,24 +46,35 @@ class HomeViewModelTest {
         Dispatchers.setMain(testDispatcher)
         songRepository = mockk()
         networkStatusDataSource = mockk()
+        getNewReleasesUseCase = mockk()
+        mockkStatic(Log::class)
+        every { Log.i(any<String>(), any<String>()) } returns 0
+        every { Log.d(any<String>(), any<String>()) } returns 0
+        every { Log.w(any<String>(), any<String>()) } returns 0
+        every { Log.w(any<String>(), any<String>(), any()) } returns 0
+        every { Log.e(any<String>(), any<String>()) } returns 0
+        every { Log.e(any<String>(), any<String>(), any()) } returns 0
     }
 
     @After
     fun tearDown() {
+        unmockkStatic(Log::class)
         Dispatchers.resetMain()
     }
 
     private fun createViewModel() {
-        viewModel = HomeViewModel(songRepository, networkStatusDataSource)
+        viewModel = HomeViewModel(songRepository, networkStatusDataSource, getNewReleasesUseCase)
     }
 
     private fun stubCommonRepositoryState() {
         every { songRepository.observeSongs() } returns flowOf(Result.success(emptyList()))
         every { songRepository.observeAlbums() } returns flowOf(emptyList())
         every { songRepository.observeArtists() } returns flowOf(emptyList())
+        every { getNewReleasesUseCase.invoke() } returns flowOf(emptyList())
         coEvery { songRepository.syncSongs() } returns Unit
         coEvery { songRepository.syncAlbums() } returns Unit
         coEvery { songRepository.syncArtists() } returns Unit
+        coEvery { getNewReleasesUseCase.refresh() } returns Unit
         coEvery { songRepository.search(any()) } returns SearchResult()
     }
 
@@ -111,7 +128,7 @@ class HomeViewModelTest {
     }
 
     @Test
-    fun `errorMessage is set when repository emits failure`() = runTest {
+    fun `repository failure does not leave home stuck loading`() = runTest {
         stubCommonRepositoryState()
         every { songRepository.observeSongs() } returns flowOf(
             Result.failure(Exception("Network error"))
@@ -123,7 +140,7 @@ class HomeViewModelTest {
 
         viewModel.uiState.test {
             val state = awaitItem()
-            assertEquals("Network error", state.errorMessage)
+            assertEquals(false, state.isLoading)
             cancelAndIgnoreRemainingEvents()
         }
     }
@@ -212,5 +229,33 @@ class HomeViewModelTest {
         testDispatcher.scheduler.advanceUntilIdle()
 
         coVerify(exactly = 1) { songRepository.search("who") }
+    }
+
+    @Test
+    fun `new releases are exposed when use case emits data`() = runTest {
+        stubCommonRepositoryState()
+        val releases = listOf(
+            NewRelease(
+                albumId = 99L,
+                title = "Ruby",
+                coverUrl = "https://cover.url/ruby.jpg",
+                artistName = "Jennie",
+                releaseDate = "2025-03-07"
+            )
+        )
+        every { getNewReleasesUseCase.invoke() } returns flowOf(releases)
+        every { networkStatusDataSource.isConnected } returns flowOf(true)
+
+        createViewModel()
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        viewModel.uiState.test {
+            val state = awaitItem()
+            assertEquals(1, state.newReleases.size)
+            assertEquals("Ruby", state.newReleases.first().title)
+            assertEquals(false, state.isNewReleasesLoading)
+            assertNull(state.newReleasesError)
+            cancelAndIgnoreRemainingEvents()
+        }
     }
 }

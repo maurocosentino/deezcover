@@ -8,6 +8,7 @@ import com.mauro.offlinefirst.domain.model.Album
 import com.mauro.offlinefirst.domain.model.Artist
 import com.mauro.offlinefirst.domain.model.Song
 import com.mauro.offlinefirst.domain.repository.SongRepository
+import com.mauro.offlinefirst.domain.usecase.GetNewReleasesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
@@ -34,7 +35,8 @@ private const val SEARCH_DEBOUNCE_MS = 300L
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val songRepository: SongRepository,
-    private val networkStatusDataSource: NetworkStatusDataSource
+    private val networkStatusDataSource: NetworkStatusDataSource,
+    private val getNewReleasesUseCase: GetNewReleasesUseCase
 ) : ViewModel() {
 
     companion object {
@@ -44,12 +46,14 @@ class HomeViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
     private var syncJob: Job? = null
+    private var newReleasesJob: Job? = null
 
     init {
         Log.i(TAG, "init:start")
         observeSongs()
         observeArtists()
         observeAlbums()
+        observeNewReleases()
         observeSearchQuery()
         syncAll()
         observeConnectivity()
@@ -142,8 +146,9 @@ class HomeViewModel @Inject constructor(
         val songs = async { songRepository.syncSongs() }
         val albums = async { songRepository.syncAlbums() }
         val artists = async { songRepository.syncArtists() }
+        val newReleases = async { refreshNewReleases() }
 
-        awaitAll(songs, albums, artists)
+        awaitAll(songs, albums, artists, newReleases)
 
         Log.d(TAG, "syncRepositories:completed")
     }
@@ -280,6 +285,56 @@ class HomeViewModel @Inject constructor(
                 refreshLocalSearchResults()
             }
         }
+    }
+
+    private fun observeNewReleases() {
+        if (newReleasesJob?.isActive == true) return
+
+        newReleasesJob = viewModelScope.launch {
+            getNewReleasesUseCase().collect { releases ->
+                Log.d(TAG, "observeNewReleases:onSuccess count=${releases.size}")
+                _uiState.update {
+                    it.copy(
+                        newReleases = releases,
+                        isNewReleasesLoading = false,
+                        newReleasesError = null
+                    )
+                }
+            }
+        }
+        newReleasesJob?.invokeOnCompletion { throwable ->
+            if (throwable != null) {
+                Log.e(TAG, "observeNewReleases:onFailure", throwable)
+                _uiState.update {
+                    it.copy(
+                        isNewReleasesLoading = false,
+                        newReleasesError = throwable.message ?: "No se pudieron cargar los nuevos lanzamientos"
+                    )
+                }
+            }
+        }
+    }
+
+    private suspend fun refreshNewReleases() {
+        _uiState.update { it.copy(isNewReleasesLoading = true, newReleasesError = null) }
+        runCatching { getNewReleasesUseCase.refresh() }
+            .onSuccess {
+                _uiState.update {
+                    it.copy(
+                        isNewReleasesLoading = false,
+                        newReleasesError = null
+                    )
+                }
+            }
+            .onFailure { throwable ->
+                Log.e(TAG, "refreshNewReleases:onFailure", throwable)
+                _uiState.update {
+                    it.copy(
+                        isNewReleasesLoading = false,
+                        newReleasesError = throwable.message ?: "No se pudieron cargar los nuevos lanzamientos"
+                    )
+                }
+            }
     }
 
     fun navigateToAlbum(albumId: String, albumArt: String, albumTitle: String, onReady: (String) -> Unit) {
