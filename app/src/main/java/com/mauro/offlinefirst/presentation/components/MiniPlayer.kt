@@ -33,8 +33,18 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.mauro.offlinefirst.domain.model.Song
 import androidx.compose.animation.animateColorAsState
-import com.mauro.offlinefirst.presentation.navigation.Screen
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.basicMarquee
+import androidx.compose.foundation.layout.Box
+import androidx.compose.material3.CircularProgressIndicator
 import com.mauro.offlinefirst.ui.theme.DeezerColor
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import kotlinx.coroutines.delay
 
 @Composable
 fun MiniPlayer(
@@ -54,7 +64,12 @@ fun MiniPlayer(
         targetValue = if (isShuffleActive) DeezerColor else Color.White.copy(alpha = 0.58f),
         label = "mini_player_shuffle_tint"
     )
-
+    var marqueeEnabled by remember(song.id) { mutableStateOf(false) }
+    LaunchedEffect(song.id) {
+        marqueeEnabled = false
+        delay(2500)
+        marqueeEnabled = true
+    }
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(22.dp),
@@ -95,15 +110,18 @@ fun MiniPlayer(
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.White,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Clip,
+                    modifier = if (marqueeEnabled) {
+                        Modifier.basicMarquee(
+                            iterations = Int.MAX_VALUE,
+                            initialDelayMillis = 0,
+                            velocity = 40.dp
+                        )
+                    } else Modifier
                 )
                 if (song.artist.isNotBlank()) {
                     Text(
-                        text = buildMiniPlayerSubtitle(
-                            artist = song.artist,
-                            currentPositionMs = currentPositionMs,
-                            totalDurationMs = totalDurationMs
-                        ),
+                        text = song.artist,
                         style = MaterialTheme.typography.bodySmall,
                         color = Color.White.copy(alpha = 0.62f),
                         maxLines = 1,
@@ -129,12 +147,46 @@ fun MiniPlayer(
                         tint = Color.White
                     )
                 }
-                IconButton(onClick = onPlayPauseClick) {
-                    Icon(
-                        imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                        contentDescription = if (isPlaying) "Pause" else "Play",
-                        tint = Color.White
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.size(48.dp)
+                ) {
+                    val rawProgress = if (totalDurationMs > 0L) {
+                        (currentPositionMs.toFloat() / totalDurationMs.toFloat()).coerceIn(0f, 1f)
+                    } else 0f
+
+                    val progress by animateFloatAsState(
+                        targetValue = rawProgress,
+                        animationSpec = tween(
+                            durationMillis = 600,
+                            easing = LinearEasing
+                        ),
+                        label = "mini_player_progress"
                     )
+
+                    CircularProgressIndicator(
+                        progress = { 1f },
+                        modifier = Modifier.size(40.dp),
+                        color = Color.White.copy(alpha = 0.15f),
+                        strokeWidth = 2.dp
+                    )
+                    CircularProgressIndicator(
+                        progress = { progress },
+                        modifier = Modifier.size(40.dp),
+                        color = DeezerColor,
+                        strokeWidth = 2.dp
+                    )
+                    IconButton(
+                        onClick = onPlayPauseClick,
+                        modifier = Modifier.size(40.dp)
+                    ) {
+                        Icon(
+                            imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
+                            contentDescription = if (isPlaying) "Pause" else "Play",
+                            tint = Color.White,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
                 }
                 IconButton(onClick = onNextClick) {
                     Icon(
@@ -146,24 +198,4 @@ fun MiniPlayer(
             }
         }
     }
-}
-
-private fun buildMiniPlayerSubtitle(
-    artist: String,
-    currentPositionMs: Long,
-    totalDurationMs: Long
-): String {
-    val durationText = formatMiniPlayerTime(currentPositionMs, totalDurationMs)
-    return if (artist.isBlank()) durationText else "$artist • $durationText"
-}
-
-private fun formatMiniPlayerTime(currentPositionMs: Long, totalDurationMs: Long): String {
-    val targetMs = when {
-        totalDurationMs > 0L -> (totalDurationMs - currentPositionMs).coerceAtLeast(0L)
-        else -> 0L
-    }
-    val totalSeconds = targetMs / 1000
-    val minutes = totalSeconds / 60
-    val seconds = totalSeconds % 60
-    return String.format("%d:%02d", minutes, seconds)
 }
