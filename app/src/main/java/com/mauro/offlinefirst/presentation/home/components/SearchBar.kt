@@ -51,7 +51,6 @@ fun SearchBar(
     Surface(
         modifier = modifier.fillMaxWidth(),
         color = Color.Transparent,
-        shape = RoundedCornerShape(22.dp),
         tonalElevation = 0.dp,
         shadowElevation = 0.dp
     ) {
