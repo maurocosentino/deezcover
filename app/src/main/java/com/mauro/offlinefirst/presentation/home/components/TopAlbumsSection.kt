@@ -28,7 +28,7 @@ fun TopAlbumsSection(
 ) {
     SectionHeader(
         title = title,
-        modifier = modifier.padding(horizontal = 16.dp, vertical = 2.dp),
+        modifier = modifier.padding(horizontal = 16.dp, vertical = 8.dp),
     )
 
     if (isLoading) {

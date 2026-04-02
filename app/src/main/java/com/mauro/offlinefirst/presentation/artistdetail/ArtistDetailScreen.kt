@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
@@ -181,15 +180,16 @@ fun ArtistDetailScreen(
                 ) { innerPadding ->
                     LazyColumn(
                         state = listState,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(innerPadding)
+                        modifier = Modifier.fillMaxSize(),  // ← sin padding(innerPadding)
+                        contentPadding = androidx.compose.foundation.layout.PaddingValues(
+                            bottom = innerPadding.calculateBottomPadding()
+                        )
                     ) {
                         item {
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(heroHeight)
+                                    .height(heroHeight + innerPadding.calculateTopPadding())
                             ) {
                                 if (uiState.artistImageUrl.isNotEmpty()) {
                                     AsyncImage(
@@ -229,9 +229,7 @@ fun ArtistDetailScreen(
                                         .fillMaxWidth()
                                         .padding(horizontal = 16.dp, vertical = 20.dp)
                                 ) {
-                                    Column(
-                                        modifier = Modifier.weight(1f)
-                                    ) {
+                                    Column(modifier = Modifier.weight(1f)) {
                                         Text(
                                             text = uiState.artistName,
                                             fontSize = 26.sp,
@@ -252,6 +250,7 @@ fun ArtistDetailScreen(
                                     }
                                 }
                             }
+
                         }
 
                         item {

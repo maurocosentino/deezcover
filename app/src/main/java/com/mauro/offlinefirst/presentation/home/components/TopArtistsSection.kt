@@ -42,7 +42,7 @@ fun TopArtistsSection(
 
     SectionHeader(
         title = title,
-        modifier = modifier.padding(horizontal = 16.dp, vertical = 2.dp)
+        modifier = modifier.padding(horizontal = 16.dp, vertical = 8.dp),
     )
 
     LazyRow(
