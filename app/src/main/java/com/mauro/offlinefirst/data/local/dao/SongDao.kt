@@ -28,14 +28,11 @@ abstract class SongDao {
     @Query("DELETE FROM songs WHERE isFromChart = 1")
     abstract suspend fun deleteChartSongs()
 
-    @Query("SELECT * FROM songs WHERE isFromChart = 1 ORDER BY sortOrder")
+    @Query("SELECT * FROM songs WHERE isFromChart = 1 ORDER BY sortOrder ASC")
     abstract fun observeChartSongs(): Flow<List<SongEntity>>
 
     @Query("SELECT MAX(lastUpdated) FROM songs WHERE isFromChart = 1")
     abstract suspend fun getLastSyncTime(): Long?
-
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    abstract suspend fun insertSongsIgnoreConflict(songs: List<SongEntity>)
 
     @Query("SELECT isFromChart FROM songs WHERE id = :songId")
     abstract suspend fun isChartSong(songId: String): Boolean?

@@ -1,5 +1,6 @@
 package com.mauro.offlinefirst.presentation.home
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mauro.offlinefirst.data.network.NetworkStatusDataSource
@@ -12,6 +13,7 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,6 +23,9 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.io.IOException
+import java.net.SocketTimeoutException
+import javax.net.ssl.SSLException
 import javax.inject.Inject
 
 private const val SEARCH_DEBOUNCE_MS = 300L
@@ -32,10 +37,16 @@ class HomeViewModel @Inject constructor(
     private val networkStatusDataSource: NetworkStatusDataSource
 ) : ViewModel() {
 
+    companion object {
+        private const val TAG = "HomeViewModel"
+    }
+
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
+    private var syncJob: Job? = null
 
     init {
+        Log.i(TAG, "init:start")
         observeSongs()
         observeArtists()
         observeAlbums()
@@ -61,8 +72,18 @@ class HomeViewModel @Inject constructor(
     }
 
     fun syncIfNeeded() {
-        viewModelScope.launch {
-            if (songRepository.shouldSync()) songRepository.syncSongs()
+        if (syncJob?.isActive == true) return
+        syncJob = viewModelScope.launch {
+            runCatching { songRepository.shouldSync() }
+                .onSuccess { shouldSync ->
+                    if (shouldSync) {
+                        Log.i(TAG, "syncIfNeeded:triggered")
+                        performSync()
+                    }
+                }
+                .onFailure { exception ->
+                    Log.e(TAG, "syncIfNeeded:failed", exception)
+                }
         }
     }
 
@@ -72,6 +93,7 @@ class HomeViewModel @Inject constructor(
                 .distinctUntilChanged()
                 .collect { isConnected ->
                     val wasOffline = !_uiState.value.isConnected
+                    Log.d(TAG, "observeConnectivity:isConnected=$isConnected wasOffline=$wasOffline")
                     _uiState.update { it.copy(isConnected = isConnected) }
 
                     if (isConnected && wasOffline) {
@@ -82,19 +104,46 @@ class HomeViewModel @Inject constructor(
         }
     }
     fun syncAll() {
-        viewModelScope.launch {
-            _uiState.update { it.copy(isRefreshing = true) }
-
-            try {
-                coroutineScope {
-                    val songs = async { songRepository.syncSongs() }
-                    val albums = async { songRepository.syncAlbums() }
-                    awaitAll(songs, albums)
-                }
-            } catch (e: Exception) {
-                _uiState.update { it.copy(errorMessage = e.message) }
-            }
+        if (syncJob?.isActive == true) return
+        syncJob = viewModelScope.launch {
+            performSync()
         }
+    }
+
+    private suspend fun performSync() {
+        Log.i(TAG, "syncAll:start")
+        _uiState.update { it.copy(isRefreshing = true, errorMessage = null) }
+
+        try {
+            syncRepositories()
+            Log.i(TAG, "syncAll:success songs=${_uiState.value.songs.size} albums=${_uiState.value.chartAlbums.size}")
+            _uiState.update { it.copy(isConnected = true) }
+        } catch (e: Exception) {
+            Log.e(TAG, "syncAll:failed", e)
+            _uiState.update {
+                it.copy(
+                    isConnected = if (e.isConnectivityFailure()) false else it.isConnected,
+                    errorMessage = if (it.songs.isEmpty() && it.chartAlbums.isEmpty()) {
+                        e.toUserMessage()
+                    } else {
+                        null
+                    }
+                )
+            }
+        } finally {
+            Log.i(TAG, "syncAll:finish")
+            _uiState.update { it.copy(isRefreshing = false) }
+        }
+    }
+
+    private suspend fun syncRepositories() {
+        Log.d(TAG, "syncRepositories:start")
+        coroutineScope {
+            val songs = async { songRepository.syncSongs() }
+            val albums = async { songRepository.syncAlbums() }
+            awaitAll(songs, albums)
+        }
+        Log.d(TAG, "syncRepositories:completed")
     }
 
     private fun observeSearchQuery() {
@@ -192,16 +241,18 @@ class HomeViewModel @Inject constructor(
             songRepository.observeSongs().collect { result ->
                 result.fold(
                     onSuccess = { songs ->
+                        Log.d(TAG, "observeSongs:onSuccess count=${songs.size}")
                         _uiState.update {
                             it.copy(
                                 songs = songs,
                                 isLoading = false,
-                                errorMessage = null
+                                errorMessage = if (songs.isNotEmpty()) null else it.errorMessage
                             )
                         }
                         refreshLocalSearchResults()
                     },
                     onFailure = { exception ->
+                        Log.e(TAG, "observeSongs:onFailure", exception)
                         _uiState.update {
                             it.copy(isLoading = false, errorMessage = exception.message)
                         }
@@ -214,6 +265,7 @@ class HomeViewModel @Inject constructor(
     private fun observeArtists() {
         viewModelScope.launch {
             songRepository.observeArtists().collect { artists ->
+                Log.d(TAG, "observeArtists:onSuccess count=${artists.size}")
                 _uiState.update { it.copy(topArtists = artists) }
                 refreshLocalSearchResults()
             }
@@ -222,6 +274,7 @@ class HomeViewModel @Inject constructor(
     private fun observeAlbums() {
         viewModelScope.launch {
             songRepository.observeAlbums().collect { albums ->
+                Log.d(TAG, "observeAlbums:onSuccess count=${albums.size}")
                 _uiState.update { it.copy(chartAlbums = albums) }
                 refreshLocalSearchResults()
             }
@@ -231,18 +284,33 @@ class HomeViewModel @Inject constructor(
     fun navigateToAlbum(albumId: String, albumArt: String, albumTitle: String, onReady: (String) -> Unit) {
         viewModelScope.launch {
             try {
+                Log.d(TAG, "navigateToAlbum:start albumId=$albumId")
                 val tracks = songRepository.fetchAlbumTracks(albumId, albumArt, albumTitle)
                 if (tracks.isNotEmpty()) {
                     onReady(tracks.first().id)
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                Log.e(TAG, "navigateToAlbum:failed albumId=$albumId", e)
             }
         }
     }
 
     override fun onCleared() {
         super.onCleared()
+    }
+}
+
+private fun Throwable.isConnectivityFailure(): Boolean {
+    return this is SocketTimeoutException ||
+        this is SSLException ||
+        this is IOException
+}
+
+private fun Throwable.toUserMessage(): String {
+    return if (isConnectivityFailure()) {
+        "No se pudo sincronizar con Deezer. Intenta de nuevo cuando la conexion sea estable."
+    } else {
+        message ?: "No se pudo sincronizar el contenido"
     }
 }
 

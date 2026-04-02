@@ -9,14 +9,14 @@ import com.mauro.offlinefirst.data.local.dao.SongDao
 import com.mauro.offlinefirst.data.local.entity.AlbumEntity
 import com.mauro.offlinefirst.data.local.entity.SongEntity
 
-@Database(entities = [SongEntity::class, AlbumEntity::class], version = 3, exportSchema = false)
+@Database(entities = [SongEntity::class, AlbumEntity::class], version = 4, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun songDao(): SongDao
     abstract fun albumDao(): AlbumDao
 
     companion object {
-        const val DATABASE_NAME = "offline_first_db_v11"
+        const val DATABASE_NAME = "offline_first_db_v12"
 
         val MIGRATION_1_2 = object : Migration(1, 2) {
             override fun migrate(database: SupportSQLiteDatabase) {
@@ -33,6 +33,17 @@ abstract class AppDatabase : RoomDatabase() {
                 )
                 database.execSQL(
                     "ALTER TABLE albums ADD COLUMN sortOrder INTEGER NOT NULL DEFAULT 0"
+                )
+            }
+        }
+
+        val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL(
+                    "ALTER TABLE albums ADD COLUMN lastUpdated INTEGER NOT NULL DEFAULT 0"
+                )
+                database.execSQL(
+                    "UPDATE albums SET lastUpdated = strftime('%s','now') * 1000 WHERE lastUpdated = 0"
                 )
             }
         }

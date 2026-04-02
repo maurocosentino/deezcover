@@ -2,18 +2,25 @@ package com.mauro.offlinefirst.data.local.dao
 
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Upsert
 import com.mauro.offlinefirst.data.local.entity.AlbumEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface AlbumDao {
+abstract class AlbumDao {
     @Query("SELECT * FROM albums ORDER BY sortOrder ASC")
-    fun observeAlbums(): Flow<List<AlbumEntity>>
+    abstract fun observeAlbums(): Flow<List<AlbumEntity>>
 
     @Upsert
-    suspend fun upsertAlbums(albums: List<AlbumEntity>)
+    abstract suspend fun upsertAlbums(albums: List<AlbumEntity>)
 
     @Query("DELETE FROM albums")
-    suspend fun deleteAlbums()
+    abstract suspend fun deleteAlbums()
+
+    @Transaction
+    open suspend fun replaceAlbums(albums: List<AlbumEntity>) {
+        deleteAlbums()
+        upsertAlbums(albums)
+    }
 }
