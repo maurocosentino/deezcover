@@ -4,39 +4,48 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import androidx.room.Upsert
+import androidx.room.Transaction
 import com.mauro.offlinefirst.data.local.entity.SongEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface SongDao {
+abstract class SongDao {
     @Query("SELECT * FROM songs")
-    fun observeAllSongs(): Flow<List<SongEntity>>
+    abstract fun observeAllSongs(): Flow<List<SongEntity>>
 
     @Query("SELECT * FROM songs WHERE id = :songId")
-    fun observeSongById(songId: String): Flow<SongEntity?>
+    abstract fun observeSongById(songId: String): Flow<SongEntity?>
 
     @Query("SELECT * FROM songs WHERE id = :songId")
-    suspend fun getSongById(songId: String): SongEntity?
+    abstract suspend fun getSongById(songId: String): SongEntity?
 
-    @Upsert
-    suspend fun upsertSongs(songs: List<SongEntity>)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract suspend fun upsertSongs(songs: List<SongEntity>)
 
     @Query("DELETE FROM songs")
-    suspend fun deleteAllSongs()
+    abstract suspend fun deleteAllSongs()
 
     @Query("DELETE FROM songs WHERE isFromChart = 1")
-    suspend fun deleteChartSongs()
+    abstract suspend fun deleteChartSongs()
 
-    @Query("SELECT * FROM songs WHERE isFromChart = 1 ORDER BY title ASC")
-    fun observeChartSongs(): Flow<List<SongEntity>>
+    @Query("SELECT * FROM songs WHERE isFromChart = 1 ORDER BY sortOrder")
+    abstract fun observeChartSongs(): Flow<List<SongEntity>>
 
     @Query("SELECT MAX(lastUpdated) FROM songs WHERE isFromChart = 1")
-    suspend fun getLastSyncTime(): Long?
+    abstract suspend fun getLastSyncTime(): Long?
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertSongsIgnoreConflict(songs: List<SongEntity>)
+    abstract suspend fun insertSongsIgnoreConflict(songs: List<SongEntity>)
 
     @Query("SELECT isFromChart FROM songs WHERE id = :songId")
-    suspend fun isChartSong(songId: String): Boolean?
+    abstract suspend fun isChartSong(songId: String): Boolean?
+
+    @Query("SELECT * FROM songs WHERE albumId = :albumId")
+    abstract suspend fun getAlbumSongs(albumId: String): List<SongEntity>
+
+    @Transaction
+    open suspend fun replaceChartSongs(songs: List<SongEntity>) {
+        deleteChartSongs()
+        upsertSongs(songs)
+    }
 }

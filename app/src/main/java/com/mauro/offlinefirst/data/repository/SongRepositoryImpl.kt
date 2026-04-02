@@ -76,9 +76,15 @@ class SongRepositoryImpl @Inject constructor(
     override suspend fun syncSongs() {
         try {
             val remoteSongs = remoteDataSource.fetchSongs()
-            val entities = remoteSongs.map { it.toEntity(isFromChart = true) }
-            songDao.deleteChartSongs()
-            songDao.upsertSongs(entities)
+            println("🔥 Songs fetched: ${remoteSongs.size}")
+
+            val entities = remoteSongs.mapIndexed { index, dto ->
+                dto.toEntity(isFromChart = true).copy(sortOrder = index)
+            }
+
+            songDao.replaceChartSongs(entities)
+            println("🔥 Songs saved OK")
+
         } catch (exception: Exception) {
             exception.printStackTrace()
         }
@@ -103,14 +109,16 @@ class SongRepositoryImpl @Inject constructor(
     override suspend fun syncAlbums() {
         try {
             val albums = remoteDataSource.fetchChartAlbums()
-            val entities = albums.map {
+            val entities = albums.mapIndexed { index, dto ->
                 AlbumEntity(
-                    id = it.id.toString(),
-                    title = it.title,
-                    artist = it.artist.name,
-                    coverUrl = it.bestCoverUrl()
+                    id = dto.id.toString(),
+                    title = dto.title,
+                    artist = dto.artist.name,
+                    coverUrl = dto.bestCoverUrl(),
+                    sortOrder = index
                 )
             }
+            albumDao.deleteAlbums()
             albumDao.upsertAlbums(entities)
         } catch (exception: Exception) {
             exception.printStackTrace()
@@ -123,21 +131,38 @@ class SongRepositoryImpl @Inject constructor(
         }
     }
     override suspend fun fetchAlbumTracks(albumId: String, albumArt: String, albumTitle: String): List<Song> {
-        val tracks = remoteDataSource.fetchAlbumTracks(albumId)
-        val albumDetail = remoteDataSource.fetchAlbumDetail(albumId)
-        val artistImageUrl = albumDetail.artist.bestImageUrl()
-        val entities = tracks.mapNotNull { dto ->
-            val isChart = songDao.isChartSong(dto.id.toString())
-            if (isChart == true) null
-            else dto.toEntity(isFromChart = false).copy(
-                albumArt = albumArt,
-                albumTitle = albumTitle,
-                albumId = albumId,
-                artistImageUrl = artistImageUrl
-            )
+        try {
+            val tracks = remoteDataSource.fetchAlbumTracks(albumId)
+            val albumDetail = remoteDataSource.fetchAlbumDetail(albumId)
+            val artistImageUrl = albumDetail.artist.bestImageUrl()
+            val entities = tracks.map { dto ->
+                val existing = songDao.getSongById(dto.id.toString())
+
+                if (existing != null) {
+                    existing.copy(
+                        albumArt = albumArt,
+                        albumTitle = albumTitle,
+                        albumId = albumId,
+                        artistImageUrl = artistImageUrl
+                    )
+                } else {
+                    dto.toEntity(isFromChart = false).copy(
+                        albumArt = albumArt,
+                        albumTitle = albumTitle,
+                        albumId = albumId,
+                        artistImageUrl = artistImageUrl
+                    )
+                }
+            }
+            songDao.upsertSongs(entities)
+            return entities.map { it.toDomain() }
+        } catch (e: Exception) {
+            val existingSongs = songDao.getAlbumSongs(albumId)
+            if (existingSongs.isNotEmpty()) {
+                return existingSongs.map { it.toDomain() }
+            }
+            throw e
         }
-        songDao.upsertSongs(entities)
-        return entities.map { it.toDomain() }
     }
 
     override suspend fun fetchArtistTopTracks(artistId: String): List<Song> {

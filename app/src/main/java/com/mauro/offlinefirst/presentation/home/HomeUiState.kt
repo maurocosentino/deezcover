@@ -15,10 +15,12 @@ data class HomeUiState(
     val remoteTracks: List<Song> = emptyList(),
     val remoteAlbums: List<Album> = emptyList(),
     val remoteArtists: List<Artist> = emptyList(),
+
     val isLoading: Boolean = false,
+    val isRefreshing: Boolean = false,
+
     val isSearchLoading: Boolean = false,
-    val isAlbumsLoading: Boolean = false,
-    val isSyncing: Boolean = false,
+
     val errorMessage: String? = null,
     val searchError: String? = null,
     val isConnected: Boolean = true

@@ -9,5 +9,6 @@ data class AlbumEntity(
     val title: String,
     val artist: String,
     val coverUrl: String,
-    val lastUpdated: Long = System.currentTimeMillis()
+    val lastUpdated: Long = System.currentTimeMillis(),
+    val sortOrder: Int = 0
 )

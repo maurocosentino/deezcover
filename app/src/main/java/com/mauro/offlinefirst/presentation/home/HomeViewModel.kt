@@ -9,6 +9,9 @@ import com.mauro.offlinefirst.domain.model.Song
 import com.mauro.offlinefirst.domain.repository.SongRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -37,8 +40,7 @@ class HomeViewModel @Inject constructor(
         observeArtists()
         observeAlbums()
         observeSearchQuery()
-        syncSongs()
-        syncAlbums()
+        syncAll()
         observeConnectivity()
     }
 
@@ -66,15 +68,31 @@ class HomeViewModel @Inject constructor(
 
     private fun observeConnectivity() {
         viewModelScope.launch {
-            networkStatusDataSource.isConnected.collect { isConnected ->
-                val wasOffline = !_uiState.value.isConnected
-                _uiState.update { it.copy(isConnected = isConnected) }
+            networkStatusDataSource.isConnected
+                .distinctUntilChanged()
+                .collect { isConnected ->
+                    val wasOffline = !_uiState.value.isConnected
+                    _uiState.update { it.copy(isConnected = isConnected) }
 
-                if (isConnected && wasOffline) {
-                    syncSongs()
-                    syncAlbums()
-                    retrySearch()
+                    if (isConnected && wasOffline) {
+                        syncAll()
+                        retrySearch()
+                    }
                 }
+        }
+    }
+    fun syncAll() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isRefreshing = true) }
+
+            try {
+                coroutineScope {
+                    val songs = async { songRepository.syncSongs() }
+                    val albums = async { songRepository.syncAlbums() }
+                    awaitAll(songs, albums)
+                }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(errorMessage = e.message) }
             }
         }
     }
@@ -168,7 +186,9 @@ class HomeViewModel @Inject constructor(
 
     private fun observeSongs() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
+            if (_uiState.value.songs.isEmpty()) {
+                _uiState.update { it.copy(isLoading = true) }
+            }
             songRepository.observeSongs().collect { result ->
                 result.fold(
                     onSuccess = { songs ->
@@ -199,29 +219,15 @@ class HomeViewModel @Inject constructor(
             }
         }
     }
-    fun syncSongs() {
-        viewModelScope.launch {
-            _uiState.update { it.copy(isSyncing = true) }
-            songRepository.syncSongs()
-            _uiState.update { it.copy(isSyncing = false) }
-        }
-    }
-
     private fun observeAlbums() {
         viewModelScope.launch {
             songRepository.observeAlbums().collect { albums ->
-                _uiState.update { it.copy(chartAlbums = albums, isAlbumsLoading = false) }
+                _uiState.update { it.copy(chartAlbums = albums) }
                 refreshLocalSearchResults()
             }
         }
     }
 
-    private fun syncAlbums() {
-        viewModelScope.launch {
-            _uiState.update { it.copy(isAlbumsLoading = true) }
-            songRepository.syncAlbums()
-        }
-    }
     fun navigateToAlbum(albumId: String, albumArt: String, albumTitle: String, onReady: (String) -> Unit) {
         viewModelScope.launch {
             try {

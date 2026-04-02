@@ -19,5 +19,6 @@ data class SongEntity(
     val previewUrl: String,
     val albumId: String,
     val isFromChart: Boolean = false,
-    val artistImageUrl: String = ""
+    val artistImageUrl: String = "",
+    val sortOrder: Int = 0
 )

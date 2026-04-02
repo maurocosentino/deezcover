@@ -185,12 +185,12 @@ fun HomeScreen(
                         scrolledContainerColor = Color.Transparent
                     ),
                     actions = {
-                        IconButton(onClick = { viewModel.syncSongs() }) {
+                        IconButton(onClick = { viewModel.syncAll() }) {
                             Icon(
                                 imageVector = Icons.Outlined.Sync,
                                 contentDescription = stringResource(R.string.sync),
                                 tint = Color.White,
-                                modifier = if (uiState.isSyncing) Modifier.rotate(syncRotation) else Modifier
+                                modifier = if (uiState.isConnected) Modifier.rotate(syncRotation) else Modifier
                             )
                         }
                     }
@@ -228,8 +228,8 @@ fun HomeScreen(
 
                 else -> {
                     PullToRefreshBox(
-                        isRefreshing = uiState.isSyncing,
-                        onRefresh = { viewModel.syncSongs() }
+                        isRefreshing = uiState.isRefreshing,
+                        onRefresh = { viewModel.syncAll() }
                     ) {
                         LazyColumn(
                             modifier = Modifier

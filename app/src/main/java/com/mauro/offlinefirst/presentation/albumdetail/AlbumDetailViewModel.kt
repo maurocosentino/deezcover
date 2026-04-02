@@ -68,11 +68,12 @@ class AlbumDetailViewModel @Inject constructor(
         viewModelScope.launch {
             val albumId = _uiState.value.song?.albumId ?: return@launch
             val albumArt = _uiState.value.song?.albumArt ?: ""
-            val albumDetail = remoteDataSource.fetchAlbumDetail(albumId)
-            val artistImageUrl = albumDetail.artist.pictureSmall ?: ""
 
             _uiState.update { it.copy(isAlbumLoading = true) }
             try {
+                val albumDetail = remoteDataSource.fetchAlbumDetail(albumId)
+                val artistImageUrl = albumDetail.artist.pictureSmall ?: ""
+
                 val tracks = remoteDataSource.fetchAlbumTracks(albumId)
                 val fullAlbumDetail = remoteDataSource.fetchAlbumDetail(albumId)
                 val entities = tracks.map {
