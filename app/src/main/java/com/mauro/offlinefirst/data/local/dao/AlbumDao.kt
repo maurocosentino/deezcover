@@ -18,6 +18,9 @@ abstract class AlbumDao {
     @Query("DELETE FROM albums")
     abstract suspend fun deleteAlbums()
 
+    @Query("SELECT COUNT(*) FROM albums")
+    abstract suspend fun countAlbums(): Int
+
     @Transaction
     open suspend fun replaceAlbums(albums: List<AlbumEntity>) {
         deleteAlbums()

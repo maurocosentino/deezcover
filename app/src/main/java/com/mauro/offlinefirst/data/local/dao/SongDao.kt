@@ -34,6 +34,9 @@ abstract class SongDao {
     @Query("SELECT MAX(lastUpdated) FROM songs WHERE isFromChart = 1")
     abstract suspend fun getLastSyncTime(): Long?
 
+    @Query("SELECT COUNT(*) FROM songs WHERE isFromChart = 1")
+    abstract suspend fun countChartSongs(): Int
+
     @Query("SELECT isFromChart FROM songs WHERE id = :songId")
     abstract suspend fun isChartSong(songId: String): Boolean?
 

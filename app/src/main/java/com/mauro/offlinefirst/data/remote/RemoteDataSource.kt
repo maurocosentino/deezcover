@@ -21,8 +21,7 @@ class RemoteDataSource constructor(
 
     private suspend fun <T> executeWithTransportFallback(
         operation: String,
-        block: suspend (MusicApiService) -> T,
-        bundledFallback: () -> T
+        block: suspend (MusicApiService) -> T
     ): T {
         return try {
             Log.d(TAG, "Request start: operation=$operation transport=https")
@@ -35,12 +34,7 @@ class RemoteDataSource constructor(
                     block(cleartextApiService)
                 } catch (cleartextException: Exception) {
                     Log.w(TAG, "HTTP request failed: operation=$operation", cleartextException)
-                    if (cleartextException.shouldUseBundledFallback()) {
-                        Log.i(TAG, "Using bundled fallback catalog: operation=$operation")
-                        bundledFallback()
-                    } else {
-                        throw cleartextException
-                    }
+                    throw cleartextException
                 }
             } else {
                 throw exception
@@ -51,71 +45,81 @@ class RemoteDataSource constructor(
     suspend fun fetchSongs(): List<SongDto> {
         return executeWithTransportFallback(
             operation = "fetchSongs",
-            block = { service -> service.getSongs().tracks },
-            bundledFallback = { FallbackCatalog.chartSongs() }
+            block = { service -> service.getSongs().tracks }
         )
     }
     suspend fun fetchAlbumTracks(albumId: String): List<SongDto> {
         return executeWithTransportFallback(
             operation = "fetchAlbumTracks:$albumId",
-            block = { service -> service.getAlbumTracks(albumId).tracks },
-            bundledFallback = { FallbackCatalog.albumTracks(albumId) }
+            block = { service -> service.getAlbumTracks(albumId).tracks }
         )
     }
     suspend fun fetchChartAlbums(): List<AlbumDto> {
         return executeWithTransportFallback(
             operation = "fetchChartAlbums",
-            block = { service -> service.getChartAlbums().albums },
-            bundledFallback = { FallbackCatalog.chartAlbums() }
+            block = { service -> service.getChartAlbums().albums }
         )
     }
     suspend fun fetchAlbumDetail(albumId: String): DeezerAlbumDetailDto {
         return executeWithTransportFallback(
             operation = "fetchAlbumDetail:$albumId",
-            block = { service -> service.getAlbumDetail(albumId) },
-            bundledFallback = { FallbackCatalog.albumDetail(albumId) }
+            block = { service -> service.getAlbumDetail(albumId) }
         )
     }
 
     suspend fun fetchArtistTopTracks(artistId: String): List<SongDto> {
         return executeWithTransportFallback(
             operation = "fetchArtistTopTracks:$artistId",
-            block = { service -> service.getArtistTopTracks(artistId).tracks },
-            bundledFallback = { FallbackCatalog.artistTopTracks(artistId) }
+            block = { service -> service.getArtistTopTracks(artistId).tracks }
         )
     }
 
     suspend fun fetchArtistDetail(artistId: String): DeezerArtistDto {
         return executeWithTransportFallback(
             operation = "fetchArtistDetail:$artistId",
-            block = { service -> service.getArtistDetail(artistId) },
-            bundledFallback = { FallbackCatalog.artistDetail(artistId) }
+            block = { service -> service.getArtistDetail(artistId) }
         )
     }
 
     suspend fun searchTracks(query: String, limit: Int): List<SongDto> {
         return executeWithTransportFallback(
             operation = "searchTracks:$query",
-            block = { service -> service.searchTracks(query = query, limit = limit).tracks },
-            bundledFallback = { FallbackCatalog.searchTracks(query = query, limit = limit) }
+            block = { service -> service.searchTracks(query = query, limit = limit).tracks }
         )
     }
 
     suspend fun searchAlbums(query: String, limit: Int): List<AlbumDto> {
         return executeWithTransportFallback(
             operation = "searchAlbums:$query",
-            block = { service -> service.searchAlbums(query = query, limit = limit).albums },
-            bundledFallback = { FallbackCatalog.searchAlbums(query = query, limit = limit) }
+            block = { service -> service.searchAlbums(query = query, limit = limit).albums }
         )
     }
 
     suspend fun searchArtists(query: String, limit: Int): List<DeezerArtistDto> {
         return executeWithTransportFallback(
             operation = "searchArtists:$query",
-            block = { service -> service.searchArtists(query = query, limit = limit).artists },
-            bundledFallback = { FallbackCatalog.searchArtists(query = query, limit = limit) }
+            block = { service -> service.searchArtists(query = query, limit = limit).artists }
         )
     }
+
+    fun fallbackChartSongs(): List<SongDto> = FallbackCatalog.chartSongs()
+
+    fun fallbackChartAlbums(): List<AlbumDto> = FallbackCatalog.chartAlbums()
+
+    fun fallbackAlbumTracks(albumId: String): List<SongDto> = FallbackCatalog.albumTracks(albumId)
+
+    fun fallbackAlbumDetail(albumId: String): DeezerAlbumDetailDto = FallbackCatalog.albumDetail(albumId)
+
+    fun fallbackArtistTopTracks(artistId: String): List<SongDto> = FallbackCatalog.artistTopTracks(artistId)
+
+    fun fallbackArtistDetail(artistId: String): DeezerArtistDto = FallbackCatalog.artistDetail(artistId)
+
+    fun fallbackSearchTracks(query: String, limit: Int): List<SongDto> = FallbackCatalog.searchTracks(query, limit)
+
+    fun fallbackSearchAlbums(query: String, limit: Int): List<AlbumDto> = FallbackCatalog.searchAlbums(query, limit)
+
+    fun fallbackSearchArtists(query: String, limit: Int): List<DeezerArtistDto> =
+        FallbackCatalog.searchArtists(query, limit)
 }
 
 private fun Throwable.isTransportFailure(): Boolean {
