@@ -197,73 +197,82 @@ fun HomeScreen(
                 )
             }
         ) { paddingValues ->
-            when {
-                uiState.isLoading -> {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(paddingValues),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator(color = Color.White)
-                    }
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+            ) {
+                if (!uiState.isConnected) {
+                    OfflineBanner()
                 }
 
-                uiState.errorMessage != null -> {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(paddingValues),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = uiState.errorMessage!!,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = Color(0xFFFF6B6B)
-                        )
-                    }
-                }
-
-                uiState.songs.isEmpty() -> EmptyState()
-
-                else -> {
-                    PullToRefreshBox(
-                        isRefreshing = uiState.isRefreshing,
-                        onRefresh = { viewModel.syncAll() }
-                    ) {
-                        LazyColumn(
+                when {
+                    uiState.isLoading -> {
+                        Box(
                             modifier = Modifier
-                                .fillMaxSize()
-                                .padding(paddingValues),
-                            contentPadding = PaddingValues(
-                                start = HomeHorizontalPadding,
-                                end = HomeHorizontalPadding,
-                                bottom = contentBottomPadding
-                            ),
-                            verticalArrangement = Arrangement.spacedBy(HomeSectionSpacing)
+                                .fillMaxWidth()
+                                .weight(1f),
+                            contentAlignment = Alignment.Center
                         ) {
-                            item {
-                                SearchBar(
-                                    searchQuery = uiState.searchQuery,
-                                    onSearchQueryChange = viewModel::onSearchQueryChange,
-                                    totalSongsCount = uiState.songs.size,
-                                    totalAlbumsCount = uiState.chartAlbums.size,
-                                    totalArtistsCount = uiState.topArtists.size,
-                                    isConnected = uiState.isConnected,
-                                    focusRequester = focusRequester,
-                                    modifier = Modifier.padding(top = 2.dp)
-                                )
-                            }
+                            CircularProgressIndicator(color = Color.White)
+                        }
+                    }
 
-                            if (!uiState.isConnected) {
+                    uiState.errorMessage != null -> {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(1f),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = uiState.errorMessage!!,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Color(0xFFFF6B6B)
+                            )
+                        }
+                    }
+
+                    uiState.songs.isEmpty() -> {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(1f)
+                        ) {
+                            EmptyState()
+                        }
+                    }
+
+                    else -> {
+                        PullToRefreshBox(
+                            isRefreshing = uiState.isRefreshing,
+                            onRefresh = { viewModel.syncAll() },
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            LazyColumn(
+                                modifier = Modifier.fillMaxSize(),
+                                contentPadding = PaddingValues(
+                                    start = HomeHorizontalPadding,
+                                    end = HomeHorizontalPadding,
+                                    bottom = contentBottomPadding
+                                ),
+                                verticalArrangement = Arrangement.spacedBy(HomeSectionSpacing)
+                            ) {
                                 item {
-                                    OfflineBanner()
+                                    SearchBar(
+                                        searchQuery = uiState.searchQuery,
+                                        onSearchQueryChange = viewModel::onSearchQueryChange,
+                                        totalSongsCount = uiState.songs.size,
+                                        totalAlbumsCount = uiState.chartAlbums.size,
+                                        totalArtistsCount = uiState.topArtists.size,
+                                        isConnected = uiState.isConnected,
+                                        focusRequester = focusRequester,
+                                        modifier = Modifier.padding(top = 2.dp)
+                                    )
                                 }
-                            }
 
-                            if (!showSearchEmptyState) {
-                                if (hasSearchQuery) {
-                                    if (uiState.isConnected) {
+                                if (!showSearchEmptyState) {
+                                    if (hasSearchQuery && uiState.isConnected) {
                                         remoteResultsSection(
                                             remoteTracks = remoteTracks,
                                             remoteAlbums = remoteAlbums,
@@ -303,39 +312,10 @@ fun HomeScreen(
                                                 onArtistClick(artist.id, artist.name, artist.imageUrl)
                                             }
                                         )
-                                    } else {
-                                        localResultsSection(
-                                            hasSearchQuery = true,
-                                            tracks = localTracks,
-                                            albums = localAlbums,
-                                            artists = localArtists,
-                                            currentPlayingId = playerUiState.currentPlayingId,
-                                            playerState = playerUiState.playerState,
-                                            onPlayClick = { song ->
-                                                val songIndex = localTracks.indexOfFirst { it.id == song.id }
-                                                if (playerUiState.currentPlayingId == song.id) {
-                                                    playerViewModel.togglePlayPause()
-                                                } else if (songIndex != -1) {
-                                                    playerViewModel.playSongs(localTracks, songIndex)
-                                                }
-                                            },
-                                            onSongClick = { song -> onSongClick(song.id) },
-                                            onAlbumClick = { album ->
-                                                viewModel.navigateToAlbum(
-                                                    albumId = album.id,
-                                                    albumArt = album.coverUrl,
-                                                    albumTitle = album.title,
-                                                    onReady = onAlbumClick
-                                                )
-                                            },
-                                            onArtistClick = { artist ->
-                                                onArtistClick(artist.id, artist.name, artist.imageUrl)
-                                            }
-                                        )
                                     }
-                                } else {
+
                                     localResultsSection(
-                                        hasSearchQuery = false,
+                                        hasSearchQuery = hasSearchQuery,
                                         tracks = localTracks,
                                         albums = localAlbums,
                                         artists = localArtists,
@@ -362,10 +342,10 @@ fun HomeScreen(
                                             onArtistClick(artist.id, artist.name, artist.imageUrl)
                                         }
                                     )
-                                }
-                            } else {
-                                item {
-                                    SearchEmptyState(query = uiState.searchQuery)
+                                } else {
+                                    item {
+                                        SearchEmptyState(query = uiState.searchQuery)
+                                    }
                                 }
                             }
                         }

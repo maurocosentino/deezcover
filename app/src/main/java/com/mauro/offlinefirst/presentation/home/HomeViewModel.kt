@@ -64,7 +64,7 @@ class HomeViewModel @Inject constructor(
 
     fun retrySearch() {
         val query = _uiState.value.searchQuery
-        if (query.isBlank()) return
+        if (query.isBlank() || !_uiState.value.isConnected) return
 
         viewModelScope.launch {
             runRemoteSearch(query)
@@ -95,6 +95,10 @@ class HomeViewModel @Inject constructor(
                     Log.d(TAG, "observeConnectivity:isConnected=$isConnected wasOffline=$wasOffline")
                     _uiState.update { it.copy(isConnected = isConnected) }
 
+                    if (!isConnected) {
+                        clearRemoteSearchResults()
+                    }
+
                     if (isConnected && wasOffline) {
                         syncAll()
                         retrySearch()
@@ -116,12 +120,10 @@ class HomeViewModel @Inject constructor(
         try {
             syncRepositories()
             Log.i(TAG, "syncAll:success songs=${_uiState.value.songs.size} albums=${_uiState.value.chartAlbums.size}")
-            _uiState.update { it.copy(isConnected = true) }
         } catch (e: Exception) {
             Log.e(TAG, "syncAll:failed", e)
             _uiState.update {
                 it.copy(
-                    isConnected = if (e.isConnectivityFailure()) false else it.isConnected,
                     errorMessage = if (it.songs.isEmpty() && it.chartAlbums.isEmpty()) {
                         e.toUserMessage()
                     } else {
@@ -152,35 +154,23 @@ class HomeViewModel @Inject constructor(
                 .debounce(SEARCH_DEBOUNCE_MS)
                 .distinctUntilChanged()
                 .collectLatest { query ->
-                    runRemoteSearch(query)
+                    if (query.isBlank() || !_uiState.value.isConnected) {
+                        clearRemoteSearchResults()
+                    } else {
+                        runRemoteSearch(query)
+                    }
                 }
         }
     }
 
     private suspend fun runRemoteSearch(query: String) {
         if (query.isBlank()) {
-            _uiState.update {
-                it.copy(
-                    remoteTracks = emptyList(),
-                    remoteAlbums = emptyList(),
-                    remoteArtists = emptyList(),
-                    isSearchLoading = false,
-                    searchError = null
-                )
-            }
+            clearRemoteSearchResults()
             return
         }
 
         if (!_uiState.value.isConnected) {
-            _uiState.update {
-                it.copy(
-                    remoteTracks = emptyList(),
-                    remoteAlbums = emptyList(),
-                    remoteArtists = emptyList(),
-                    isSearchLoading = false,
-                    searchError = "Sin conexión para buscar en Deezer"
-                )
-            }
+            clearRemoteSearchResults()
             return
         }
 
@@ -217,6 +207,18 @@ class HomeViewModel @Inject constructor(
                     )
                 }
             }
+    }
+
+    private fun clearRemoteSearchResults() {
+        _uiState.update {
+            it.copy(
+                remoteTracks = emptyList(),
+                remoteAlbums = emptyList(),
+                remoteArtists = emptyList(),
+                isSearchLoading = false,
+                searchError = null
+            )
+        }
     }
 
     private fun refreshLocalSearchResults() {
