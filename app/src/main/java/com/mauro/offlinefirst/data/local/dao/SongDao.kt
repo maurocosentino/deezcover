@@ -16,6 +16,9 @@ interface SongDao {
     @Query("SELECT * FROM songs WHERE id = :songId")
     fun observeSongById(songId: String): Flow<SongEntity?>
 
+    @Query("SELECT * FROM songs WHERE id = :songId")
+    suspend fun getSongById(songId: String): SongEntity?
+
     @Upsert
     suspend fun upsertSongs(songs: List<SongEntity>)
 

@@ -69,6 +69,10 @@ class SongRepositoryImpl @Inject constructor(
             .catch { emit(null) }
     }
 
+    override suspend fun getSongById(songId: String): Song? {
+        return songDao.getSongById(songId)?.toDomain()
+    }
+
     override suspend fun syncSongs() {
         try {
             val remoteSongs = remoteDataSource.fetchSongs()

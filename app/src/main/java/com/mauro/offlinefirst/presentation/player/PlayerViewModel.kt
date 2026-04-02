@@ -2,13 +2,16 @@ package com.mauro.offlinefirst.presentation.player
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mauro.offlinefirst.data.local.LastPlayedDataSource
 import com.mauro.offlinefirst.data.player.PlayerManager
 import com.mauro.offlinefirst.domain.model.Song
+import com.mauro.offlinefirst.domain.repository.SongRepository
 import com.mauro.offlinefirst.presentation.albumdetail.PlayerState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -28,7 +31,9 @@ data class PlayerUiState(
 
 @HiltViewModel
 class PlayerViewModel @Inject constructor(
-    private val playerManager: PlayerManager
+    private val playerManager: PlayerManager,
+    private val lastPlayedDataSource: LastPlayedDataSource,
+    private val songRepository: SongRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(PlayerUiState())
@@ -38,6 +43,7 @@ class PlayerViewModel @Inject constructor(
         observePlayerState()
         observePosition()
         observeSongCompletion()
+        restoreLastPlayedSong()
     }
 
     fun playSongs(list: List<Song>, startIndex: Int = 0) {
@@ -60,6 +66,18 @@ class PlayerViewModel @Inject constructor(
         val currentSong = uiState.value.currentSong ?: return
         val playerState = uiState.value.playerState
 
+        if (playerState == PlayerState.PAUSED && playerManager.playerState.value.currentPlayingId == null) {
+            _uiState.update {
+                it.copy(
+                    originalQueue = if (it.originalQueue.isEmpty()) listOf(currentSong) else it.originalQueue,
+                    currentQueue = if (it.currentQueue.isEmpty()) listOf(currentSong) else it.currentQueue,
+                    currentIndex = 0
+                )
+            }
+            playerManager.playSong(currentSong.id, currentSong.previewUrl)
+            return
+        }
+
         when {
             playerState == PlayerState.PLAYING -> playerManager.pause()
             playerState == PlayerState.PAUSED || playerState == PlayerState.LOADING -> {
@@ -73,10 +91,19 @@ class PlayerViewModel @Inject constructor(
         val nextIndex = uiState.value.currentIndex + 1
         if (nextIndex !in uiState.value.currentQueue.indices) {
             playerManager.stop()
-            clearQueue()
+            if (uiState.value.currentQueue.size <= 1) {
+                _uiState.update {
+                    it.copy(
+                        isPlaying = false,
+                        playerState = PlayerState.PAUSED,
+                        currentPositionMs = 0L
+                    )
+                }
+            } else {
+                clearQueue()
+            }
             return
         }
-
         playSongAt(queue = uiState.value.currentQueue, index = nextIndex)
     }
 
@@ -165,6 +192,24 @@ class PlayerViewModel @Inject constructor(
         }
     }
 
+    private fun restoreLastPlayedSong() {
+        viewModelScope.launch {
+            if (_uiState.value.currentSong != null) return@launch
+            val savedId = lastPlayedDataSource.lastPlayedSongId.first() ?: return@launch
+            val song = songRepository.getSongById(savedId) ?: return@launch
+            _uiState.update {
+                it.copy(
+                    currentSong = song,
+                    currentQueue = listOf(song),
+                    originalQueue = listOf(song),
+                    currentIndex = 0,
+                    playerState = PlayerState.PAUSED,
+                    isPlaying = false
+                )
+            }
+        }
+    }
+
     private fun playSongAt(queue: List<Song>, index: Int) {
         val song = queue.getOrNull(index) ?: return
         _uiState.update {
@@ -173,6 +218,9 @@ class PlayerViewModel @Inject constructor(
                 currentIndex = index,
                 currentSong = song
             )
+        }
+        viewModelScope.launch {
+            lastPlayedDataSource.saveLastPlayedSongId(song.id)
         }
         playerManager.playSong(song.id, song.previewUrl)
     }

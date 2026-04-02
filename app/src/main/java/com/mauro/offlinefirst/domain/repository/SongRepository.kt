@@ -11,6 +11,7 @@ interface SongRepository {
     fun observeSongs(): Flow<Result<List<Song>>>
     fun observeArtists(): Flow<List<Artist>>
     fun observeSongById(songId: String): Flow<Song?>
+    suspend fun getSongById(songId: String): Song?
     fun observeAlbums(): Flow<List<Album>>
     suspend fun syncAlbums()
     suspend fun syncSongs()
