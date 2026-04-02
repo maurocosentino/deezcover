@@ -5,6 +5,7 @@ import com.mauro.offlinefirst.data.remote.dto.DeezerArtistChartDto
 import com.mauro.offlinefirst.data.remote.dto.DeezerArtistDto
 import com.mauro.offlinefirst.data.remote.dto.DeezerArtistSearchResponseDto
 import com.mauro.offlinefirst.data.remote.dto.DeezerChartResponseDto
+import com.mauro.offlinefirst.data.remote.dto.DeezerNewReleasesResponseDto
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -56,4 +57,9 @@ interface MusicApiService {
         @Query("q") query: String,
         @Query("limit") limit: Int
     ): DeezerArtistSearchResponseDto
+
+    @GET("editorial/0/releases")
+    suspend fun getNewReleases(
+        @Query("index") index: Int = 0
+    ): DeezerNewReleasesResponseDto
 }

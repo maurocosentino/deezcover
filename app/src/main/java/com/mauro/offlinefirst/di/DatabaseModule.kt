@@ -5,6 +5,7 @@ import androidx.room.Room
 import com.mauro.offlinefirst.data.local.AppDatabase
 import com.mauro.offlinefirst.data.local.dao.AlbumDao
 import com.mauro.offlinefirst.data.local.dao.ArtistDao
+import com.mauro.offlinefirst.data.local.dao.NewReleaseDao
 import com.mauro.offlinefirst.data.local.dao.SongDao
 import dagger.Module
 import dagger.Provides
@@ -30,7 +31,8 @@ object DatabaseModule {
            .addMigrations(
                AppDatabase.MIGRATION_1_2,
                AppDatabase.MIGRATION_2_3,
-               AppDatabase.MIGRATION_3_4
+               AppDatabase.MIGRATION_3_4,
+               AppDatabase.MIGRATION_4_5
            )
            .build()
     }
@@ -45,5 +47,10 @@ object DatabaseModule {
     @Provides
     fun provideAlbumDao(database: AppDatabase): AlbumDao {
         return database.albumDao()
+    }
+
+    @Provides
+    fun provideNewReleaseDao(database: AppDatabase): NewReleaseDao {
+        return database.newReleaseDao()
     }
 }

@@ -3,6 +3,7 @@
     <string name="brand_name">Deezcover</string>
     <string name="sync">Sincronizar</string>
     <string name="home_top_albums">Top Álbumes</string>
+    <string name="home_new_releases">New Releases</string>
     <string name="home_top_artists">Top Artistas</string>
     <string name="home_top_tracks">Top Canciones</string>
     <string name="search_section_albums">Álbumes</string>

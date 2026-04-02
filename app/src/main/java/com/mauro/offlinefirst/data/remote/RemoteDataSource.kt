@@ -5,6 +5,7 @@ import com.mauro.offlinefirst.data.remote.api.MusicApiService
 import com.mauro.offlinefirst.data.remote.dto.AlbumDto
 import com.mauro.offlinefirst.data.remote.dto.DeezerAlbumDetailDto
 import com.mauro.offlinefirst.data.remote.dto.DeezerArtistDto
+import com.mauro.offlinefirst.data.remote.dto.DeezerNewReleaseDto
 import com.mauro.offlinefirst.data.remote.dto.SongDto
 import java.io.IOException
 import java.net.SocketTimeoutException
@@ -102,6 +103,13 @@ class RemoteDataSource constructor(
         return executeWithTransportFallback(
             operation = "searchArtists:$query",
             block = { service -> service.searchArtists(query = query, limit = limit).artists }
+        )
+    }
+
+    suspend fun fetchNewReleases(index: Int): List<DeezerNewReleaseDto> {
+        return executeWithTransportFallback(
+            operation = "fetchNewReleases:$index",
+            block = { service -> service.getNewReleases(index = index).data }
         )
     }
 

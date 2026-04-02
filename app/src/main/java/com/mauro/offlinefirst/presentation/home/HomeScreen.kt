@@ -58,10 +58,12 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.mauro.offlinefirst.R
 import com.mauro.offlinefirst.domain.model.Album
 import com.mauro.offlinefirst.domain.model.Artist
+import com.mauro.offlinefirst.domain.model.NewRelease
 import com.mauro.offlinefirst.domain.model.Song
 import com.mauro.offlinefirst.presentation.albumdetail.PlayerState
 import com.mauro.offlinefirst.presentation.components.MiniPlayer
 import com.mauro.offlinefirst.presentation.home.components.EmptyState
+import com.mauro.offlinefirst.presentation.home.components.NewReleasesSection
 import com.mauro.offlinefirst.presentation.home.components.OfflineBanner
 import com.mauro.offlinefirst.presentation.home.components.SearchBar
 import com.mauro.offlinefirst.presentation.home.components.SectionHeader
@@ -318,6 +320,8 @@ fun HomeScreen(
                                         hasSearchQuery = hasSearchQuery,
                                         tracks = localTracks,
                                         albums = localAlbums,
+                                        newReleases = uiState.newReleases,
+                                        isNewReleasesLoading = uiState.isNewReleasesLoading,
                                         artists = localArtists,
                                         currentPlayingId = playerUiState.currentPlayingId,
                                         playerState = playerUiState.playerState,
@@ -335,6 +339,14 @@ fun HomeScreen(
                                                 albumId = album.id,
                                                 albumArt = album.coverUrl,
                                                 albumTitle = album.title,
+                                                onReady = onAlbumClick
+                                            )
+                                        },
+                                        onNewReleaseClick = { release ->
+                                            viewModel.navigateToAlbum(
+                                                albumId = release.albumId.toString(),
+                                                albumArt = release.coverUrl,
+                                                albumTitle = release.title,
                                                 onReady = onAlbumClick
                                             )
                                         },
@@ -380,12 +392,15 @@ private fun androidx.compose.foundation.lazy.LazyListScope.localResultsSection(
     hasSearchQuery: Boolean,
     tracks: List<Song>,
     albums: List<Album>,
+    newReleases: List<NewRelease>,
+    isNewReleasesLoading: Boolean,
     artists: List<Artist>,
     currentPlayingId: String?,
     playerState: PlayerState,
     onPlayClick: (Song) -> Unit,
     onSongClick: (Song) -> Unit,
     onAlbumClick: (Album) -> Unit,
+    onNewReleaseClick: (NewRelease) -> Unit,
     onArtistClick: (Artist) -> Unit
 ) {
     if (albums.isNotEmpty()) {
@@ -399,6 +414,17 @@ private fun androidx.compose.foundation.lazy.LazyListScope.localResultsSection(
                     stringResource(R.string.home_top_albums)
                 },
                 onAlbumClick = onAlbumClick
+            )
+        }
+    }
+
+    if (!hasSearchQuery && (newReleases.isNotEmpty() || isNewReleasesLoading)) {
+        item {
+            NewReleasesSection(
+                releases = newReleases,
+                isLoading = isNewReleasesLoading,
+                title = stringResource(R.string.home_new_releases),
+                onReleaseClick = onNewReleaseClick
             )
         }
     }
