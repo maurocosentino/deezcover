@@ -190,7 +190,7 @@ fun HomeScreen(
                                 imageVector = Icons.Outlined.Sync,
                                 contentDescription = stringResource(R.string.sync),
                                 tint = Color.White,
-                                modifier = if (uiState.isConnected) Modifier.rotate(syncRotation) else Modifier
+                                modifier = if (uiState.isRefreshing) Modifier.rotate(syncRotation) else Modifier
                             )
                         }
                     }

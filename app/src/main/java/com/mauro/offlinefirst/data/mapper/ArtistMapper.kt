@@ -1,5 +1,6 @@
 package com.mauro.offlinefirst.data.mapper
 
+import com.mauro.offlinefirst.data.local.entity.ArtistEntity
 import com.mauro.offlinefirst.data.local.entity.SongEntity
 import com.mauro.offlinefirst.data.remote.dto.DeezerAlbumArtistDto
 import com.mauro.offlinefirst.data.remote.dto.DeezerArtistDto
@@ -30,5 +31,20 @@ object ArtistMapper {
         id = artistId,
         name = artist,
         imageUrl = artistImageUrl
+    )
+
+    fun ArtistEntity.toDomain(): Artist = Artist(
+        id = id,
+        name = name,
+        imageUrl = imageUrl,
+        albumCount = albumCount
+    )
+
+    fun DeezerArtistDto.toEntity(sortOrder: Int): ArtistEntity = ArtistEntity(
+        id = id?.toString().orEmpty(),
+        name = name,
+        imageUrl = bestImageUrl(),
+        albumCount = albumCount,
+        sortOrder = sortOrder
     )
 }

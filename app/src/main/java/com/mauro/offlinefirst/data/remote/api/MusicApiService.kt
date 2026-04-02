@@ -1,6 +1,7 @@
 package com.mauro.offlinefirst.data.remote.api
 import com.mauro.offlinefirst.data.remote.dto.DeezerAlbumChartDto
 import com.mauro.offlinefirst.data.remote.dto.DeezerAlbumDetailDto
+import com.mauro.offlinefirst.data.remote.dto.DeezerArtistChartDto
 import com.mauro.offlinefirst.data.remote.dto.DeezerArtistDto
 import com.mauro.offlinefirst.data.remote.dto.DeezerArtistSearchResponseDto
 import com.mauro.offlinefirst.data.remote.dto.DeezerChartResponseDto
@@ -46,6 +47,9 @@ interface MusicApiService {
         @Query("q") query: String,
         @Query("limit") limit: Int
     ): DeezerAlbumChartDto
+    @GET("chart/0/artists")
+
+    suspend fun getChartArtists(): DeezerArtistChartDto
 
     @GET("search/artist")
     suspend fun searchArtists(

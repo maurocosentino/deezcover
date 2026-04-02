@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import com.mauro.offlinefirst.data.local.AppDatabase
 import com.mauro.offlinefirst.data.local.dao.AlbumDao
+import com.mauro.offlinefirst.data.local.dao.ArtistDao
 import com.mauro.offlinefirst.data.local.dao.SongDao
 import dagger.Module
 import dagger.Provides
@@ -37,7 +38,10 @@ object DatabaseModule {
     fun provideSongDao(database: AppDatabase): SongDao {
         return database.songDao()
     }
-
+    @Provides
+    fun provideArtistDao(database: AppDatabase): ArtistDao {
+        return database.artistDao()
+    }
     @Provides
     fun provideAlbumDao(database: AppDatabase): AlbumDao {
         return database.albumDao()

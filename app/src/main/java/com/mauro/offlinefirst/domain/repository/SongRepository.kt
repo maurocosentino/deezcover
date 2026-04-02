@@ -15,6 +15,7 @@ interface SongRepository {
     fun observeAlbums(): Flow<List<Album>>
     suspend fun syncAlbums()
     suspend fun syncSongs()
+    suspend fun syncArtists()
     suspend fun saveAlbumTracks(tracks: List<SongEntity>)
     suspend fun shouldSync(): Boolean
     suspend fun fetchChartAlbums(): List<Album>

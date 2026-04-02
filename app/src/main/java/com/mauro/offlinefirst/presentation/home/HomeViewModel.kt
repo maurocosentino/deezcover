@@ -10,10 +10,10 @@ import com.mauro.offlinefirst.domain.model.Song
 import com.mauro.offlinefirst.domain.repository.SongRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -86,7 +86,6 @@ class HomeViewModel @Inject constructor(
                 }
         }
     }
-
     private fun observeConnectivity() {
         viewModelScope.launch {
             networkStatusDataSource.isConnected
@@ -132,20 +131,20 @@ class HomeViewModel @Inject constructor(
             }
         } finally {
             Log.i(TAG, "syncAll:finish")
-            _uiState.update { it.copy(isRefreshing = false) }
+            _uiState.update { it.copy(isRefreshing = false, isLoading = false) }
         }
     }
-
-    private suspend fun syncRepositories() {
+    private suspend fun syncRepositories() = coroutineScope {
         Log.d(TAG, "syncRepositories:start")
-        coroutineScope {
-            val songs = async { songRepository.syncSongs() }
-            val albums = async { songRepository.syncAlbums() }
-            awaitAll(songs, albums)
-        }
+
+        val songs = async { songRepository.syncSongs() }
+        val albums = async { songRepository.syncAlbums() }
+        val artists = async { songRepository.syncArtists() }
+
+        awaitAll(songs, albums, artists)
+
         Log.d(TAG, "syncRepositories:completed")
     }
-
     private fun observeSearchQuery() {
         viewModelScope.launch {
             uiState

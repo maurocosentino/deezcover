@@ -2,12 +2,14 @@ package com.mauro.offlinefirst.data.repository
 
 import android.util.Log
 import com.mauro.offlinefirst.data.local.dao.AlbumDao
+import com.mauro.offlinefirst.data.local.dao.ArtistDao
 import com.mauro.offlinefirst.data.local.dao.SongDao
 import com.mauro.offlinefirst.data.local.entity.AlbumEntity
 import com.mauro.offlinefirst.data.local.entity.SongEntity
 import com.mauro.offlinefirst.data.mapper.ArtistMapper.toArtist
 import com.mauro.offlinefirst.data.mapper.ArtistMapper.bestImageUrl
 import com.mauro.offlinefirst.data.mapper.ArtistMapper.toDomain
+import com.mauro.offlinefirst.data.mapper.ArtistMapper.toEntity
 import com.mauro.offlinefirst.data.mapper.SongMapper.toDomain
 import com.mauro.offlinefirst.data.mapper.SongMapper.toDomainList
 import com.mauro.offlinefirst.data.mapper.SongMapper.toEntity
@@ -25,6 +27,7 @@ import javax.inject.Inject
 class SongRepositoryImpl @Inject constructor(
     private val songDao: SongDao,
     private val albumDao: AlbumDao,
+    private val artistDao: ArtistDao,
     private val remoteDataSource: RemoteDataSource
 ) : SongRepository {
 
@@ -66,16 +69,22 @@ class SongRepositoryImpl @Inject constructor(
     }
 
     override fun observeArtists(): Flow<List<Artist>> {
-        return songDao
-            .observeChartSongs()
+        return artistDao
+            .observeArtists()
             .map { entities ->
-                entities
-                    .asSequence()
-                    .filter { it.artist.isNotBlank() }
-                    .distinctBy { entity -> entity.artistId.ifBlank { entity.artist.lowercase() } }
-                    .map { it.toArtist() }
-                    .toList()
+                entities.map { it.toDomain() }
             }
+    }
+    override suspend fun syncArtists() {
+        try {
+            val artists = remoteDataSource.fetchChartArtists()
+            val entities = artists.mapIndexed { index, dto ->
+                dto.toEntity(sortOrder = index)
+            }
+            artistDao.replaceArtists(entities)
+        } catch (exception: Exception) {
+            exception.printStackTrace()
+        }
     }
 
     override fun observeSongById(songId: String): Flow<Song?> {

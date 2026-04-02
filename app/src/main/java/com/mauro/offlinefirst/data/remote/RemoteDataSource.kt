@@ -60,6 +60,9 @@ class RemoteDataSource constructor(
             block = { service -> service.getChartAlbums().albums }
         )
     }
+    suspend fun fetchChartArtists(): List<DeezerArtistDto> {
+        return apiService.getChartArtists().artists
+    }
     suspend fun fetchAlbumDetail(albumId: String): DeezerAlbumDetailDto {
         return executeWithTransportFallback(
             operation = "fetchAlbumDetail:$albumId",
