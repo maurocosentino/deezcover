@@ -9,10 +9,16 @@ data class SongEntity(
     val id: String,
     val title: String,
     val artist: String,
+    val artistId: String,
+    val albumTitle: String,
     val albumArt: String,
     val durationMs: Long,
     val isAvailableOffline: Boolean,
     val lastUpdated: Long = System.currentTimeMillis(),
-    val deezerUrl: String
+    val deezerUrl: String,
+    val previewUrl: String,
+    val albumId: String,
+    val isFromChart: Boolean = false,
+    val artistImageUrl: String = "",
+    val sortOrder: Int = 0
 )
-

@@ -1,6 +1,9 @@
 package com.mauro.offlinefirst
 
+import android.util.Log
 import app.cash.turbine.test
+import com.mauro.offlinefirst.data.local.dao.AlbumDao
+import com.mauro.offlinefirst.data.local.dao.ArtistDao
 import com.mauro.offlinefirst.data.local.dao.SongDao
 import com.mauro.offlinefirst.data.local.entity.SongEntity
 import com.mauro.offlinefirst.data.remote.RemoteDataSource
@@ -12,6 +15,8 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkStatic
+import io.mockk.unmockkStatic
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -22,14 +27,30 @@ import org.junit.Test
 class SongRepositoryImplTest {
 
     private lateinit var songDao: SongDao
+    private lateinit var albumDao: AlbumDao
+    private lateinit var artistDao: ArtistDao
     private lateinit var remoteDataSource: RemoteDataSource
     private lateinit var repository: SongRepositoryImpl
 
     @Before
     fun setup() {
         songDao = mockk()
+        albumDao = mockk()
+        artistDao = mockk()
         remoteDataSource = mockk()
-        repository = SongRepositoryImpl(songDao, remoteDataSource)
+        mockkStatic(Log::class)
+        every { Log.i(any<String>(), any<String>()) } returns 0
+        every { Log.d(any<String>(), any<String>()) } returns 0
+        every { Log.w(any<String>(), any<String>()) } returns 0
+        every { Log.w(any<String>(), any<String>(), any()) } returns 0
+        every { Log.e(any<String>(), any<String>()) } returns 0
+        every { Log.e(any<String>(), any<String>(), any()) } returns 0
+        repository = SongRepositoryImpl(songDao, albumDao, artistDao, remoteDataSource)
+    }
+
+    @org.junit.After
+    fun tearDown() {
+        unmockkStatic(Log::class)
     }
 
     @Test
@@ -39,13 +60,18 @@ class SongRepositoryImplTest {
                 id = "1",
                 title = "Who",
                 artist = "Jimin",
+                artistId = "42",
+                albumTitle = "Muse",
                 albumArt = "https://cover.url",
                 durationMs = 170000L,
                 isAvailableOffline = false,
-                lastUpdated = 0L
+                lastUpdated = 0L,
+                deezerUrl = "https://deezer.com/track/1",
+                previewUrl = "https://cdn.preview/1.mp3",
+                albumId = "10"
             )
         )
-        every { songDao.observeAllSongs() } returns flowOf(entities)
+        every { songDao.observeChartSongs() } returns flowOf(entities)
 
         repository.observeSongs().test {
             val result = awaitItem()
@@ -63,15 +89,21 @@ class SongRepositoryImplTest {
                 id = 1L,
                 title = "Who",
                 artist = DeezerArtistDto(name = "Jimin"),
-                albumArt = DeezerAlbumDto(coverMedium = "https://cover.url"),
-                duration = 170
+                albumArt = DeezerAlbumDto(
+                    coverMedium = "https://cover.url",
+                    albumTitle = "Muse",
+                    albumId = 10L
+                ),
+                duration = 170,
+                link = "https://deezer.com/track/1",
+                previewUrl = "https://cdn.preview/1.mp3"
             )
         )
         coEvery { remoteDataSource.fetchSongs() } returns dtos
-        coEvery { songDao.upsertSongs(any()) } returns Unit
+        coEvery { songDao.replaceChartSongs(any()) } returns Unit
 
         repository.syncSongs()
 
-        coVerify { songDao.upsertSongs(any()) }
+        coVerify { songDao.replaceChartSongs(any()) }
     }
 }
