@@ -6,7 +6,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.layout.padding
 
 @Composable
 fun SectionHeader(title: String, modifier: Modifier = Modifier) {
@@ -17,6 +19,6 @@ fun SectionHeader(title: String, modifier: Modifier = Modifier) {
             fontSize   = 18.sp,
             color      = Color.White
         ),
-        modifier = modifier
+        modifier = modifier.padding(horizontal = 12.dp)
     )
 }

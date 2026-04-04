@@ -7,7 +7,9 @@ import com.mauro.offlinefirst.data.local.dao.ArtistDao
 import com.mauro.offlinefirst.data.local.dao.SongDao
 import com.mauro.offlinefirst.data.local.entity.SongEntity
 import com.mauro.offlinefirst.data.remote.RemoteDataSource
+import com.mauro.offlinefirst.data.remote.dto.DeezerAlbumArtistDto
 import com.mauro.offlinefirst.data.remote.dto.DeezerAlbumDto
+import com.mauro.offlinefirst.data.remote.dto.DeezerAlbumDetailDto
 import com.mauro.offlinefirst.data.remote.dto.DeezerArtistDto
 import com.mauro.offlinefirst.data.remote.dto.SongDto
 import com.mauro.offlinefirst.data.repository.SongRepositoryImpl
@@ -105,5 +107,54 @@ class SongRepositoryImplTest {
         repository.syncSongs()
 
         coVerify { songDao.replaceChartSongs(any()) }
+    }
+
+    @Test
+    fun `fetchAlbumTracks keeps mapped artwork when fallback artwork is blank`() = runTest {
+        val remoteTracks = listOf(
+            SongDto(
+                id = 1L,
+                title = "Who",
+                artist = DeezerArtistDto(name = "Jimin"),
+                albumArt = DeezerAlbumDto(
+                    coverMedium = "https://cover-medium.url",
+                    coverBig = "https://cover-big.url",
+                    coverXl = "https://cover-xl.url",
+                    albumTitle = "Muse",
+                    albumId = 10L
+                ),
+                duration = 170,
+                link = "https://deezer.com/track/1",
+                previewUrl = "https://cdn.preview/1.mp3"
+            )
+        )
+        val albumDetail = DeezerAlbumDetailDto(
+            id = 10L,
+            title = "Muse",
+            releaseDate = "2024-01-01",
+            recordType = "album",
+            artist = DeezerAlbumArtistDto(
+                name = "Jimin",
+                pictureXl = "https://artist-xl.url"
+            )
+        )
+
+        coEvery { remoteDataSource.fetchAlbumTracks("10") } returns remoteTracks
+        coEvery { remoteDataSource.fetchAlbumDetail("10") } returns albumDetail
+        coEvery { songDao.getSongById("1") } returns null
+        coEvery { songDao.upsertSongs(any()) } returns Unit
+
+        val songs = repository.fetchAlbumTracks(
+            albumId = "10",
+            albumArt = "",
+            albumTitle = ""
+        )
+
+        assertEquals("https://cover-xl.url", songs.first().albumArt)
+        coVerify {
+            songDao.upsertSongs(withArg { savedSongs ->
+                assertEquals("https://cover-xl.url", savedSongs.first().albumArt)
+            })
+        }
     }
 }

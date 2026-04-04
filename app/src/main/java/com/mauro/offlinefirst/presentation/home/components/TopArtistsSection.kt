@@ -1,11 +1,11 @@
 package com.mauro.offlinefirst.presentation.home.components
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -13,10 +13,8 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -25,11 +23,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.mauro.offlinefirst.domain.model.Artist
-
-private val ArtistAccent = Color(0xFF00C8FF)
+import java.util.Locale
 
 @Composable
 fun TopArtistsSection(
@@ -42,15 +38,15 @@ fun TopArtistsSection(
 
     SectionHeader(
         title = title,
-        modifier = modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+        modifier = modifier.padding(vertical = 8.dp),
     )
 
     LazyRow(
-        contentPadding = PaddingValues(horizontal = 16.dp),
+        contentPadding = PaddingValues(horizontal = 12.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        items(items = artists, key = { it.id }) { artist ->
-            ArtistStoryItem(
+        items(items = artists, key = Artist::id) { artist ->
+            ArtistCard(
                 artist = artist,
                 onClick = { onArtistClick(artist) }
             )
@@ -59,46 +55,71 @@ fun TopArtistsSection(
 }
 
 @Composable
-private fun ArtistStoryItem(
+private fun ArtistCard(
     artist: Artist,
     onClick: () -> Unit
 ) {
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = Modifier
-            .width(78.dp)
-            .clickable(onClick = onClick)
+        modifier = Modifier.width(160.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        Box(contentAlignment = Alignment.Center) {
-            Surface(
-                shape = CircleShape,
-                color = Color.White.copy(alpha = 0.04f),
-                border = BorderStroke(2.dp, ArtistAccent.copy(alpha = 0.70f))
-            ) {
-                AsyncImage(
-                    model = artist.imageUrl,
-                    contentDescription = artist.name,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .size(74.dp)
-                        .padding(3.dp)
-                        .clip(CircleShape)
-                )
-            }
+        Box(
+            modifier = Modifier
+                .size(160.dp)
+                .clip(CircleShape)
+                .clickable(onClick = onClick)
+        ) {
+            AsyncImage(
+                model = artist.imageUrl,
+                contentDescription = artist.name,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
         }
 
-        Text(
-            text = artist.name,
-            style = MaterialTheme.typography.bodySmall.copy(
-                color = Color.White,
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 12.sp
-            ),
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.width(88.dp)
-        )
+        Column(
+            verticalArrangement = Arrangement.spacedBy(2.dp),
+            modifier = Modifier.clickable(onClick = onClick)
+        ) {
+            Text(
+                text = artist.name,
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                ),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.width(170.dp)
+            )
+
+            Text(
+                text = formatFanCount(artist.nbFan),
+                style = MaterialTheme.typography.bodySmall.copy(
+                    color = Color.White.copy(alpha = 0.6f)
+                ),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.width(170.dp)
+            )
+        }
     }
+}
+
+private fun formatFanCount(nbFan: Long): String {
+    val compact = when {
+        nbFan >= 1_000_000 -> {
+            val millions = nbFan / 1_000_000.0
+            if (millions >= 10 || millions % 1.0 == 0.0) {
+                String.format(Locale.ENGLISH, "%.0fM", millions)
+            } else {
+                String.format(Locale.ENGLISH, "%.1fM", millions)
+            }
+        }
+        nbFan >= 1_000 -> "${nbFan / 1_000}K"
+        else -> String.format(Locale.ENGLISH, "%,d", nbFan)
+    }
+
+    return "$compact fans"
 }

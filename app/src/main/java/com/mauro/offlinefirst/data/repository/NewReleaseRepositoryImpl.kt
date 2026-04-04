@@ -48,4 +48,13 @@ class NewReleaseRepositoryImpl @Inject constructor(
             throw exception
         }
     }
+
+    override suspend fun fetchFeaturedAlbum(): List<NewRelease> {
+        return try {
+            remoteDataSource.fetchFeaturedAlbumSelection().map { it.toDomain() }
+        } catch (exception: Exception) {
+            Log.w(TAG, "fetchFeaturedAlbum:failed", exception)
+            emptyList()
+        }
+    }
 }

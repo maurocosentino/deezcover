@@ -9,6 +9,7 @@ import com.mauro.offlinefirst.domain.model.NewRelease
 import com.mauro.offlinefirst.domain.model.SearchResult
 import com.mauro.offlinefirst.domain.model.Song
 import com.mauro.offlinefirst.domain.repository.SongRepository
+import com.mauro.offlinefirst.domain.usecase.GetFeaturedAlbumUseCase
 import com.mauro.offlinefirst.domain.usecase.GetNewReleasesUseCase
 import com.mauro.offlinefirst.presentation.home.HomeViewModel
 import io.mockk.coEvery
@@ -39,6 +40,7 @@ class HomeViewModelTest {
     private lateinit var songRepository: SongRepository
     private lateinit var networkStatusDataSource: NetworkStatusDataSource
     private lateinit var getNewReleasesUseCase: GetNewReleasesUseCase
+    private lateinit var getFeaturedAlbumUseCase: GetFeaturedAlbumUseCase
     private lateinit var viewModel: HomeViewModel
 
     @Before
@@ -47,6 +49,7 @@ class HomeViewModelTest {
         songRepository = mockk()
         networkStatusDataSource = mockk()
         getNewReleasesUseCase = mockk()
+        getFeaturedAlbumUseCase = mockk()
         mockkStatic(Log::class)
         every { Log.i(any<String>(), any<String>()) } returns 0
         every { Log.d(any<String>(), any<String>()) } returns 0
@@ -63,7 +66,12 @@ class HomeViewModelTest {
     }
 
     private fun createViewModel() {
-        viewModel = HomeViewModel(songRepository, networkStatusDataSource, getNewReleasesUseCase)
+        viewModel = HomeViewModel(
+            songRepository,
+            networkStatusDataSource,
+            getNewReleasesUseCase,
+            getFeaturedAlbumUseCase
+        )
     }
 
     private fun stubCommonRepositoryState() {
@@ -71,6 +79,7 @@ class HomeViewModelTest {
         every { songRepository.observeAlbums() } returns flowOf(emptyList())
         every { songRepository.observeArtists() } returns flowOf(emptyList())
         every { getNewReleasesUseCase.invoke() } returns flowOf(emptyList())
+        every { getFeaturedAlbumUseCase.invoke() } returns flowOf(emptyList())
         coEvery { songRepository.syncSongs() } returns Unit
         coEvery { songRepository.syncAlbums() } returns Unit
         coEvery { songRepository.syncArtists() } returns Unit
@@ -239,6 +248,7 @@ class HomeViewModelTest {
                 albumId = 99L,
                 title = "Ruby",
                 coverUrl = "https://cover.url/ruby.jpg",
+                coverXlUrl = null,
                 artistName = "Jennie",
                 releaseDate = "2025-03-07"
             )

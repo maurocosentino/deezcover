@@ -30,7 +30,7 @@ fun NewReleasesSection(
 
     SectionHeader(
         title = title,
-        modifier = modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+        modifier = modifier.padding(vertical = 8.dp)
     )
 
     if (isLoading && releases.isEmpty()) {
@@ -47,10 +47,10 @@ fun NewReleasesSection(
         }
     } else {
         LazyRow(
-            contentPadding = PaddingValues(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            contentPadding = PaddingValues(horizontal = 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(items = releases, key = { it.albumId }) { release ->
+            items(items = releases.take(15), key = { it.albumId }) { release ->
                 NewReleaseCard(
                     release = release,
                     onClick = { onReleaseClick(release) }

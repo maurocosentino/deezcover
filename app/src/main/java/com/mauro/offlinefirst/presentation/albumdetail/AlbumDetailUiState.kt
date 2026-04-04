@@ -3,6 +3,7 @@ package com.mauro.offlinefirst.presentation.albumdetail
 import com.mauro.offlinefirst.domain.model.Song
 
 data class AlbumDetailUiState(
+    val requestedAlbumId: String = "",
     val song: Song? = null,
     val isConnected: Boolean = true,
     val albumTotalDurationMs: Long = 0L,

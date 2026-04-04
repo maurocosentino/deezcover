@@ -13,7 +13,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -35,6 +35,7 @@ import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,6 +43,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -51,10 +53,11 @@ import coil.compose.AsyncImage
 import com.mauro.offlinefirst.R
 import com.mauro.offlinefirst.presentation.albumdetail.components.AlbumSongItem
 import com.mauro.offlinefirst.presentation.albumdetail.components.DeezerButton
-import com.mauro.offlinefirst.presentation.components.MiniPlayer
 import com.mauro.offlinefirst.presentation.components.PlaybackControls
 import com.mauro.offlinefirst.presentation.components.formatDate
 import com.mauro.offlinefirst.presentation.components.formatSongCount
+import com.mauro.offlinefirst.presentation.components.rememberArtworkRequest
+import com.mauro.offlinefirst.presentation.components.resolveArtworkUrl
 import com.mauro.offlinefirst.presentation.player.PlayerViewModel
 
 private val GradientTop = Color(0xFF01051C)
@@ -68,15 +71,26 @@ fun AlbumDetailScreen(
     onNavigateBack: () -> Unit,
     onArtistClick: (artistId: String, artistName: String, artistImageUrl: String) -> Unit,
     playerViewModel: PlayerViewModel,
-    onMiniPlayerClick: (songId: String) -> Unit,
+    contentPadding: PaddingValues = PaddingValues(0.dp),
     viewModel: AlbumDetailViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val playerUiState by playerViewModel.uiState.collectAsState()
-    val song = uiState.song
-    val miniPlayerVisible = playerUiState.currentSong != null
-    val contentBottomSpacing = if (miniPlayerVisible) 116.dp else 32.dp
-    val albumDeezerUrl = rememberAlbumDeezerUrl(song?.albumId.orEmpty())
+    val currentSong = remember(uiState.song, uiState.albumSongs) {
+        uiState.song ?: uiState.albumSongs.firstOrNull()
+    }
+    val albumArtwork = remember(uiState.song, uiState.albumSongs, currentSong) {
+        resolveArtworkUrl(
+            primary = currentSong?.albumArt.orEmpty(),
+            fallback = uiState.song?.albumArt
+                .orEmpty()
+                .ifBlank { uiState.albumSongs.firstOrNull { it.albumArt.isNotBlank() }?.albumArt.orEmpty() }
+        )
+    }
+    val artworkPlaceholder = painterResource(R.drawable.ic_deezcover_mark)
+    val albumDeezerUrl = rememberAlbumDeezerUrl(
+        currentSong?.albumId.orEmpty().ifBlank { uiState.requestedAlbumId }
+    )
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
         rememberTopAppBarState()
     )
@@ -100,7 +114,7 @@ fun AlbumDetailScreen(
                 LargeTopAppBar(
                     title = {
                         Text(
-                            text = song?.artist ?: "",
+                            text = currentSong?.artist ?: "",
                             fontWeight = FontWeight.Bold
                         )
                     },
@@ -122,7 +136,7 @@ fun AlbumDetailScreen(
                 )
             }
         ) { paddingValues ->
-            song?.let { currentSong ->
+            currentSong?.let { albumSong ->
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -131,11 +145,15 @@ fun AlbumDetailScreen(
                     verticalArrangement = Arrangement.spacedBy(0.dp)
                 ) {
                     AsyncImage(
-                        model = currentSong.albumArt,
-                        contentDescription = currentSong.albumTitle,
+                        model = rememberArtworkRequest(albumArtwork),
+                        contentDescription = albumSong.albumTitle,
                         contentScale = ContentScale.Crop,
+                        placeholder = artworkPlaceholder,
+                        error = artworkPlaceholder,
+                        fallback = artworkPlaceholder,
                         modifier = Modifier
                             .fillMaxWidth()
+                            .background(Color(0xFF121826))
                             .aspectRatio(1f)
                     )
 
@@ -146,8 +164,8 @@ fun AlbumDetailScreen(
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Text(
-                            text = if (currentSong.albumTitle.isNotEmpty())
-                                currentSong.albumTitle
+                            text = if (albumSong.albumTitle.isNotEmpty())
+                                albumSong.albumTitle
                             else uiState.albumSongs.firstOrNull()?.albumTitle ?: "",
                             fontSize = 32.sp,
                             fontWeight = FontWeight.ExtraBold,
@@ -158,20 +176,20 @@ fun AlbumDetailScreen(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(5.dp),
                             modifier = Modifier.clickable(
-                                enabled = currentSong.artistId.isNotBlank(),
+                                enabled = albumSong.artistId.isNotBlank(),
                                 onClick = {
                                     onArtistClick(
-                                        currentSong.artistId,
-                                        currentSong.artist,
-                                        currentSong.artistImageUrl
+                                        albumSong.artistId,
+                                        albumSong.artist,
+                                        albumSong.artistImageUrl
                                     )
                                 }
                             )
                         ) {
-                            if (currentSong.artistImageUrl.isNotEmpty()) {
+                            if (albumSong.artistImageUrl.isNotEmpty()) {
                                 AsyncImage(
-                                    model = currentSong.artistImageUrl,
-                                    contentDescription = currentSong.artist,
+                                    model = albumSong.artistImageUrl,
+                                    contentDescription = albumSong.artist,
                                     contentScale = ContentScale.Crop,
                                     modifier = Modifier
                                         .size(20.dp)
@@ -179,7 +197,7 @@ fun AlbumDetailScreen(
                                 )
                             }
                             Text(
-                                text = currentSong.artist,
+                                text = albumSong.artist,
                                 style = MaterialTheme.typography.bodySmall.copy(
                                     fontSize = 12.sp,
                                     color = Color.White.copy(alpha = 0.8f),
@@ -297,10 +315,17 @@ fun AlbumDetailScreen(
                             }
                         }
 
-                        Spacer(modifier = Modifier.height(contentBottomSpacing))
+                        Spacer(modifier = Modifier.height(32.dp))
                     }
                 }
-            } ?: Box(
+            } ?: if (uiState.isAlbumLoading) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = Color.White)
+                }
+            } else Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
@@ -310,26 +335,6 @@ fun AlbumDetailScreen(
                     color = Color.White.copy(alpha = 0.6f)
                 )
             }
-        }
-
-        playerUiState.currentSong?.let { activeSong ->
-            MiniPlayer(
-                song = activeSong,
-                isPlaying = playerUiState.isPlaying,
-                isShuffleActive = playerUiState.isShuffleActive,
-                currentPositionMs = playerUiState.currentPositionMs,
-                totalDurationMs = playerUiState.totalDurationMs,
-                onShuffleClick = playerViewModel::toggleShuffle,
-                onPreviousClick = playerViewModel::playPrevious,
-                onPlayPauseClick = playerViewModel::togglePlayPause,
-                onNextClick = playerViewModel::playNext,
-                onClick = { onMiniPlayerClick(activeSong.id) },
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 12.dp)
-                    .navigationBarsPadding()
-            )
         }
     }
 }

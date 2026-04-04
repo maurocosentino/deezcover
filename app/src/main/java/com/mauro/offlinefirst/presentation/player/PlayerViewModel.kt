@@ -132,7 +132,7 @@ class PlayerViewModel @Inject constructor(
             it.copy(
                 currentQueue = queue,
                 currentIndex = nextIndex,
-                currentSong = queue.getOrNull(nextIndex)
+                currentSong = queue.getOrNull(nextIndex)?.stabilizeWith(currentSong)
             )
         }
     }
@@ -211,7 +211,7 @@ class PlayerViewModel @Inject constructor(
     }
 
     private fun playSongAt(queue: List<Song>, index: Int) {
-        val song = queue.getOrNull(index) ?: return
+        val song = queue.getOrNull(index)?.stabilizeWith(uiState.value.currentSong) ?: return
         _uiState.update {
             it.copy(
                 currentQueue = queue,
@@ -256,4 +256,21 @@ class PlayerViewModel @Inject constructor(
         playerManager.release()
         super.onCleared()
     }
+}
+
+private fun Song.stabilizeWith(fallback: Song?): Song {
+    if (fallback == null || fallback.id != id) return this
+
+    return copy(
+        title = title.ifBlank { fallback.title },
+        artist = artist.ifBlank { fallback.artist },
+        artistId = artistId.ifBlank { fallback.artistId },
+        albumTitle = albumTitle.ifBlank { fallback.albumTitle },
+        albumArt = albumArt.ifBlank { fallback.albumArt },
+        durationMs = durationMs.takeIf { it > 0 } ?: fallback.durationMs,
+        deezerUrl = deezerUrl.ifBlank { fallback.deezerUrl },
+        previewUrl = previewUrl.ifBlank { fallback.previewUrl },
+        albumId = albumId.ifBlank { fallback.albumId },
+        artistImageUrl = artistImageUrl.ifBlank { fallback.artistImageUrl }
+    )
 }

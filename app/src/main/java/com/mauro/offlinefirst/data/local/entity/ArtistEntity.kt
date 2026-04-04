@@ -8,7 +8,7 @@ data class ArtistEntity(
     @PrimaryKey val id: String,
     val name: String,
     val imageUrl: String,
-    val fanCount: Long? = null,
+    val nbFan: Long? = null,
     val albumCount: Int? = null,
     val lastUpdated: Long = System.currentTimeMillis(),
     val sortOrder: Int = 0

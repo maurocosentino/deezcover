@@ -12,6 +12,7 @@ data class DeezerNewReleaseDto(
     @SerializedName("id") val id: Long,
     @SerializedName("title") val title: String,
     @SerializedName("cover_medium") val coverMedium: String,
+    @SerializedName("cover_xl") val coverXl: String? = null,
     @SerializedName("release_date") val releaseDate: String,
     @SerializedName("artist") val artist: DeezerNewReleaseArtistDto
 )

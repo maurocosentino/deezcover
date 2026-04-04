@@ -7,9 +7,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
@@ -50,7 +50,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.mauro.offlinefirst.R
 import com.mauro.offlinefirst.presentation.albumdetail.components.DeezerButton
-import com.mauro.offlinefirst.presentation.components.MiniPlayer
 import com.mauro.offlinefirst.presentation.components.PlaybackControls
 import com.mauro.offlinefirst.presentation.home.components.topTracksSection
 import com.mauro.offlinefirst.presentation.player.PlayerViewModel
@@ -67,14 +66,13 @@ private val GradientBottom = Color(0xFF000715)
 fun ArtistDetailScreen(
     onNavigateBack: () -> Unit,
     onSongClick: (String) -> Unit,
+    onAlbumClick: (String) -> Unit,
     playerViewModel: PlayerViewModel,
-    onMiniPlayerClick: (songId: String) -> Unit,
+    contentPadding: PaddingValues = PaddingValues(0.dp),
     viewModel: ArtistDetailViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val playerUiState by playerViewModel.uiState.collectAsState()
-    val miniPlayerVisible = playerUiState.currentSong != null
-    val contentBottomSpacing = if (miniPlayerVisible) 116.dp else 32.dp
     val density = LocalDensity.current
     val heroHeight = with(LocalWindowInfo.current.containerSize) {
         with(density) { height.toDp() * 0.52f }
@@ -125,7 +123,9 @@ fun ArtistDetailScreen(
         when {
             uiState.isLoading -> {
                 Box(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(contentPadding),
                     contentAlignment = Alignment.Center
                 ) {
                     CircularProgressIndicator(color = Color.White)
@@ -134,7 +134,9 @@ fun ArtistDetailScreen(
 
             uiState.errorMessage != null -> {
                 Box(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(contentPadding),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
@@ -180,9 +182,10 @@ fun ArtistDetailScreen(
                 ) { innerPadding ->
                     LazyColumn(
                         state = listState,
-                        modifier = Modifier.fillMaxSize(),  // ← sin padding(innerPadding)
+                        modifier = Modifier.fillMaxSize(),
                         contentPadding = androidx.compose.foundation.layout.PaddingValues(
-                            bottom = innerPadding.calculateBottomPadding()
+                            bottom = innerPadding.calculateBottomPadding() +
+                                contentPadding.calculateBottomPadding()
                         )
                     ) {
                         item {
@@ -295,7 +298,11 @@ fun ArtistDetailScreen(
                                     playerViewModel.playSongs(uiState.topTracks, songIndex)
                                 }
                             },
-                            onSongClick = { song -> viewModel.navigateToAlbum(song, onSongClick) },
+                            onSongClick = { song ->
+                                viewModel.navigateToAlbum(song) {
+                                    onAlbumClick(song.albumId)
+                                }
+                            },
                             showTrackNumbers = true,
                             showNavigateAction = { song -> song.albumId.isNotBlank() }
                         )
@@ -318,36 +325,12 @@ fun ArtistDetailScreen(
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(contentBottomSpacing)
+                                    .height(32.dp)
                             )
                         }
                     }
                 }
             }
-        }
-
-        playerUiState.currentSong?.let { song ->
-            MiniPlayer(
-                song = song,
-                isPlaying = playerUiState.isPlaying,
-                isShuffleActive = playerUiState.isShuffleActive,
-                currentPositionMs = playerUiState.currentPositionMs,
-                totalDurationMs = playerUiState.totalDurationMs,
-                onShuffleClick = playerViewModel::toggleShuffle,
-                onPreviousClick = playerViewModel::playPrevious,
-                onPlayPauseClick = playerViewModel::togglePlayPause,
-                onNextClick = playerViewModel::playNext,
-                onClick = {
-                    viewModel.navigateToAlbum(song) { resolvedSongId ->
-                        onMiniPlayerClick(resolvedSongId)
-                    }
-                },
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 12.dp)
-                    .navigationBarsPadding()
-            )
         }
     }
 }

@@ -7,6 +7,12 @@ import com.mauro.offlinefirst.data.remote.dto.DeezerArtistDto
 import com.mauro.offlinefirst.domain.model.Artist
 
 object ArtistMapper {
+    private fun DeezerArtistDto.requireNbFan(): Long {
+        return requireNotNull(fanCount) {
+            "Missing nb_fan for artist ${id?.toString().orEmpty()}"
+        }
+    }
+
     fun DeezerArtistDto.bestImageUrl(): String {
         return listOf(pictureXl, pictureBig, pictureMedium, pictureSmall)
             .firstOrNull { !it.isNullOrBlank() }
@@ -23,6 +29,7 @@ object ArtistMapper {
         id = id?.toString().orEmpty(),
         name = name,
         imageUrl = bestImageUrl(),
+        nbFan = requireNbFan(),
         fanCount = fanCount,
         albumCount = albumCount
     )
@@ -37,6 +44,8 @@ object ArtistMapper {
         id = id,
         name = name,
         imageUrl = imageUrl,
+        nbFan = nbFan ?: 0L,
+        fanCount = nbFan,
         albumCount = albumCount
     )
 
@@ -44,6 +53,7 @@ object ArtistMapper {
         id = id?.toString().orEmpty(),
         name = name,
         imageUrl = bestImageUrl(),
+        nbFan = fanCount,
         albumCount = albumCount,
         sortOrder = sortOrder
     )

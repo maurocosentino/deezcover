@@ -28,7 +28,7 @@ fun TopAlbumsSection(
 ) {
     SectionHeader(
         title = title,
-        modifier = modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+        modifier = modifier.padding(vertical = 8.dp),
     )
 
     if (isLoading) {
@@ -45,7 +45,7 @@ fun TopAlbumsSection(
         }
     } else {
         LazyRow(
-            contentPadding = PaddingValues(horizontal = 16.dp),
+            contentPadding = PaddingValues(horizontal = 12.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             items(items = albums, key = { it.id }) { album ->

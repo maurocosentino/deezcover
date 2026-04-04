@@ -21,15 +21,15 @@ class GetNewReleasesUseCaseTest {
                 return when (pageIndex) {
                     0 -> flowOf(
                         listOf(
-                            NewRelease(10, "Album A", "cover-a", "Artist A", "2025-03-01"),
-                            NewRelease(20, "Album B", "cover-b", "Artist B", "2025-01-01")
+                            NewRelease(10, "Album A", "cover-a", null, "Artist A", "2025-03-01"),
+                            NewRelease(20, "Album B", "cover-b", null, "Artist B", "2025-01-01")
                         )
                     )
 
                     20 -> flowOf(
                         listOf(
-                            NewRelease(10, "Album A Duplicate", "cover-a-2", "Artist A", "2025-03-01"),
-                            NewRelease(30, "Album C", "cover-c", "Artist C", "2025-04-01")
+                            NewRelease(10, "Album A Duplicate", "cover-a-2", null, "Artist A", "2025-03-01"),
+                            NewRelease(30, "Album C", "cover-c", null, "Artist C", "2025-04-01")
                         )
                     )
 
@@ -38,6 +38,7 @@ class GetNewReleasesUseCaseTest {
             }
 
             override suspend fun syncNewReleases(pageIndex: Int) = Unit
+            override suspend fun fetchFeaturedAlbum(): List<NewRelease> = emptyList()
         }
 
         val useCase = GetNewReleasesUseCase(repository)

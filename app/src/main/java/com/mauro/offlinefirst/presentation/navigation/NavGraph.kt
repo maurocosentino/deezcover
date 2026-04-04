@@ -10,6 +10,7 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -20,8 +21,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.mauro.offlinefirst.presentation.albumdetail.AlbumDetailScreen
 import com.mauro.offlinefirst.presentation.artistdetail.ArtistDetailScreen
+import com.mauro.offlinefirst.presentation.charts.ChartsScreen
 import com.mauro.offlinefirst.presentation.home.HomeScreen
 import com.mauro.offlinefirst.presentation.player.PlayerViewModel
+import com.mauro.offlinefirst.presentation.search.SearchScreen
 
 private const val NavigationAnimationDurationMs = 320
 
@@ -59,7 +62,11 @@ private fun backwardExitTransition(): ExitTransition {
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun NavGraph(navController: NavHostController) {
+fun NavGraph(
+    navController: NavHostController,
+    contentPadding: PaddingValues,
+    searchFocusRequestKey: Int
+) {
     val activity = LocalContext.current as ComponentActivity
     val playerViewModel: PlayerViewModel = hiltViewModel(activity)
 
@@ -76,27 +83,83 @@ fun NavGraph(navController: NavHostController) {
         ) {
             HomeScreen(
                 onSongClick  = { songId ->
-                    navController.navigate(Screen.AlbumDetail.createRoute(songId))
+                    navController.navigate(Screen.AlbumDetail.createRoute(songId = songId))
                 },
-                onAlbumClick = { songId ->
-                    navController.navigate(Screen.AlbumDetail.createRoute(songId))
+                onAlbumClick = { albumId ->
+                    navController.navigate(
+                        Screen.AlbumDetail.createRoute(songId = "", albumId = albumId)
+                    )
                 },
                 onArtistClick = { artistId, artistName, artistImageUrl ->
                     navController.navigate(
                         Screen.ArtistDetail.createRoute(artistId, artistName, artistImageUrl)
                     )
                 },
-                onMiniPlayerClick = { songId ->
-                    navController.navigate(Screen.AlbumDetail.createRoute(songId))
+                playerViewModel = playerViewModel,
+                contentPadding = contentPadding
+            )
+        }
+
+        composable(
+            route = Screen.Search.route,
+            enterTransition = { fadeIn(animationSpec = tween(NavigationAnimationDurationMs)) },
+            exitTransition = { forwardExitTransition() },
+            popEnterTransition = { backwardEnterTransition() },
+            popExitTransition = { fadeOut(animationSpec = tween(NavigationAnimationDurationMs)) }
+        ) {
+            SearchScreen(
+                onSongClick = { songId ->
+                    navController.navigate(Screen.AlbumDetail.createRoute(songId = songId))
                 },
-                playerViewModel = playerViewModel
+                onAlbumClick = { albumId ->
+                    navController.navigate(
+                        Screen.AlbumDetail.createRoute(songId = "", albumId = albumId)
+                    )
+                },
+                onArtistClick = { artistId, artistName, artistImageUrl ->
+                    navController.navigate(
+                        Screen.ArtistDetail.createRoute(artistId, artistName, artistImageUrl)
+                    )
+                },
+                playerViewModel = playerViewModel,
+                searchFocusRequestKey = searchFocusRequestKey,
+                contentPadding = contentPadding
+            )
+        }
+
+        composable(
+            route = Screen.Charts.route,
+            enterTransition = { fadeIn(animationSpec = tween(NavigationAnimationDurationMs)) },
+            exitTransition = { fadeOut(animationSpec = tween(NavigationAnimationDurationMs)) },
+            popEnterTransition = { fadeIn(animationSpec = tween(NavigationAnimationDurationMs)) },
+            popExitTransition = { fadeOut(animationSpec = tween(NavigationAnimationDurationMs)) }
+        ) {
+            ChartsScreen(
+                onSongClick = { songId ->
+                    navController.navigate(Screen.AlbumDetail.createRoute(songId = songId))
+                },
+                onAlbumClick = { albumId ->
+                    navController.navigate(
+                        Screen.AlbumDetail.createRoute(songId = "", albumId = albumId)
+                    )
+                },
+                playerViewModel = playerViewModel,
+                contentPadding = contentPadding
             )
         }
 
         composable(
             route = Screen.AlbumDetail.route,
             arguments = listOf(
-                navArgument("songId") { type = NavType.StringType }
+                navArgument("songId") {
+                    type = NavType.StringType
+                    defaultValue = ""
+                },
+                navArgument("albumId") {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = ""
+                }
             ),
             enterTransition = { forwardEnterTransition() },
             exitTransition = { forwardExitTransition() },
@@ -110,10 +173,8 @@ fun NavGraph(navController: NavHostController) {
                         Screen.ArtistDetail.createRoute(artistId, artistName, artistImageUrl)
                     )
                 },
-                onMiniPlayerClick = { songId ->
-                    navController.navigate(Screen.AlbumDetail.createRoute(songId))
-                },
-                playerViewModel = playerViewModel
+                playerViewModel = playerViewModel,
+                contentPadding = contentPadding
             )
         }
 
@@ -131,13 +192,16 @@ fun NavGraph(navController: NavHostController) {
         ) {
             ArtistDetailScreen(
                 onNavigateBack = { navController.popBackStack() },
-                onMiniPlayerClick = { songId ->
-                    navController.navigate(Screen.AlbumDetail.createRoute(songId))
-                },
                 onSongClick = { songId ->
-                    navController.navigate(Screen.AlbumDetail.createRoute(songId))
+                    navController.navigate(Screen.AlbumDetail.createRoute(songId = songId))
                 },
-                playerViewModel = playerViewModel
+                onAlbumClick = { albumId ->
+                    navController.navigate(
+                        Screen.AlbumDetail.createRoute(songId = "", albumId = albumId)
+                    )
+                },
+                playerViewModel = playerViewModel,
+                contentPadding = contentPadding
             )
         }
     }

@@ -62,4 +62,7 @@ interface MusicApiService {
     suspend fun getNewReleases(
         @Query("index") index: Int = 0
     ): DeezerNewReleasesResponseDto
+
+    @GET("editorial/0/selection")
+    suspend fun getFeaturedAlbumSelection(): DeezerNewReleasesResponseDto
 }

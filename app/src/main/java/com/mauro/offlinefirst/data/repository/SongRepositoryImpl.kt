@@ -40,6 +40,15 @@ class SongRepositoryImpl @Inject constructor(
         existing: SongEntity?
     ): SongEntity {
         return incoming.copy(
+            title = incoming.title.ifBlank { existing?.title.orEmpty() },
+            artist = incoming.artist.ifBlank { existing?.artist.orEmpty() },
+            artistId = incoming.artistId.ifBlank { existing?.artistId.orEmpty() },
+            albumTitle = incoming.albumTitle.ifBlank { existing?.albumTitle.orEmpty() },
+            albumArt = incoming.albumArt.ifBlank { existing?.albumArt.orEmpty() },
+            deezerUrl = incoming.deezerUrl.ifBlank { existing?.deezerUrl.orEmpty() },
+            previewUrl = incoming.previewUrl.ifBlank { existing?.previewUrl.orEmpty() },
+            albumId = incoming.albumId.ifBlank { existing?.albumId.orEmpty() },
+            artistImageUrl = incoming.artistImageUrl.ifBlank { existing?.artistImageUrl.orEmpty() },
             isFromChart = existing?.isFromChart ?: incoming.isFromChart,
             isAvailableOffline = existing?.isAvailableOffline ?: incoming.isAvailableOffline,
             sortOrder = existing?.sortOrder ?: incoming.sortOrder
@@ -79,7 +88,14 @@ class SongRepositoryImpl @Inject constructor(
         try {
             val artists = remoteDataSource.fetchChartArtists()
             val entities = artists.mapIndexed { index, dto ->
-                dto.toEntity(sortOrder = index)
+                val artistWithFanCount = if (dto.fanCount != null || dto.id == null) {
+                    dto
+                } else {
+                    runCatching { remoteDataSource.fetchArtistDetail(dto.id.toString()) }
+                        .getOrElse { dto }
+                }
+
+                artistWithFanCount.toEntity(sortOrder = index)
             }
             artistDao.replaceArtists(entities)
         } catch (exception: Exception) {
@@ -199,12 +215,13 @@ class SongRepositoryImpl @Inject constructor(
             val artistImageUrl = albumDetail.artist.bestImageUrl()
             val entities = tracks.map { dto ->
                 val existing = songDao.getSongById(dto.id.toString())
+                val mappedEntity = dto.toEntity(isFromChart = false)
                 mergeSongWithExisting(
-                    incoming = dto.toEntity(isFromChart = false).copy(
-                        albumArt = albumArt,
-                        albumTitle = albumTitle,
+                    incoming = mappedEntity.copy(
+                        albumArt = mappedEntity.albumArt.ifBlank { albumArt },
+                        albumTitle = mappedEntity.albumTitle.ifBlank { albumTitle },
                         albumId = albumId,
-                        artistImageUrl = artistImageUrl
+                        artistImageUrl = mappedEntity.artistImageUrl.ifBlank { artistImageUrl }
                     ),
                     existing = existing
                 )

@@ -51,6 +51,7 @@ dependencies {
     implementation(libs.androidx.compose.animation)
     implementation(libs.androidx.compose.ui.text)
     implementation(libs.androidx.lifecycle.process)
+    implementation(libs.androidx.compose.foundation.layout)
 
     ksp(libs.androidx.room.compiler)
 

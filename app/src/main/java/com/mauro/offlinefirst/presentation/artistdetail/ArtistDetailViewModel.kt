@@ -64,20 +64,17 @@ class ArtistDetailViewModel @Inject constructor(
         }
     }
 
-    fun navigateToAlbum(song: Song, onReady: (String) -> Unit) {
+    fun navigateToAlbum(song: Song, onReady: () -> Unit) {
         if (song.albumId.isBlank()) return
 
         viewModelScope.launch {
             try {
-                val tracks = songRepository.fetchAlbumTracks(
+                songRepository.fetchAlbumTracks(
                     albumId = song.albumId,
                     albumArt = song.albumArt,
                     albumTitle = song.albumTitle
                 )
-                val targetSongId = tracks.firstOrNull()?.id?.takeIf { it.isNotBlank() }
-                if (targetSongId != null) {
-                    onReady(targetSongId)
-                }
+                onReady()
             } catch (exception: Exception) {
                 exception.printStackTrace()
             }

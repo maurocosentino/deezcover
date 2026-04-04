@@ -13,11 +13,22 @@ object NewReleaseMapper {
         return NewReleaseEntity(
             albumId = id,
             title = title,
-            coverUrl = coverMedium,
+            coverUrl = coverXl ?: coverMedium,
             artistName = artist.name,
             releaseDate = releaseDate,
             pageIndex = pageIndex,
             sortOrder = sortOrder
+        )
+    }
+
+    fun DeezerNewReleaseDto.toDomain(): NewRelease {
+        return NewRelease(
+            albumId = id,
+            title = title,
+            coverUrl = coverXl ?: coverMedium,
+            coverXlUrl = coverXl,
+            artistName = artist.name,
+            releaseDate = releaseDate ?: ""
         )
     }
 
@@ -26,6 +37,7 @@ object NewReleaseMapper {
             albumId = albumId,
             title = title,
             coverUrl = coverUrl,
+            coverXlUrl = null,
             artistName = artistName,
             releaseDate = releaseDate
         )

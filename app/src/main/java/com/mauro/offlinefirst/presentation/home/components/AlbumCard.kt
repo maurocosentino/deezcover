@@ -38,13 +38,13 @@ fun AlbumCard(
     onClick: () -> Unit
 ) {
     Column(
-        modifier = Modifier.widthIn(max = 130.dp),
+        modifier = Modifier.widthIn(max = 160.dp),
         verticalArrangement = Arrangement.spacedBy(5.dp)
     ) {
         Box(
             modifier = Modifier
-                .size(130.dp)
-                .clip(RoundedCornerShape(12.dp))
+                .size(160.dp)
+                .clip(RoundedCornerShape(5.dp))
                 .clickable(onClick = onClick)
         ) {
             AsyncImage(

@@ -99,4 +99,27 @@ class SongMapperTest {
         assertEquals(170000L, song.durationMs)
         assertEquals(true, song.isAvailableOffline)
     }
+
+    @Test
+    fun `SongDto toEntity prefers the largest available album cover`() {
+        val dto = SongDto(
+            id = 1L,
+            title = "Who",
+            artist = DeezerArtistDto(name = "Jimin"),
+            albumArt = DeezerAlbumDto(
+                coverMedium = "https://cover-medium.url",
+                coverBig = "https://cover-big.url",
+                coverXl = "https://cover-xl.url",
+                albumTitle = "Muse",
+                albumId = 10L
+            ),
+            duration = 170,
+            link = "https://deezer.com/track/1",
+            previewUrl = "https://cdn.preview/1.mp3"
+        )
+
+        val entity = dto.toEntity()
+
+        assertEquals("https://cover-xl.url", entity.albumArt)
+    }
 }

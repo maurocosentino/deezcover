@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -44,11 +45,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.mauro.offlinefirst.R
 import kotlinx.coroutines.delay
 
 @Composable
 fun MiniPlayer(
     song: Song,
+    fallbackAlbumArt: String = "",
     isPlaying: Boolean,
     isShuffleActive: Boolean,
     currentPositionMs: Long,
@@ -70,13 +73,14 @@ fun MiniPlayer(
         delay(2500)
         marqueeEnabled = true
     }
+    val albumArt = resolveArtworkUrl(song.albumArt, fallbackAlbumArt)
+    val artworkPlaceholder = painterResource(R.drawable.ic_deezcover_mark)
     Card(
-        modifier = modifier,
         shape = RoundedCornerShape(22.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFF121826)
+            containerColor = Color.Black.copy(alpha = 1.5f)
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 10.dp)
+        elevation = CardDefaults.cardElevation(0.dp)
     ) {
         Row(
             modifier = Modifier
@@ -93,13 +97,16 @@ fun MiniPlayer(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             AsyncImage(
-                model = song.albumArt,
+                model = rememberArtworkRequest(albumArt),
                 contentDescription = song.title,
                 contentScale = ContentScale.Crop,
+                placeholder = artworkPlaceholder,
+                error = artworkPlaceholder,
+                fallback = artworkPlaceholder,
                 modifier = Modifier
                     .size(48.dp)
                     .clip(RoundedCornerShape(14.dp))
-                    .background(Color.White.copy(alpha = 0.06f))
+                    .background(Color(0xFF121826))
             )
 
             Column(

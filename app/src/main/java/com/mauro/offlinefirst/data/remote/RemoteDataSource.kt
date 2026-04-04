@@ -113,6 +113,13 @@ class RemoteDataSource constructor(
         )
     }
 
+    suspend fun fetchFeaturedAlbumSelection(): List<DeezerNewReleaseDto> {
+        return executeWithTransportFallback(
+            operation = "fetchFeaturedAlbumSelection",
+            block = { service -> service.getFeaturedAlbumSelection().data }
+        )
+    }
+
     fun fallbackChartSongs(): List<SongDto> = FallbackCatalog.chartSongs()
 
     fun fallbackChartAlbums(): List<AlbumDto> = FallbackCatalog.chartAlbums()

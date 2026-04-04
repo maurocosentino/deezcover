@@ -6,6 +6,7 @@ import com.mauro.offlinefirst.data.local.AppDatabase
 import com.mauro.offlinefirst.data.local.dao.AlbumDao
 import com.mauro.offlinefirst.data.local.dao.ArtistDao
 import com.mauro.offlinefirst.data.local.dao.NewReleaseDao
+import com.mauro.offlinefirst.data.local.dao.SearchHistoryDao
 import com.mauro.offlinefirst.data.local.dao.SongDao
 import dagger.Module
 import dagger.Provides
@@ -32,7 +33,9 @@ object DatabaseModule {
                AppDatabase.MIGRATION_1_2,
                AppDatabase.MIGRATION_2_3,
                AppDatabase.MIGRATION_3_4,
-               AppDatabase.MIGRATION_4_5
+               AppDatabase.MIGRATION_4_5,
+               AppDatabase.MIGRATION_5_6,
+               AppDatabase.MIGRATION_6_7
            )
            .build()
     }
@@ -52,5 +55,10 @@ object DatabaseModule {
     @Provides
     fun provideNewReleaseDao(database: AppDatabase): NewReleaseDao {
         return database.newReleaseDao()
+    }
+
+    @Provides
+    fun provideSearchHistoryDao(database: AppDatabase): SearchHistoryDao {
+        return database.searchHistoryDao()
     }
 }

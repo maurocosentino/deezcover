@@ -1,8 +1,10 @@
 package com.mauro.offlinefirst.di
 
 import com.mauro.offlinefirst.data.repository.NewReleaseRepositoryImpl
+import com.mauro.offlinefirst.data.repository.SearchHistoryRepositoryImpl
 import com.mauro.offlinefirst.data.repository.SongRepositoryImpl
 import com.mauro.offlinefirst.domain.repository.NewReleaseRepository
+import com.mauro.offlinefirst.domain.repository.SearchHistoryRepository
 import com.mauro.offlinefirst.domain.repository.SongRepository
 import dagger.Binds
 import dagger.Module
@@ -25,4 +27,10 @@ abstract class RepositoryModule {
     abstract fun bindNewReleaseRepository(
         impl: NewReleaseRepositoryImpl
     ): NewReleaseRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindSearchHistoryRepository(
+        impl: SearchHistoryRepositoryImpl
+    ): SearchHistoryRepository
 }
