@@ -24,8 +24,10 @@ import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.changedToUp
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.mauro.offlinefirst.R
 import com.mauro.offlinefirst.domain.model.SearchHistoryItem
 import com.mauro.offlinefirst.presentation.components.AppBackground
 import com.mauro.offlinefirst.presentation.components.OfflineBanner
@@ -80,12 +82,14 @@ fun SearchScreen(
             )
         )
     }
+    val labelArtist = stringResource(R.string.label_artist)
+
     val addArtistToHistory: (String, String, String) -> Unit = { id, title, imageUrl ->
         viewModel.addToHistory(
             SearchHistoryItem(
                 id = id,
                 title = title,
-                subtitle = "Artista",
+                subtitle = labelArtist,
                 imageUrl = imageUrl,
                 type = "artist",
                 timestamp = System.currentTimeMillis()

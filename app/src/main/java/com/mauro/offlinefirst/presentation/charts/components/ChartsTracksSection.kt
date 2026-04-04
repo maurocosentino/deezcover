@@ -35,10 +35,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.mauro.offlinefirst.R
 import com.mauro.offlinefirst.domain.model.Song
 import com.mauro.offlinefirst.presentation.components.SectionHeader
 import com.mauro.offlinefirst.presentation.player.PlayerState
 import com.mauro.offlinefirst.ui.theme.DeezerColor
+import androidx.compose.ui.res.stringResource
 
 @Composable
 fun ChartsTracksSection(
@@ -50,7 +52,7 @@ fun ChartsTracksSection(
 ) {
     Column {
         SectionHeader(
-            title = "Top Canciones",
+            title = stringResource(R.string.home_top_tracks),
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
         )
 

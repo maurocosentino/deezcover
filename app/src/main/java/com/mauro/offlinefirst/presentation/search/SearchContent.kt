@@ -278,7 +278,7 @@ fun LazyListScope.searchHistorySection(
 ) {
     item {
         Text(
-            text = "Búsquedas recientes",
+            text = stringResource(R.string.search_recent),
             style = MaterialTheme.typography.titleMedium,
             color = Color.White,
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
@@ -299,7 +299,7 @@ fun LazyListScope.searchHistorySection(
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(
-                text = "Borrar historial",
+                text = stringResource(R.string.search_clear_history),
                 color = Color.White.copy(alpha = 0.5f)
             )
         }

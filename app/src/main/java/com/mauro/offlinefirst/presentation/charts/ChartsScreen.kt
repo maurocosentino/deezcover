@@ -22,10 +22,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.mauro.offlinefirst.R
 import com.mauro.offlinefirst.presentation.charts.components.ChartsTracksSection
 import com.mauro.offlinefirst.presentation.components.AppBackground
 import com.mauro.offlinefirst.presentation.components.SectionHeader
@@ -111,7 +113,7 @@ fun ChartsScreen(
                                 verticalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
                                 SectionHeader(
-                                    title = "Top Álbumes",
+                                    title = stringResource(R.string.home_top_albums),
                                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                                 )
                                 LazyRow(

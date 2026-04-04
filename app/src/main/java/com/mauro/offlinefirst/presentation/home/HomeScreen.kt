@@ -328,7 +328,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.homeContentSection(
             NewReleasesSection(
                 releases = newReleases.drop(15).take(15),
                 isLoading = false,
-                title = "Más Lanzamientos",
+                title = stringResource(R.string.home_more_releases),
                 modifier = Modifier.padding(horizontal = 5.dp, vertical = 8.dp),
                 onReleaseClick = onNewReleaseClick
             )

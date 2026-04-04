@@ -24,11 +24,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.mauro.offlinefirst.R
 import com.mauro.offlinefirst.domain.model.Song
 import com.mauro.offlinefirst.presentation.components.SectionHeader
 import com.mauro.offlinefirst.presentation.player.PlayerState
@@ -50,7 +52,7 @@ fun PreviewTracksSection(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         SectionHeader(
-            title = "Top Canciones",
+            title = stringResource(R.string.home_top_tracks),
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
             onViewMoreClick = onViewMoreClick
         )

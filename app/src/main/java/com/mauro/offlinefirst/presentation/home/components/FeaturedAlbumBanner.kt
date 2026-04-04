@@ -22,10 +22,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.mauro.offlinefirst.R
 import com.mauro.offlinefirst.domain.model.NewRelease
 import com.mauro.offlinefirst.presentation.components.SectionHeader
 import com.mauro.offlinefirst.ui.theme.CardSurface
@@ -40,7 +42,7 @@ fun FeaturedAlbumBanner(
     if (featuredAlbums.isEmpty()) return
 
     SectionHeader(
-        title = "Destacado",
+        title = stringResource(R.string.home_featured),
         modifier = Modifier.padding(vertical = 8.dp)
     )
 
@@ -92,7 +94,7 @@ fun FeaturedAlbumBanner(
                             modifier = Modifier.size(14.dp)
                         )
                         Text(
-                            text = "Álbum",
+                            text = stringResource(R.string.label_album),
                             style = MaterialTheme.typography.labelSmall,
                             color = DeezerColor
                         )
