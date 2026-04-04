@@ -1,4 +1,4 @@
-package com.mauro.offlinefirst.presentation.home.components
+package com.mauro.offlinefirst.presentation.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -25,7 +25,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.mauro.offlinefirst.domain.model.Artist
-import java.util.Locale
+import com.mauro.offlinefirst.presentation.utils.formatFanCount
 
 @Composable
 fun TopArtistsSection(
@@ -105,21 +105,4 @@ private fun ArtistCard(
             )
         }
     }
-}
-
-private fun formatFanCount(nbFan: Long): String {
-    val compact = when {
-        nbFan >= 1_000_000 -> {
-            val millions = nbFan / 1_000_000.0
-            if (millions >= 10 || millions % 1.0 == 0.0) {
-                String.format(Locale.ENGLISH, "%.0fM", millions)
-            } else {
-                String.format(Locale.ENGLISH, "%.1fM", millions)
-            }
-        }
-        nbFan >= 1_000 -> "${nbFan / 1_000}K"
-        else -> String.format(Locale.ENGLISH, "%,d", nbFan)
-    }
-
-    return "$compact fans"
 }

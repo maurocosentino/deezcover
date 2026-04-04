@@ -29,9 +29,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mauro.offlinefirst.R
 import com.mauro.offlinefirst.domain.model.Song
-import com.mauro.offlinefirst.presentation.albumdetail.PlayerState
-
-private val AccentCyan = Color(0xFF00C8FF)
+import com.mauro.offlinefirst.presentation.player.PlayerState
+import com.mauro.offlinefirst.ui.theme.DeezerColor
 
 @Composable
 fun AlbumSongItem(
@@ -43,9 +42,9 @@ fun AlbumSongItem(
     modifier: Modifier = Modifier
 ) {
     val isActive = isPlaying && playerState == PlayerState.PLAYING
-    val titleColor = if (isActive) AccentCyan else Color.White
-    val subtitleColor = if (isActive) AccentCyan.copy(alpha = 0.7f) else Color.White.copy(alpha = 0.5f)
-    val numberColor = if (isActive) AccentCyan else Color.White.copy(alpha = 0.35f)
+    val titleColor = if (isActive) DeezerColor else Color.White
+    val subtitleColor = if (isActive) DeezerColor.copy(alpha = 0.7f) else Color.White.copy(alpha = 0.5f)
+    val numberColor = if (isActive) DeezerColor else Color.White.copy(alpha = 0.35f)
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -61,7 +60,7 @@ fun AlbumSongItem(
             if (isPlaying && playerState == PlayerState.LOADING) {
                 CircularProgressIndicator(
                     modifier = Modifier.size(14.dp),
-                    color = AccentCyan,
+                    color = DeezerColor,
                     strokeWidth = 2.dp
                 )
             } else {
@@ -110,7 +109,7 @@ fun AlbumSongItem(
                     Icon(
                         imageVector = Icons.Outlined.Pause,
                         contentDescription = stringResource(R.string.pause),
-                        tint = AccentCyan,
+                        tint = DeezerColor,
                         modifier = Modifier.size(22.dp)
                     )
                 }

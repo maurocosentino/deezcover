@@ -36,8 +36,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.mauro.offlinefirst.domain.model.Song
-import com.mauro.offlinefirst.presentation.albumdetail.PlayerState
-import com.mauro.offlinefirst.presentation.home.components.SectionHeader
+import com.mauro.offlinefirst.presentation.components.SectionHeader
+import com.mauro.offlinefirst.presentation.player.PlayerState
 import com.mauro.offlinefirst.ui.theme.DeezerColor
 
 @Composable

@@ -28,9 +28,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.mauro.offlinefirst.domain.model.SearchHistoryItem
 import com.mauro.offlinefirst.presentation.components.AppBackground
-import com.mauro.offlinefirst.presentation.home.components.OfflineBanner
+import com.mauro.offlinefirst.presentation.components.OfflineBanner
 import com.mauro.offlinefirst.presentation.player.PlayerViewModel
 import com.mauro.offlinefirst.presentation.search.components.SearchBar
+import com.mauro.offlinefirst.ui.theme.ErrorRed
 
 private val SearchSectionSpacing = 12.dp
 
@@ -152,7 +153,7 @@ fun SearchScreen(
                             Text(
                                 text = uiState.errorMessage!!,
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = Color(0xFFFF6B6B)
+                                color = ErrorRed
                             )
                         }
                     }

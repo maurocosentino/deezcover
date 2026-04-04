@@ -1,4 +1,6 @@
-package com.mauro.offlinefirst.presentation.home.components
+package com.mauro.offlinefirst.presentation.components
+
+import com.mauro.offlinefirst.presentation.home.components.AlbumCard
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.mauro.offlinefirst.domain.model.Album
+import com.mauro.offlinefirst.ui.theme.DeezerColor
 
 @Composable
 fun TopAlbumsSection(
@@ -24,7 +27,7 @@ fun TopAlbumsSection(
     title: String,
     onAlbumClick: (Album) -> Unit,
     modifier: Modifier = Modifier,
-    loadingIndicatorColor: Color = Color(0xFF00C8FF)
+    loadingIndicatorColor: Color = DeezerColor
 ) {
     SectionHeader(
         title = title,

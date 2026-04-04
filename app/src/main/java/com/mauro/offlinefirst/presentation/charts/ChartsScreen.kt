@@ -28,9 +28,10 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.mauro.offlinefirst.presentation.charts.components.ChartsTracksSection
 import com.mauro.offlinefirst.presentation.components.AppBackground
+import com.mauro.offlinefirst.presentation.components.SectionHeader
 import com.mauro.offlinefirst.presentation.home.components.AlbumCard
-import com.mauro.offlinefirst.presentation.home.components.SectionHeader
 import com.mauro.offlinefirst.presentation.player.PlayerViewModel
+import com.mauro.offlinefirst.ui.theme.ErrorRed
 
 private val ChartsSectionSpacing = 12.dp
 
@@ -89,7 +90,7 @@ fun ChartsScreen(
                         Text(
                             text = uiState.errorMessage!!,
                             style = MaterialTheme.typography.bodyMedium,
-                            color = Color(0xFFFF6B6B)
+                            color = ErrorRed
                         )
                     }
                 }

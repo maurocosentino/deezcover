@@ -31,6 +31,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.mauro.offlinefirst.domain.model.NewRelease
+import com.mauro.offlinefirst.presentation.components.SectionHeader
+import com.mauro.offlinefirst.ui.theme.CardSurface
 import com.mauro.offlinefirst.ui.theme.DeezerColor
 
 @Composable
@@ -60,7 +62,7 @@ fun MoreFeaturedSection(
                         .width(280.dp)
                         .height(90.dp),
                     onClick = { onAlbumClick(album.albumId.toString()) },
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFF181818)),
+                    colors = CardDefaults.cardColors(containerColor = CardSurface),
                     shape = RoundedCornerShape(12.dp),
                     elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                 ) {

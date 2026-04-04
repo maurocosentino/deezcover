@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.mauro.offlinefirst.domain.model.Album
+import com.mauro.offlinefirst.presentation.components.SectionHeader
 
 @Composable
 fun PreviewAlbumsSection(

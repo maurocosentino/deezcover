@@ -16,6 +16,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.mauro.offlinefirst.domain.model.NewRelease
+import com.mauro.offlinefirst.presentation.components.SectionHeader
+import com.mauro.offlinefirst.ui.theme.DeezerColor
 
 @Composable
 fun NewReleasesSection(
@@ -24,7 +26,7 @@ fun NewReleasesSection(
     title: String,
     onReleaseClick: (NewRelease) -> Unit,
     modifier: Modifier = Modifier,
-    loadingIndicatorColor: Color = Color(0xFF00C8FF)
+    loadingIndicatorColor: Color = DeezerColor
 ) {
     if (releases.isEmpty() && !isLoading) return
 

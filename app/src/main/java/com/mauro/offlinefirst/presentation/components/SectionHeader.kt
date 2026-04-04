@@ -1,4 +1,4 @@
-package com.mauro.offlinefirst.presentation.home.components
+package com.mauro.offlinefirst.presentation.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row

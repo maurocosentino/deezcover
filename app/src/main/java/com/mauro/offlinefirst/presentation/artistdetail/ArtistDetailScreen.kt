@@ -52,15 +52,17 @@ import com.mauro.offlinefirst.R
 import com.mauro.offlinefirst.presentation.albumdetail.components.DeezerButton
 import com.mauro.offlinefirst.presentation.components.AppBackground
 import com.mauro.offlinefirst.presentation.components.PlaybackControls
-import com.mauro.offlinefirst.presentation.home.components.topTracksSection
+import com.mauro.offlinefirst.presentation.components.topTracksSection
 import com.mauro.offlinefirst.presentation.player.PlayerViewModel
+import com.mauro.offlinefirst.ui.theme.ErrorRed
+import com.mauro.offlinefirst.ui.theme.GradientDeep
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
 import java.util.Locale
 
 private val ArtistDetailBackground = Brush.verticalGradient(
     colorStops = arrayOf(
-        0.0f to Color(0xFF01051C),
+        0.0f to GradientDeep,
         0.4f to Color(0xFF000000),
         1.0f to Color(0xFF000715)
     )
@@ -135,7 +137,7 @@ fun ArtistDetailScreen(
                     Text(
                         text = uiState.errorMessage!!,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = Color(0xFFFF6B6B)
+                        color = ErrorRed
                     )
                 }
             }

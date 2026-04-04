@@ -46,6 +46,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.mauro.offlinefirst.R
+import com.mauro.offlinefirst.ui.theme.PlayerSurface
 import kotlinx.coroutines.delay
 
 @Composable
@@ -106,7 +107,7 @@ fun MiniPlayer(
                 modifier = Modifier
                     .size(48.dp)
                     .clip(RoundedCornerShape(14.dp))
-                    .background(Color(0xFF121826))
+                    .background(PlayerSurface)
             )
 
             Column(

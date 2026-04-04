@@ -60,10 +60,12 @@ import com.mauro.offlinefirst.presentation.utils.formatSongCount
 import com.mauro.offlinefirst.presentation.components.rememberArtworkRequest
 import com.mauro.offlinefirst.presentation.components.resolveArtworkUrl
 import com.mauro.offlinefirst.presentation.player.PlayerViewModel
+import com.mauro.offlinefirst.ui.theme.GradientDeep
+import com.mauro.offlinefirst.ui.theme.PlayerSurface
 
 private val AlbumDetailBackground = Brush.verticalGradient(
     colorStops = arrayOf(
-        0.0f to Color(0xFF01051C),
+        0.0f to GradientDeep,
         0.4f to Color(0xFF000000),
         1.0f to Color(0xFF000715)
     )
@@ -146,7 +148,7 @@ fun AlbumDetailScreen(
                         fallback = artworkPlaceholder,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(Color(0xFF121826))
+                            .background(PlayerSurface)
                             .aspectRatio(1f)
                     )
 

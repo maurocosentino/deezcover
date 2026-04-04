@@ -38,11 +38,11 @@ import com.mauro.offlinefirst.domain.model.Album
 import com.mauro.offlinefirst.domain.model.Artist
 import com.mauro.offlinefirst.domain.model.SearchHistoryItem
 import com.mauro.offlinefirst.domain.model.Song
-import com.mauro.offlinefirst.presentation.albumdetail.PlayerState
-import com.mauro.offlinefirst.presentation.home.components.SectionHeader
-import com.mauro.offlinefirst.presentation.home.components.TopAlbumsSection
-import com.mauro.offlinefirst.presentation.home.components.TopArtistsSection
-import com.mauro.offlinefirst.presentation.home.components.topTracksSection
+import com.mauro.offlinefirst.presentation.components.SectionHeader
+import com.mauro.offlinefirst.presentation.components.TopAlbumsSection
+import com.mauro.offlinefirst.presentation.components.TopArtistsSection
+import com.mauro.offlinefirst.presentation.components.topTracksSection
+import com.mauro.offlinefirst.presentation.player.PlayerState
 
 fun LazyListScope.localSearchResultsSection(
     tracks: List<Song>,

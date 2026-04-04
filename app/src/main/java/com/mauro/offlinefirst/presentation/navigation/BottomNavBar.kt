@@ -22,7 +22,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-import com.mauro.offlinefirst.ui.theme.DeezerColor
+import com.mauro.offlinefirst.ui.theme.SurfaceDark
 
 enum class BottomNavTab {
     Home,
@@ -58,7 +58,7 @@ fun BottomNavBar(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .background(Color(0xFF000409))
+            .background(SurfaceDark)
             .navigationBarsPadding()
             .padding(horizontal = 18.dp, vertical = 12.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp)

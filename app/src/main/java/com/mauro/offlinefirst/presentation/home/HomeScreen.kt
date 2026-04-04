@@ -49,16 +49,17 @@ import com.mauro.offlinefirst.domain.model.Artist
 import com.mauro.offlinefirst.domain.model.NewRelease
 import com.mauro.offlinefirst.domain.model.Song
 import com.mauro.offlinefirst.presentation.components.AppBackground
+import com.mauro.offlinefirst.presentation.components.OfflineBanner
+import com.mauro.offlinefirst.presentation.components.TopArtistsSection
 import com.mauro.offlinefirst.presentation.home.components.EmptyState
 import com.mauro.offlinefirst.presentation.home.components.FeaturedAlbumBanner
 import com.mauro.offlinefirst.presentation.home.components.MoreFeaturedSection
 import com.mauro.offlinefirst.presentation.home.components.NewReleasesSection
-import com.mauro.offlinefirst.presentation.home.components.OfflineBanner
 import com.mauro.offlinefirst.presentation.home.components.PreviewAlbumsSection
 import com.mauro.offlinefirst.presentation.home.components.PreviewTracksSection
-import com.mauro.offlinefirst.presentation.home.components.TopArtistsSection
-import com.mauro.offlinefirst.presentation.albumdetail.PlayerState
+import com.mauro.offlinefirst.presentation.player.PlayerState
 import com.mauro.offlinefirst.presentation.player.PlayerViewModel
+import com.mauro.offlinefirst.ui.theme.ErrorRed
 import com.mauro.offlinefirst.ui.theme.AldotheApacheFamily
 
 private val HomeHorizontalPadding = 16.dp
@@ -168,7 +169,7 @@ fun HomeScreen(
                             Text(
                                 text = uiState.errorMessage!!,
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = Color(0xFFFF6B6B)
+                                color = ErrorRed
                             )
                         }
                     }
