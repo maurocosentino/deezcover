@@ -205,6 +205,14 @@ fun HomeScreen(
                                     currentPlayingId = playerUiState.currentPlayingId,
                                     playerState = playerUiState.playerState,
                                     onAlbumClick = onAlbumClick,
+                                    onFeaturedClick = { release ->
+                                        viewModel.navigateToAlbum(
+                                            albumId = release.albumId.toString(),
+                                            albumArt = release.coverXlUrl ?: release.coverUrl,
+                                            albumTitle = release.title,
+                                            onReady = { onAlbumClick(release.albumId.toString()) }
+                                        )
+                                    },
                                     onNewReleaseClick = { release ->
                                         viewModel.navigateToAlbum(
                                             albumId = release.albumId.toString(),
@@ -258,6 +266,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.homeContentSection(
     currentPlayingId: String?,
     playerState: PlayerState,
     onAlbumClick: (String) -> Unit,
+    onFeaturedClick: (NewRelease) -> Unit,
     onNewReleaseClick: (NewRelease) -> Unit,
     onArtistClick: (Artist) -> Unit,
     onPlayClick: (Song) -> Unit,
@@ -268,7 +277,10 @@ private fun androidx.compose.foundation.lazy.LazyListScope.homeContentSection(
     item {
         FeaturedAlbumBanner(
             featuredAlbums = featuredAlbums,
-            onAlbumClick = onAlbumClick
+            onAlbumClick = { albumId ->
+                featuredAlbums.firstOrNull { it.albumId.toString() == albumId }
+                    ?.let { onFeaturedClick(it) }
+            }
         )
     }
 
@@ -319,7 +331,10 @@ private fun androidx.compose.foundation.lazy.LazyListScope.homeContentSection(
     item {
         MoreFeaturedSection(
             featuredAlbums = featuredAlbums,
-            onAlbumClick = onAlbumClick
+            onAlbumClick = { albumId ->
+                featuredAlbums.firstOrNull { it.albumId.toString() == albumId }
+                    ?.let { onFeaturedClick(it) }
+            }
         )
     }
 
