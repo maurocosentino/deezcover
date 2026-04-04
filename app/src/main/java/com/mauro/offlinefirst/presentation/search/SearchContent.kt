@@ -65,7 +65,6 @@ fun LazyListScope.localSearchResultsSection(
             )
         }
     }
-
     if (artists.isNotEmpty()) {
         item {
             TopArtistsSection(
@@ -75,13 +74,11 @@ fun LazyListScope.localSearchResultsSection(
             )
         }
     }
-
     if ((albums.isNotEmpty() || artists.isNotEmpty()) && tracks.isNotEmpty()) {
         item {
             HorizontalDivider(color = Color.White.copy(alpha = 0.06f))
         }
     }
-
     if (tracks.isNotEmpty()) {
         topTracksSection(
             songs = tracks,
@@ -114,7 +111,6 @@ fun LazyListScope.remoteSearchResultsSection(
             title = stringResource(R.string.deezer_results)
         )
     }
-
     when {
         isSearchLoading -> {
             item {
@@ -124,7 +120,6 @@ fun LazyListScope.remoteSearchResultsSection(
                 )
             }
         }
-
         searchError != null -> {
             item {
                 SearchFeedbackState(
@@ -135,7 +130,6 @@ fun LazyListScope.remoteSearchResultsSection(
                 )
             }
         }
-
         remoteTracks.isEmpty() && remoteAlbums.isEmpty() && remoteArtists.isEmpty() -> {
             item {
                 SearchFeedbackState(
@@ -144,7 +138,6 @@ fun LazyListScope.remoteSearchResultsSection(
                 )
             }
         }
-
         else -> {
             if (remoteAlbums.isNotEmpty()) {
                 item {
@@ -156,7 +149,6 @@ fun LazyListScope.remoteSearchResultsSection(
                     )
                 }
             }
-
             if (remoteArtists.isNotEmpty()) {
                 item {
                     TopArtistsSection(
@@ -166,13 +158,11 @@ fun LazyListScope.remoteSearchResultsSection(
                     )
                 }
             }
-
             if ((remoteAlbums.isNotEmpty() || remoteArtists.isNotEmpty()) && remoteTracks.isNotEmpty()) {
                 item {
                     HorizontalDivider(color = Color.White.copy(alpha = 0.06f))
                 }
             }
-
             if (remoteTracks.isNotEmpty()) {
                 topTracksSection(
                     songs = remoteTracks,
@@ -217,13 +207,11 @@ internal fun SearchFeedbackState(
                 modifier = Modifier.size(28.dp)
             )
         }
-
         Text(
             text = text,
             style = MaterialTheme.typography.bodyMedium,
             color = Color.White.copy(alpha = 0.72f)
         )
-
         if (actionLabel != null && onAction != null) {
             FilledTonalButton(onClick = onAction) {
                 Text(text = actionLabel)
@@ -296,7 +284,6 @@ fun LazyListScope.searchHistorySection(
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
         )
     }
-
     history.forEach { item ->
         item(key = item.id) {
             SearchHistoryRow(
@@ -306,7 +293,6 @@ fun LazyListScope.searchHistorySection(
             )
         }
     }
-
     item {
         TextButton(
             onClick = onClearHistoryClick,

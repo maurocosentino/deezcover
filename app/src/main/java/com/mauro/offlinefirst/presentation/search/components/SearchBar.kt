@@ -1,4 +1,4 @@
-package com.mauro.offlinefirst.presentation.home.components
+package com.mauro.offlinefirst.presentation.search.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column

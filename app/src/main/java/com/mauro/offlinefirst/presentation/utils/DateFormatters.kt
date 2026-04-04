@@ -1,4 +1,4 @@
-package com.mauro.offlinefirst.presentation.components
+package com.mauro.offlinefirst.presentation.utils
 
 import android.os.Build
 import androidx.annotation.RequiresApi

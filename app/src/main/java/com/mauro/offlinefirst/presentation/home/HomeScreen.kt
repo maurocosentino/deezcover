@@ -5,7 +5,6 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -35,7 +34,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -50,6 +48,7 @@ import com.mauro.offlinefirst.domain.model.Album
 import com.mauro.offlinefirst.domain.model.Artist
 import com.mauro.offlinefirst.domain.model.NewRelease
 import com.mauro.offlinefirst.domain.model.Song
+import com.mauro.offlinefirst.presentation.components.AppBackground
 import com.mauro.offlinefirst.presentation.home.components.EmptyState
 import com.mauro.offlinefirst.presentation.home.components.FeaturedAlbumBanner
 import com.mauro.offlinefirst.presentation.home.components.MoreFeaturedSection
@@ -62,9 +61,6 @@ import com.mauro.offlinefirst.presentation.albumdetail.PlayerState
 import com.mauro.offlinefirst.presentation.player.PlayerViewModel
 import com.mauro.offlinefirst.ui.theme.AldotheApacheFamily
 
-private val GradientTop = Color(0xFF000000)
-private val GradientMiddle = Color(0xFF000409)
-private val GradientBottom = Color(0xFF000715)
 private val HomeHorizontalPadding = 16.dp
 private val HomeSectionSpacing = 12.dp
 
@@ -97,19 +93,7 @@ fun HomeScreen(
         label = "sync_rotation"
     )
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    colorStops = arrayOf(
-                        0.0f to GradientTop,
-                        0.4f to GradientMiddle,
-                        1.0f to GradientBottom
-                    )
-                )
-            )
-    ) {
+    AppBackground {
         Scaffold(
             containerColor = Color.Transparent,
             topBar = {

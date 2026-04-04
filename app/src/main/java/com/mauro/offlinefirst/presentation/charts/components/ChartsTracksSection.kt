@@ -1,4 +1,4 @@
-package com.mauro.offlinefirst.presentation.charts
+package com.mauro.offlinefirst.presentation.charts.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement

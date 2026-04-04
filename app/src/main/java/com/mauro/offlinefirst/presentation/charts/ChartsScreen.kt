@@ -1,6 +1,5 @@
 package com.mauro.offlinefirst.presentation.charts
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,19 +21,17 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.mauro.offlinefirst.presentation.charts.components.ChartsTracksSection
+import com.mauro.offlinefirst.presentation.components.AppBackground
 import com.mauro.offlinefirst.presentation.home.components.AlbumCard
 import com.mauro.offlinefirst.presentation.home.components.SectionHeader
 import com.mauro.offlinefirst.presentation.player.PlayerViewModel
 
-private val GradientTop = Color(0xFF000000)
-private val GradientMiddle = Color(0xFF000409)
-private val GradientBottom = Color(0xFF000715)
 private val ChartsSectionSpacing = 12.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -49,19 +46,7 @@ fun ChartsScreen(
     val uiState by viewModel.uiState.collectAsState()
     val playerUiState by playerViewModel.uiState.collectAsState()
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    colorStops = arrayOf(
-                        0.0f to GradientTop,
-                        0.4f to GradientMiddle,
-                        1.0f to GradientBottom
-                    )
-                )
-            )
-    ) {
+    AppBackground {
         Scaffold(
             containerColor = Color.Transparent,
             topBar = {

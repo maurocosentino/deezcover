@@ -50,6 +50,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.mauro.offlinefirst.R
 import com.mauro.offlinefirst.presentation.albumdetail.components.DeezerButton
+import com.mauro.offlinefirst.presentation.components.AppBackground
 import com.mauro.offlinefirst.presentation.components.PlaybackControls
 import com.mauro.offlinefirst.presentation.home.components.topTracksSection
 import com.mauro.offlinefirst.presentation.player.PlayerViewModel
@@ -57,9 +58,13 @@ import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
 import java.util.Locale
 
-private val GradientTop = Color(0xFF01051C)
-private val GradientMiddle = Color(0xFF000000)
-private val GradientBottom = Color(0xFF000715)
+private val ArtistDetailBackground = Brush.verticalGradient(
+    colorStops = arrayOf(
+        0.0f to Color(0xFF01051C),
+        0.4f to Color(0xFF000000),
+        1.0f to Color(0xFF000715)
+    )
+)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -107,19 +112,7 @@ fun ArtistDetailScreen(
     )
 
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    colorStops = arrayOf(
-                        0.0f to GradientTop,
-                        0.4f to GradientMiddle,
-                        1.0f to GradientBottom
-                    )
-                )
-            )
-    ) {
+    AppBackground(background = ArtistDetailBackground) {
         when {
             uiState.isLoading -> {
                 Box(
