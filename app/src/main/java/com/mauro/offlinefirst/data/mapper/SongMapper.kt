@@ -1,16 +1,15 @@
 package com.mauro.offlinefirst.data.mapper
 
 import com.mauro.offlinefirst.data.local.entity.SongEntity
-import com.mauro.offlinefirst.data.remote.dto.SongDto
 import com.mauro.offlinefirst.data.mapper.ArtistMapper.bestImageUrl
+import com.mauro.offlinefirst.data.remote.dto.DeezerAlbumDto
+import com.mauro.offlinefirst.data.remote.dto.SongDto
+import com.mauro.offlinefirst.data.utils.bestUrl
 import com.mauro.offlinefirst.domain.model.Song
 
 object SongMapper {
-    private fun com.mauro.offlinefirst.data.remote.dto.DeezerAlbumDto.bestCoverUrl(): String {
-        return listOf(coverXl, coverBig, coverMedium, coverSmall)
-            .firstOrNull { !it.isNullOrBlank() }
-            .orEmpty()
-    }
+    private fun DeezerAlbumDto.bestCoverUrl(): String =
+        listOf(coverXl, coverBig, coverMedium, coverSmall).bestUrl()
 
     fun SongEntity.toDomain(): Song = Song(
         id = id,

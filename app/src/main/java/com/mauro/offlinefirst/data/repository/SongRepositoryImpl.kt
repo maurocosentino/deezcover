@@ -6,6 +6,7 @@ import com.mauro.offlinefirst.data.local.dao.ArtistDao
 import com.mauro.offlinefirst.data.local.dao.SongDao
 import com.mauro.offlinefirst.data.local.entity.AlbumEntity
 import com.mauro.offlinefirst.data.local.entity.SongEntity
+import com.mauro.offlinefirst.data.mapper.AlbumMapper.toDomain
 import com.mauro.offlinefirst.data.mapper.ArtistMapper.toArtist
 import com.mauro.offlinefirst.data.mapper.ArtistMapper.bestImageUrl
 import com.mauro.offlinefirst.data.mapper.ArtistMapper.toDomain
@@ -14,6 +15,7 @@ import com.mauro.offlinefirst.data.mapper.SongMapper.toDomain
 import com.mauro.offlinefirst.data.mapper.SongMapper.toDomainList
 import com.mauro.offlinefirst.data.mapper.SongMapper.toEntity
 import com.mauro.offlinefirst.data.remote.RemoteDataSource
+import com.mauro.offlinefirst.data.utils.bestUrl
 import com.mauro.offlinefirst.domain.model.Album
 import com.mauro.offlinefirst.domain.model.Artist
 import com.mauro.offlinefirst.domain.model.SearchResult
@@ -52,21 +54,6 @@ class SongRepositoryImpl @Inject constructor(
             isFromChart = existing?.isFromChart ?: incoming.isFromChart,
             isAvailableOffline = existing?.isAvailableOffline ?: incoming.isAvailableOffline,
             sortOrder = existing?.sortOrder ?: incoming.sortOrder
-        )
-    }
-
-    private fun com.mauro.offlinefirst.data.remote.dto.AlbumDto.bestCoverUrl(): String {
-        return listOf(coverXl, coverBig, coverMedium, coverSmall)
-            .firstOrNull { !it.isNullOrBlank() }
-            .orEmpty()
-    }
-
-    private fun com.mauro.offlinefirst.data.remote.dto.AlbumDto.toDomain(): Album {
-        return Album(
-            id = id.toString(),
-            title = title,
-            artist = artist.name,
-            coverUrl = bestCoverUrl()
         )
     }
 
@@ -157,7 +144,7 @@ class SongRepositoryImpl @Inject constructor(
 
     override fun observeAlbums(): Flow<List<Album>> {
         return albumDao.observeAlbums().map { entities ->
-            entities.map { Album(id = it.id, title = it.title, artist = it.artist, coverUrl = it.coverUrl) }
+            entities.map { it.toDomain() }
         }
     }
 
@@ -179,7 +166,7 @@ class SongRepositoryImpl @Inject constructor(
                 id = dto.id.toString(),
                 title = dto.title,
                 artist = dto.artist.name,
-                coverUrl = dto.bestCoverUrl(),
+                coverUrl = listOf(dto.coverXl, dto.coverBig, dto.coverMedium, dto.coverSmall).bestUrl(),
                 sortOrder = index
             )
         }
