@@ -9,9 +9,9 @@ data class AlbumDto(
     @SerializedName("cover_medium") val coverMedium: String? = null,
     @SerializedName("cover_big") val coverBig: String? = null,
     @SerializedName("cover_xl") val coverXl: String? = null,
-    @SerializedName("artist") val artist: AlbumArtistDto
+    @SerializedName("artist") val artist: NestedArtistDto
 )
 
-data class AlbumArtistDto(
+data class NestedArtistDto(
     @SerializedName("name") val name: String
 )

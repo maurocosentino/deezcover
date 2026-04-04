@@ -1,11 +1,11 @@
 package com.mauro.offlinefirst.data.remote
 
-import com.mauro.offlinefirst.data.remote.dto.AlbumArtistDto
 import com.mauro.offlinefirst.data.remote.dto.AlbumDto
-import com.mauro.offlinefirst.data.remote.dto.DeezerAlbumArtistDto
 import com.mauro.offlinefirst.data.remote.dto.DeezerAlbumDetailDto
 import com.mauro.offlinefirst.data.remote.dto.DeezerArtistDto
+import com.mauro.offlinefirst.data.remote.dto.NestedArtistDto
 import com.mauro.offlinefirst.data.remote.dto.SongDto
+import com.mauro.offlinefirst.data.remote.dto.SongAlbumDto
 
 object FallbackCatalog {
     private data class CatalogArtist(
@@ -110,7 +110,8 @@ object FallbackCatalog {
             title = album.title,
             releaseDate = album.releaseDate,
             recordType = album.recordType,
-            artist = DeezerAlbumArtistDto(
+            artist = DeezerArtistDto(
+                id = artist.id,
                 name = artist.name,
                 pictureSmall = artist.imageUrl,
                 pictureMedium = artist.imageUrl,
@@ -166,7 +167,7 @@ object FallbackCatalog {
             id = id,
             title = title,
             artist = artist.toArtistDto(),
-            albumArt = com.mauro.offlinefirst.data.remote.dto.DeezerAlbumDto(
+            albumArt = SongAlbumDto(
                 coverSmall = album.coverUrl,
                 coverMedium = album.coverUrl,
                 coverBig = album.coverUrl,
@@ -188,7 +189,7 @@ object FallbackCatalog {
             coverMedium = coverUrl,
             coverBig = coverUrl,
             coverXl = coverUrl,
-            artist = AlbumArtistDto(name = artistById(artistId).name)
+            artist = NestedArtistDto(name = artistById(artistId).name)
         )
     }
 

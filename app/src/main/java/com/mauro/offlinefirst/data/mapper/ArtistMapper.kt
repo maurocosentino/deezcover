@@ -2,7 +2,6 @@ package com.mauro.offlinefirst.data.mapper
 
 import com.mauro.offlinefirst.data.local.entity.ArtistEntity
 import com.mauro.offlinefirst.data.local.entity.SongEntity
-import com.mauro.offlinefirst.data.remote.dto.DeezerAlbumArtistDto
 import com.mauro.offlinefirst.data.remote.dto.DeezerArtistDto
 import com.mauro.offlinefirst.data.utils.bestUrl
 import com.mauro.offlinefirst.domain.model.Artist
@@ -15,10 +14,6 @@ object ArtistMapper {
     }
 
     fun DeezerArtistDto.bestImageUrl(): String {
-        return listOf(pictureXl, pictureBig, pictureMedium, pictureSmall).bestUrl()
-    }
-
-    fun DeezerAlbumArtistDto.bestImageUrl(): String {
         return listOf(pictureXl, pictureBig, pictureMedium, pictureSmall).bestUrl()
     }
 
