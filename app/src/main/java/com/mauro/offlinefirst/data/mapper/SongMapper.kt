@@ -43,5 +43,20 @@ object SongMapper {
         artistImageUrl = artist.bestImageUrl()
     )
 
+    fun Song.toEntity(): SongEntity = SongEntity(
+        id = id,
+        title = title,
+        artist = artist,
+        artistId = artistId,
+        albumTitle = albumTitle,
+        albumArt = albumArt,
+        durationMs = durationMs,
+        isAvailableOffline = isAvailableOffline,
+        deezerUrl = deezerUrl,
+        previewUrl = previewUrl,
+        albumId = albumId,
+        artistImageUrl = artistImageUrl
+    )
+
     fun List<SongEntity>.toDomainList(): List<Song> = map { it.toDomain() }
 }

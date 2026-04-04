@@ -4,7 +4,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mauro.offlinefirst.data.mapper.ArtistMapper.bestImageUrl
-import com.mauro.offlinefirst.data.local.entity.SongEntity
 import com.mauro.offlinefirst.data.network.NetworkStatusDataSource
 import com.mauro.offlinefirst.data.remote.RemoteDataSource
 import com.mauro.offlinefirst.domain.model.Song
@@ -115,8 +114,7 @@ class AlbumDetailViewModel @Inject constructor(
                         artistImageUrl = song.artistImageUrl.ifBlank { artistImageUrl }
                     )
                 }
-                val entities = normalizedSongs.map { it.toEntity() }
-                songRepository.saveAlbumTracks(entities)
+                songRepository.saveAlbumTracks(normalizedSongs)
                 loadedAlbumId = albumId
                 _uiState.update {
                     it.copy(
@@ -167,21 +165,6 @@ private fun preferredImageUrl(primary: String, fallback: String): String {
         else -> fallback.ifBlank { primary }
     }
 }
-
-private fun Song.toEntity(): SongEntity = SongEntity(
-    id = id,
-    title = title,
-    artist = artist,
-    artistId = artistId,
-    albumTitle = albumTitle,
-    albumArt = albumArt,
-    durationMs = durationMs,
-    isAvailableOffline = isAvailableOffline,
-    deezerUrl = deezerUrl,
-    previewUrl = previewUrl,
-    albumId = albumId,
-    artistImageUrl = artistImageUrl
-)
 
 private fun imageQualityScore(url: String): Int {
     if (url.isBlank()) return 0

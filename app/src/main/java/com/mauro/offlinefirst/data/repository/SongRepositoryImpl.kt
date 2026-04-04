@@ -124,9 +124,10 @@ class SongRepositoryImpl @Inject constructor(
         Log.i(TAG, "syncSongs:stored count=${entities.size}")
     }
 
-    override suspend fun saveAlbumTracks(tracks: List<SongEntity>) {
+    override suspend fun saveAlbumTracks(tracks: List<Song>) {
         Log.d(TAG, "saveAlbumTracks:start count=${tracks.size}")
-        val mergedTracks = tracks.map { track ->
+        val songEntities = tracks.map { it.toEntity() }
+        val mergedTracks = songEntities.map { track ->
             mergeSongWithExisting(
                 incoming = track,
                 existing = songDao.getSongById(track.id)
