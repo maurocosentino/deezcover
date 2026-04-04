@@ -18,6 +18,8 @@ import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PauseCircle
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.PlayCircleOutline
+import androidx.compose.material.icons.outlined.Pause
+import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -97,7 +99,7 @@ private fun ChartsTrackRow(
         Text(
             text = rank.toString(),
             style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-            color = Color.White.copy(alpha = 0.55f),
+            color = Color.White.copy(alpha = 0.3f),
             textAlign = TextAlign.Center,
             modifier = Modifier.width(32.dp)
         )
@@ -133,7 +135,7 @@ private fun ChartsTrackRow(
         }
         IconButton(onClick = onPlayClick) {
             Icon(
-                imageVector = if (isPlaying) Icons.Default.PauseCircle else Icons.Default.PlayCircleOutline,
+                imageVector = if (isPlaying) Icons.Outlined.Pause else Icons.Outlined.PlayArrow,
                 contentDescription = null,
                 tint = Color.White.copy(alpha = 0.3f),
             )

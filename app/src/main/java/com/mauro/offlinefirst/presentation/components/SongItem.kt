@@ -16,6 +16,8 @@ import androidx.compose.material.icons.filled.Album
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.PauseCircle
 import androidx.compose.material.icons.filled.PlayCircleOutline
+import androidx.compose.material.icons.outlined.Pause
+import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -130,7 +132,7 @@ fun SongItem(
                 }
                 isActive -> {
                     Icon(
-                        imageVector = Icons.Default.PauseCircle,
+                        imageVector = Icons.Outlined.Pause,
                         contentDescription = stringResource(R.string.pause),
                         tint = AccentCyan,
                         modifier = Modifier.size(22.dp)
@@ -138,7 +140,7 @@ fun SongItem(
                 }
                 else -> {
                     Icon(
-                        imageVector = Icons.Default.PlayCircleOutline,
+                        imageVector = Icons.Outlined.PlayArrow,
                         contentDescription = stringResource(R.string.play),
                         tint = Color.White.copy(alpha = 0.3f),
                         modifier = Modifier.size(22.dp)

@@ -12,6 +12,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PauseCircle
 import androidx.compose.material.icons.filled.PlayCircleOutline
+import androidx.compose.material.icons.outlined.Pause
+import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -123,7 +125,7 @@ private fun PreviewTrackRow(
         }
         IconButton(onClick = onPlayClick) {
             Icon(
-                imageVector = if (isPlaying) Icons.Default.PauseCircle else Icons.Default.PlayCircleOutline,
+                imageVector = if (isPlaying) Icons.Outlined.Pause else Icons.Outlined.PlayArrow,
                 contentDescription = null,
                 tint = Color.White.copy(alpha = 0.3f)
             )
