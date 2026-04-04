@@ -46,12 +46,19 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import com.mauro.offlinefirst.R
+import com.mauro.offlinefirst.domain.model.Album
+import com.mauro.offlinefirst.domain.model.Artist
 import com.mauro.offlinefirst.domain.model.NewRelease
+import com.mauro.offlinefirst.domain.model.Song
 import com.mauro.offlinefirst.presentation.home.components.EmptyState
 import com.mauro.offlinefirst.presentation.home.components.FeaturedAlbumBanner
+import com.mauro.offlinefirst.presentation.home.components.MoreFeaturedSection
 import com.mauro.offlinefirst.presentation.home.components.NewReleasesSection
 import com.mauro.offlinefirst.presentation.home.components.OfflineBanner
+import com.mauro.offlinefirst.presentation.home.components.PreviewAlbumsSection
+import com.mauro.offlinefirst.presentation.home.components.PreviewTracksSection
 import com.mauro.offlinefirst.presentation.home.components.TopArtistsSection
+import com.mauro.offlinefirst.presentation.albumdetail.PlayerState
 import com.mauro.offlinefirst.presentation.player.PlayerViewModel
 import com.mauro.offlinefirst.ui.theme.AldotheApacheFamily
 
@@ -67,6 +74,7 @@ fun HomeScreen(
     onSongClick: (String) -> Unit,
     onAlbumClick: (String) -> Unit,
     onArtistClick: (artistId: String, artistName: String, artistImageUrl: String) -> Unit,
+    onChartsClick: () -> Unit,
     viewModel: HomeViewModel = hiltViewModel(),
     playerViewModel: PlayerViewModel,
     contentPadding: PaddingValues = PaddingValues(0.dp)
@@ -79,6 +87,7 @@ fun HomeScreen(
     }
 
     val uiState by viewModel.uiState.collectAsState()
+    val playerUiState by playerViewModel.uiState.collectAsState()
 
     val infiniteTransition = rememberInfiniteTransition(label = "sync_rotation")
     val syncRotation by infiniteTransition.animateFloat(
@@ -205,7 +214,11 @@ fun HomeScreen(
                                     featuredAlbums = uiState.featuredAlbums,
                                     newReleases = uiState.newReleases,
                                     isNewReleasesLoading = uiState.isNewReleasesLoading,
+                                    chartAlbums = uiState.chartAlbums,
+                                    songs = uiState.songs,
                                     artists = uiState.topArtists,
+                                    currentPlayingId = playerUiState.currentPlayingId,
+                                    playerState = playerUiState.playerState,
                                     onAlbumClick = onAlbumClick,
                                     onNewReleaseClick = { release ->
                                         viewModel.navigateToAlbum(
@@ -219,6 +232,26 @@ fun HomeScreen(
                                     },
                                     onArtistClick = { artist ->
                                         onArtistClick(artist.id, artist.name, artist.imageUrl)
+                                    },
+                                    onPlayClick = { song ->
+                                        val songIndex = uiState.songs.indexOfFirst { it.id == song.id }
+                                        if (playerUiState.currentPlayingId == song.id) {
+                                            playerViewModel.togglePlayPause()
+                                        } else if (songIndex != -1) {
+                                            playerViewModel.playSongs(uiState.songs, songIndex)
+                                        }
+                                    },
+                                    onChartsClick = onChartsClick,
+                                    onPreviewAlbumClick = { album ->
+                                        viewModel.navigateToAlbum(
+                                            albumId = album.id,
+                                            albumArt = album.coverUrl,
+                                            albumTitle = album.title,
+                                            onReady = { onAlbumClick(album.id) }
+                                        )
+                                    },
+                                    onPreviewSongClick = { song ->
+                                        onSongClick(song.id)
                                     }
                                 )
                             }
@@ -234,11 +267,19 @@ private fun androidx.compose.foundation.lazy.LazyListScope.homeContentSection(
     featuredAlbums: List<NewRelease>,
     newReleases: List<NewRelease>,
     isNewReleasesLoading: Boolean,
-    artists: List<com.mauro.offlinefirst.domain.model.Artist>,
+    chartAlbums: List<Album>,
+    songs: List<Song>,
+    artists: List<Artist>,
+    currentPlayingId: String?,
+    playerState: PlayerState,
     onAlbumClick: (String) -> Unit,
     onNewReleaseClick: (NewRelease) -> Unit,
-    onArtistClick: (com.mauro.offlinefirst.domain.model.Artist) -> Unit
-    ) {
+    onArtistClick: (Artist) -> Unit,
+    onPlayClick: (Song) -> Unit,
+    onChartsClick: () -> Unit,
+    onPreviewAlbumClick: (Album) -> Unit,
+    onPreviewSongClick: (Song) -> Unit
+) {
     item {
         FeaturedAlbumBanner(
             featuredAlbums = featuredAlbums,
@@ -249,7 +290,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.homeContentSection(
     if (newReleases.isNotEmpty() || isNewReleasesLoading) {
         item {
             NewReleasesSection(
-                releases = newReleases,
+                releases = newReleases.take(15),
                 isLoading = isNewReleasesLoading,
                 title = stringResource(R.string.home_new_releases),
                 onReleaseClick = onNewReleaseClick
@@ -263,6 +304,47 @@ private fun androidx.compose.foundation.lazy.LazyListScope.homeContentSection(
                 artists = artists,
                 title = stringResource(R.string.home_top_artists),
                 onArtistClick = onArtistClick
+            )
+        }
+    }
+
+    if (chartAlbums.isNotEmpty()) {
+        item {
+            PreviewAlbumsSection(
+                albums = chartAlbums,
+                onAlbumClick = onPreviewAlbumClick,
+                onViewMoreClick = onChartsClick
+            )
+        }
+    }
+
+    if (songs.isNotEmpty()) {
+        item {
+            PreviewTracksSection(
+                songs = songs,
+                currentPlayingId = currentPlayingId,
+                playerState = playerState,
+                onPlayClick = onPlayClick,
+                onSongClick = onPreviewSongClick,
+                onViewMoreClick = onChartsClick
+            )
+        }
+    }
+
+    item {
+        MoreFeaturedSection(
+            featuredAlbums = featuredAlbums,
+            onAlbumClick = onAlbumClick
+        )
+    }
+
+    if (newReleases.drop(15).isNotEmpty()) {
+        item {
+            NewReleasesSection(
+                releases = newReleases.drop(15).take(15),
+                isLoading = false,
+                title = "Más Lanzamientos",
+                onReleaseClick = onNewReleaseClick
             )
         }
     }

@@ -95,6 +95,9 @@ fun NavGraph(
                         Screen.ArtistDetail.createRoute(artistId, artistName, artistImageUrl)
                     )
                 },
+                onChartsClick = {
+                    navController.navigate(Screen.Charts.route)
+                },
                 playerViewModel = playerViewModel,
                 contentPadding = contentPadding
             )

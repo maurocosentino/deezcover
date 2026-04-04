@@ -11,6 +11,6 @@ class GetFeaturedAlbumUseCase @Inject constructor(
 ) {
 
     operator fun invoke(): Flow<List<NewRelease>> = flow {
-        emit(newReleaseRepository.fetchFeaturedAlbum().take(1))
+        emit(newReleaseRepository.fetchFeaturedAlbum().take(6))
     }
 }
