@@ -1,25 +1,21 @@
 package com.mauro.offlinefirst.presentation.charts.components
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Pause
-import androidx.compose.material.icons.filled.PauseCircle
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.PlayCircleOutline
-import androidx.compose.material.icons.outlined.Pause
-import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -31,16 +27,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import coil.compose.AsyncImage
 import com.mauro.offlinefirst.R
 import com.mauro.offlinefirst.domain.model.Song
 import com.mauro.offlinefirst.presentation.components.SectionHeader
 import com.mauro.offlinefirst.presentation.player.PlayerState
 import com.mauro.offlinefirst.ui.theme.DeezerColor
-import androidx.compose.ui.res.stringResource
 
 @Composable
 fun ChartsTracksSection(
@@ -50,33 +45,32 @@ fun ChartsTracksSection(
     onPlayClick: (Song) -> Unit,
     onSongClick: (Song) -> Unit
 ) {
-    Column {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
         SectionHeader(
             title = stringResource(R.string.home_top_tracks),
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
         )
 
-        LazyRow(
-            contentPadding = PaddingValues(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            itemsIndexed(
-                items = songs.take(10).chunked(5)
-            ) { pairIndex, pair ->
-                Column(
-                    modifier = Modifier.width(280.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    pair.forEachIndexed { indexInPair, song ->
-                        val globalIndex = pairIndex * 2 + indexInPair
-                        ChartsTrackRow(
-                            song = song,
-                            rank = globalIndex + 1,
-                            isPlaying = currentPlayingId == song.id && playerState == PlayerState.PLAYING,
-                            onPlayClick = { onPlayClick(song) },
-                            onClick = { onSongClick(song) }
-                        )
-                    }
+        songs.take(10).chunked(2).forEach { pair ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                pair.forEach { song ->
+                    SongGridCard(
+                        song = song,
+                        isPlaying = currentPlayingId == song.id && playerState == PlayerState.PLAYING,
+                        modifier = Modifier.weight(1f),
+                        onPlayClick = { onPlayClick(song) },
+                        onClick = { onSongClick(song) }
+                    )
+                }
+                if (pair.size == 1) {
+                    Spacer(modifier = Modifier.weight(1f))
                 }
             }
         }
@@ -84,63 +78,70 @@ fun ChartsTracksSection(
 }
 
 @Composable
-private fun ChartsTrackRow(
+private fun SongGridCard(
     song: Song,
-    rank: Int,
     isPlaying: Boolean,
+    modifier: Modifier = Modifier,
     onPlayClick: () -> Unit,
     onClick: () -> Unit
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(56.dp)
-            .clickable(onClick = onClick),
-        verticalAlignment = Alignment.CenterVertically
+    Column(
+        modifier = modifier.clickable(onClick = onClick),
+        verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        Text(
-            text = rank.toString(),
-            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-            color = Color.White.copy(alpha = 0.3f),
-            textAlign = TextAlign.Center,
-            modifier = Modifier.width(32.dp)
-        )
-        AsyncImage(
-            model = song.albumArt,
-            contentDescription = song.title,
+        Box(
             modifier = Modifier
-                .size(48.dp)
-                .clip(RoundedCornerShape(6.dp)),
-            contentScale = ContentScale.Crop
-        )
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .padding(start = 8.dp)
+                .fillMaxWidth()
+                .aspectRatio(1f)
         ) {
-            Text(
-                text = song.title,
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold
-                ),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+            AsyncImage(
+                model = song.albumArt,
+                contentDescription = song.title,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(1f)
+                    .clip(RoundedCornerShape(8.dp)),
+                contentScale = ContentScale.Crop
             )
-            Text(
-                text = song.artist,
-                style = MaterialTheme.typography.bodySmall,
-                color = Color.White.copy(alpha = 0.6f),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+            IconButton(
+                onClick = onPlayClick,
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .clip(CircleShape)
+                    .size(56.dp)
             )
+            {
+                Box(
+                    modifier = Modifier
+                        .size(56.dp)
+                        .clip(CircleShape)
+                        .background(Color(0x99000000)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = if (isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow,
+                        contentDescription = null,
+                        tint = if (isPlaying) DeezerColor else Color.White,
+                        modifier = Modifier.size(32.dp)
+                    )
+                }
+            }
         }
-        IconButton(onClick = onPlayClick) {
-            Icon(
-                imageVector = if (isPlaying) Icons.Outlined.Pause else Icons.Outlined.PlayArrow,
-                contentDescription = null,
-                tint = Color.White.copy(alpha = 0.3f),
-            )
-        }
+        Text(
+            text = song.title,
+            style = MaterialTheme.typography.bodyMedium.copy(
+                color = Color.White,
+                fontWeight = FontWeight.Bold
+            ),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+        Text(
+            text = song.artist,
+            style = MaterialTheme.typography.bodySmall,
+            color = Color.White.copy(alpha = 0.6f),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
     }
 }
