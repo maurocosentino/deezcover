@@ -16,7 +16,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,7 +48,8 @@ fun PreviewTracksSection(
     ) {
         SectionHeader(
             title = "Top Canciones",
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+            onViewMoreClick = onViewMoreClick
         )
 
         Column(
@@ -67,15 +67,6 @@ fun PreviewTracksSection(
             }
         }
 
-        TextButton(
-            onClick = onViewMoreClick,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(
-                text = "Ver todas las canciones →",
-                color = Color.White.copy(alpha = 0.6f)
-            )
-        }
     }
 }
 
@@ -96,7 +87,7 @@ private fun PreviewTrackRow(
         Text(
             text = rank.toString(),
             style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-            color = DeezerColor,
+            color = Color.White.copy(alpha = 0.3f),
             textAlign = TextAlign.Center,
             modifier = Modifier.width(32.dp)
         )

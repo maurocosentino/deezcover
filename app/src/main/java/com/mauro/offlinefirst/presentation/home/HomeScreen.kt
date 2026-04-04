@@ -207,7 +207,7 @@ fun HomeScreen(
                         ) {
                             LazyColumn(
                                 modifier = Modifier.fillMaxSize(),
-                                contentPadding = PaddingValues(bottom = 24.dp),
+                                contentPadding = PaddingValues(bottom = 200.dp),
                                 verticalArrangement = Arrangement.spacedBy(HomeSectionSpacing)
                             ) {
                                 homeContentSection(
@@ -344,6 +344,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.homeContentSection(
                 releases = newReleases.drop(15).take(15),
                 isLoading = false,
                 title = "Más Lanzamientos",
+                modifier = Modifier.padding(horizontal = 5.dp, vertical = 8.dp),
                 onReleaseClick = onNewReleaseClick
             )
         }

@@ -47,7 +47,7 @@ fun MoreFeaturedSection(
     ) {
         SectionHeader(
             title = "Más Destacados",
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+            modifier = Modifier.padding(horizontal = 5.dp, vertical = 8.dp)
         )
 
         LazyRow(
@@ -60,7 +60,7 @@ fun MoreFeaturedSection(
                         .width(280.dp)
                         .height(90.dp),
                     onClick = { onAlbumClick(album.albumId.toString()) },
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFF1A1A2E)),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFF181818)),
                     shape = RoundedCornerShape(12.dp),
                     elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                 ) {
