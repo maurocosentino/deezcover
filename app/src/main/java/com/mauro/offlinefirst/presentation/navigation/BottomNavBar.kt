@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -15,6 +16,8 @@ import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,10 +43,11 @@ fun BottomNavBar(
     modifier: Modifier = Modifier
 ) {
     val items = listOf(
-        BottomNavItemData(BottomNavTab.Home, Icons.Default.Home, onHomeClick),
+        BottomNavItemData(BottomNavTab.Home, Icons.Default.Home, "Inicio", onHomeClick),
         BottomNavItemData(
             BottomNavTab.Search,
             Icons.Default.Search,
+            "Buscar",
             onClick = {
                 if (selectedTab == BottomNavTab.Search) {
                     onSearchDoubleTap()
@@ -52,22 +56,39 @@ fun BottomNavBar(
                 }
             }
         ),
-        BottomNavItemData(BottomNavTab.Charts, Icons.Default.BarChart, onChartsClick)
+        BottomNavItemData(BottomNavTab.Charts, Icons.Default.BarChart, "Charts", onChartsClick)
     )
 
-    Row(
+    Box(
         modifier = modifier
             .fillMaxWidth()
-            .background(SurfaceDark)
+            .background(Color.Transparent)
             .navigationBarsPadding()
-            .padding(horizontal = 18.dp, vertical = 12.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+            .padding(bottom = 2.dp)
+
     ) {
-        items.forEach { item ->
-            BottomNavItem(
-                item = item,
-                selected = item.tab == selectedTab
-            )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .background(
+                    Color(0xFF1A1A1A),
+                    RoundedCornerShape(
+                        topStart = 8.dp,
+                        topEnd = 8.dp,
+                        bottomStart = 22.dp,
+                        bottomEnd = 22.dp
+                    )
+                )
+                .padding(horizontal = 8.dp, vertical = 12.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            items.forEach { item ->
+                BottomNavItem(
+                    item = item,
+                    selected = item.tab == selectedTab
+                )
+            }
         }
     }
 }
@@ -78,27 +99,60 @@ private fun androidx.compose.foundation.layout.RowScope.BottomNavItem(
     selected: Boolean
 ) {
     val iconTint = if (selected) Color.White else Color.White.copy(alpha = 0.5f)
+    val labelColor = if (selected) Color.White else Color.White.copy(alpha = 0.5f)
 
-    Box(
+    Column(
         modifier = Modifier
             .weight(1f)
-            .clip(RoundedCornerShape(10.dp))
-            .background(Color.Transparent)
+            .clip(RoundedCornerShape(50.dp))
             .clickable(onClick = item.onClick)
-            .padding(vertical = 8.dp),
-        contentAlignment = Alignment.Center
+            .padding(vertical = 4.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        Icon(
-            imageVector = item.icon,
-            contentDescription = item.tab.name,
-            tint = iconTint,
-            modifier = Modifier.size(24.dp)
-        )
+        if (selected) {
+            Box(
+                modifier = Modifier
+                    .background(Color(0xFF2A2A2A), RoundedCornerShape(50.dp))
+                    .padding(horizontal = 16.dp, vertical = 6.dp)
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Icon(
+                        imageVector = item.icon,
+                        contentDescription = item.tab.name,
+                        tint = iconTint,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Text(
+                        text = item.label,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = labelColor
+                    )
+                }
+            }
+        } else {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Icon(
+                    imageVector = item.icon,
+                    contentDescription = item.tab.name,
+                    tint = iconTint,
+                    modifier = Modifier.size(24.dp)
+                )
+                Text(
+                    text = item.label,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = labelColor
+                )
+            }
+        }
     }
 }
 
 private data class BottomNavItemData(
     val tab: BottomNavTab,
     val icon: ImageVector,
+    val label: String,
     val onClick: () -> Unit
 )

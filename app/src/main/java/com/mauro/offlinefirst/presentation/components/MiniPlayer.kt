@@ -78,7 +78,13 @@ fun MiniPlayer(
     val albumArt = resolveArtworkUrl(song.albumArt, fallbackAlbumArt)
     val artworkPlaceholder = painterResource(R.drawable.ic_deezcover_mark)
     Card(
-        shape = RoundedCornerShape(50.dp),
+        modifier = modifier,
+        shape = RoundedCornerShape(
+            topStart = 22.dp,
+            topEnd = 22.dp,
+            bottomStart = 8.dp,
+            bottomEnd = 8.dp
+        ),
         colors = CardDefaults.cardColors(
             Color(0xED0D0D0D)
         ),
@@ -87,7 +93,6 @@ fun MiniPlayer(
     ) {
         Row(
             modifier = Modifier
-                .fillMaxWidth()
                 .then(
                     if (onClick != null) {
                         Modifier.clickable(onClick = onClick)
