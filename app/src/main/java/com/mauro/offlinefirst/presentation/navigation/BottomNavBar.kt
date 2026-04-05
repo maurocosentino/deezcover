@@ -1,7 +1,10 @@
 package com.mauro.offlinefirst.presentation.navigation
 
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,12 +22,16 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import com.mauro.offlinefirst.ui.theme.DeezerColor
 import com.mauro.offlinefirst.ui.theme.SurfaceDark
 
 enum class BottomNavTab {
@@ -98,55 +105,49 @@ private fun androidx.compose.foundation.layout.RowScope.BottomNavItem(
     item: BottomNavItemData,
     selected: Boolean
 ) {
-    val iconTint = if (selected) Color.White else Color.White.copy(alpha = 0.5f)
+    val iconTint = if (selected) DeezerColor else Color.White.copy(alpha = 0.5f)
     val labelColor = if (selected) Color.White else Color.White.copy(alpha = 0.5f)
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 1.12f else 1f,
+        label = "nav_item_scale"
+    )
 
     Column(
         modifier = Modifier
             .weight(1f)
-            .clip(RoundedCornerShape(50.dp))
-            .clickable(onClick = item.onClick)
+            .scale(scale)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = item.onClick
+            )
             .padding(vertical = 4.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(4.dp)
-    ) {
-        if (selected) {
-            Box(
-                modifier = Modifier
-                    .background(Color(0xFF2A2A2A), RoundedCornerShape(50.dp))
-                    .padding(horizontal = 16.dp, vertical = 6.dp)
-            ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(
-                        imageVector = item.icon,
-                        contentDescription = item.tab.name,
-                        tint = iconTint,
-                        modifier = Modifier.size(24.dp)
-                    )
-                    Text(
-                        text = item.label,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = labelColor
-                    )
-                }
-            }
-        } else {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Icon(
-                    imageVector = item.icon,
-                    contentDescription = item.tab.name,
-                    tint = iconTint,
-                    modifier = Modifier.size(24.dp)
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(2.dp)
+    ){
+        Box(
+            modifier = Modifier
+                .background(
+                    if (selected) Color(0xFF2A2A2A) else Color.Transparent,
+                    RoundedCornerShape(50.dp)
                 )
-                Text(
-                    text = item.label,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = labelColor
-                )
-            }
+                .padding(horizontal = 16.dp, vertical = 6.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = item.icon,
+                contentDescription = item.tab.name,
+                tint = iconTint,
+                modifier = Modifier.size(24.dp)
+            )
         }
+        Text(
+            text = item.label,
+            style = MaterialTheme.typography.labelSmall,
+            color = labelColor
+        )
     }
 }
 
