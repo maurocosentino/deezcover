@@ -65,12 +65,11 @@ import com.mauro.offlinefirst.ui.theme.PlayerSurface
 
 private val AlbumDetailBackground = Brush.verticalGradient(
     colorStops = arrayOf(
-        0.0f to GradientDeep,
-        0.4f to Color(0xFF000000),
-        1.0f to Color(0xFF000715)
+        0.0f to Color(0xFF0D1B2A),
+        0.4f to Color(0xFF080F18),
+        1.0f to Color(0xFF000000)
     )
 )
-
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
