@@ -35,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -93,12 +94,14 @@ fun HomeScreen(
         animationSpec = infiniteRepeatable(tween(800, easing = LinearEasing)),
         label = "sync_rotation"
     )
-
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     AppBackground {
         Scaffold(
             containerColor = Color.Transparent,
+            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
             topBar = {
                 TopAppBar(
+                    scrollBehavior = scrollBehavior,
                     title = {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
