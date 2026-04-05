@@ -33,7 +33,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.mauro.offlinefirst.ui.theme.DeezerColor
-import com.mauro.offlinefirst.ui.theme.SurfaceDark
 
 enum class BottomNavTab {
     Home,

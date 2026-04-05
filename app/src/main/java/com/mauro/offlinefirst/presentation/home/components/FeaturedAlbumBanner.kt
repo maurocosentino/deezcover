@@ -1,8 +1,6 @@
 package com.mauro.offlinefirst.presentation.home.components
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -18,7 +16,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Album
-import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -34,12 +31,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.mauro.offlinefirst.R
 import com.mauro.offlinefirst.domain.model.NewRelease
 import com.mauro.offlinefirst.presentation.components.SectionHeader
-import com.mauro.offlinefirst.ui.theme.CardSurface
 import com.mauro.offlinefirst.ui.theme.DeezerColor
 
 @Composable
@@ -59,10 +54,11 @@ fun FeaturedAlbumBanner(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
+                .padding(horizontal = 16.dp)
                 .height(120.dp),
             onClick = { onAlbumClick(album.albumId.toString()) },
             colors = CardDefaults.cardColors(
-                containerColor = Color.White.copy(alpha = 0.06f)
+                containerColor = Color.White.copy(alpha = 0.03f)
             ),
             shape = RoundedCornerShape(20.dp),
             elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)

@@ -62,7 +62,7 @@ fun PreviewTracksSection(
                 .fillMaxWidth()
                 .padding(horizontal = 12.dp),
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFF1A1A1A)),
+            colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.03f)),
             elevation = CardDefaults.cardElevation(0.dp)
         ) {
             Column(

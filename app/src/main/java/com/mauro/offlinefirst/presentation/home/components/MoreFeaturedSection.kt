@@ -1,6 +1,7 @@
 package com.mauro.offlinefirst.presentation.home.components
 
 import android.util.Log
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -34,7 +35,6 @@ import coil.compose.AsyncImage
 import com.mauro.offlinefirst.R
 import com.mauro.offlinefirst.domain.model.NewRelease
 import com.mauro.offlinefirst.presentation.components.SectionHeader
-import com.mauro.offlinefirst.ui.theme.CardSurface
 import com.mauro.offlinefirst.ui.theme.DeezerColor
 
 @Composable
@@ -64,9 +64,15 @@ fun MoreFeaturedSection(
                         .width(280.dp)
                         .height(90.dp),
                     onClick = { onAlbumClick(album.albumId.toString()) },
-                    colors = CardDefaults.cardColors(containerColor = CardSurface),
-                    shape = RoundedCornerShape(12.dp),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color.White.copy(alpha = 0.03f)
+                    ),
+                    shape = RoundedCornerShape(16.dp),
+                    elevation = CardDefaults.cardElevation(0.dp),
+                    border = BorderStroke(
+                        0.5.dp,
+                        Color(0x1707FFDA)
+                    )
                 ) {
                     Row(
                         modifier = Modifier.fillMaxSize(),

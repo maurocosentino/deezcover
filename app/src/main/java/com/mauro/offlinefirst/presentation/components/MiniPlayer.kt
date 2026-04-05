@@ -47,6 +47,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.mauro.offlinefirst.R
+import com.mauro.offlinefirst.ui.theme.GradientDeep
 import com.mauro.offlinefirst.ui.theme.PlayerSurface
 import kotlinx.coroutines.delay
 
@@ -86,7 +87,7 @@ fun MiniPlayer(
             bottomEnd = 8.dp
         ),
         colors = CardDefaults.cardColors(
-            Color(0xF717181D)
+            containerColor = Color(0xF71A1F26)
         ),
         elevation = CardDefaults.cardElevation(0.dp),
         border = BorderStroke(0.5.dp, Color.White.copy(alpha = 0.08f))
