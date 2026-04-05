@@ -1,5 +1,6 @@
 package com.mauro.offlinefirst.presentation.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -77,11 +78,12 @@ fun MiniPlayer(
     val albumArt = resolveArtworkUrl(song.albumArt, fallbackAlbumArt)
     val artworkPlaceholder = painterResource(R.drawable.ic_deezcover_mark)
     Card(
-        shape = RoundedCornerShape(22.dp),
+        shape = RoundedCornerShape(50.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color.Black.copy(alpha = 1.5f)
+            Color(0xED0D0D0D)
         ),
-        elevation = CardDefaults.cardElevation(0.dp)
+        elevation = CardDefaults.cardElevation(0.dp),
+        border = BorderStroke(0.5.dp, Color.White.copy(alpha = 0.08f))
     ) {
         Row(
             modifier = Modifier
@@ -93,7 +95,7 @@ fun MiniPlayer(
                         Modifier
                     }
                 )
-                .padding(horizontal = 12.dp, vertical = 10.dp),
+                .padding(horizontal = 10.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
@@ -105,8 +107,8 @@ fun MiniPlayer(
                 error = artworkPlaceholder,
                 fallback = artworkPlaceholder,
                 modifier = Modifier
-                    .size(48.dp)
-                    .clip(RoundedCornerShape(14.dp))
+                    .size(40.dp)
+                    .clip(RoundedCornerShape(10.dp))
                     .background(PlayerSurface)
             )
 
@@ -145,14 +147,16 @@ fun MiniPlayer(
                     Icon(
                         imageVector = Icons.Default.Shuffle,
                         contentDescription = "Shuffle",
-                        tint = shuffleTint
+                        tint = shuffleTint,
+                        modifier = Modifier.size(20.dp)
                     )
                 }
                 IconButton(onClick = onPreviousClick) {
                     Icon(
                         imageVector = Icons.Default.SkipPrevious,
                         contentDescription = "Previous",
-                        tint = Color.White
+                        tint = Color.White,
+                        modifier = Modifier.size(20.dp)
                     )
                 }
                 Box(
@@ -171,28 +175,23 @@ fun MiniPlayer(
                         ),
                         label = "mini_player_progress"
                     )
-
-                    CircularProgressIndicator(
-                        progress = { 1f },
-                        modifier = Modifier.size(40.dp),
-                        color = Color.White.copy(alpha = 0.15f),
-                        strokeWidth = 2.dp
-                    )
-                    CircularProgressIndicator(
-                        progress = { progress },
-                        modifier = Modifier.size(40.dp),
-                        color = DeezerColor,
-                        strokeWidth = 2.dp
-                    )
+                    if (isPlaying) {
+                        CircularProgressIndicator(
+                            progress = { progress },
+                            modifier = Modifier.size(36.dp),
+                            color = DeezerColor,
+                            strokeWidth = 2.dp
+                        )
+                    }
                     IconButton(
                         onClick = onPlayPauseClick,
-                        modifier = Modifier.size(40.dp)
+                        modifier = Modifier.size(36.dp)
                     ) {
                         Icon(
                             imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
                             contentDescription = if (isPlaying) "Pause" else "Play",
                             tint = Color.White,
-                            modifier = Modifier.size(20.dp)
+                            modifier = Modifier.size(18.dp)
                         )
                     }
                 }
@@ -200,7 +199,8 @@ fun MiniPlayer(
                     Icon(
                         imageVector = Icons.Default.SkipNext,
                         contentDescription = "Next",
-                        tint = Color.White
+                        tint = Color.White,
+                        modifier = Modifier.size(20.dp)
                     )
                 }
             }
