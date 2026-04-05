@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledTonalButton
@@ -43,6 +44,7 @@ import com.mauro.offlinefirst.presentation.components.TopAlbumsSection
 import com.mauro.offlinefirst.presentation.components.TopArtistsSection
 import com.mauro.offlinefirst.presentation.components.topTracksSection
 import com.mauro.offlinefirst.presentation.player.PlayerState
+import org.intellij.lang.annotations.JdkConstants
 
 fun LazyListScope.localSearchResultsSection(
     tracks: List<Song>,
@@ -277,12 +279,29 @@ fun LazyListScope.searchHistorySection(
     onClearHistoryClick: () -> Unit
 ) {
     item {
-        Text(
-            text = stringResource(R.string.search_recent),
-            style = MaterialTheme.typography.titleMedium,
-            color = Color.White,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = stringResource(R.string.search_recent),
+                style = MaterialTheme.typography.titleMedium,
+                color = Color.White,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+            )
+            IconButton(
+                onClick = onClearHistoryClick,
+                modifier = Modifier.padding(end = 8.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = null,
+                    tint = Color.White.copy(alpha = 0.5f),
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+        }
     }
     history.forEach { item ->
         item(key = item.id) {
@@ -290,17 +309,6 @@ fun LazyListScope.searchHistorySection(
                 item = item,
                 onClick = { onHistoryClick(item) },
                 onRemoveClick = { onRemoveClick(item.id) }
-            )
-        }
-    }
-    item {
-        TextButton(
-            onClick = onClearHistoryClick,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(
-                text = stringResource(R.string.search_clear_history),
-                color = Color.White.copy(alpha = 0.5f)
             )
         }
     }

@@ -46,19 +46,19 @@ fun ChartsTracksSection(
     onSongClick: (Song) -> Unit
 ) {
     Column(
-        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         SectionHeader(
             title = stringResource(R.string.home_top_tracks),
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+            modifier = Modifier.padding(horizontal = 6.dp, vertical = 8.dp)
         )
 
         songs.take(10).chunked(2).forEach { pair ->
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    .padding(horizontal = 16.dp)
+                    .padding(bottom = 48.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 pair.forEach { song ->
                     SongGridCard(
@@ -100,20 +100,21 @@ private fun SongGridCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(1f)
-                    .clip(RoundedCornerShape(8.dp)),
+                    .clip(RoundedCornerShape(4.dp)),
                 contentScale = ContentScale.Crop
             )
             IconButton(
                 onClick = onPlayClick,
                 modifier = Modifier
-                    .align(Alignment.Center)
+                    .align(Alignment.BottomEnd)
+                    .padding(6.dp)
                     .clip(CircleShape)
-                    .size(56.dp)
+                    .size(32.dp)
             )
             {
                 Box(
                     modifier = Modifier
-                        .size(56.dp)
+                        .size(32.dp)
                         .clip(CircleShape)
                         .background(Color(0x99000000)),
                     contentAlignment = Alignment.Center
@@ -122,7 +123,7 @@ private fun SongGridCard(
                         imageVector = if (isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow,
                         contentDescription = null,
                         tint = if (isPlaying) DeezerColor else Color.White,
-                        modifier = Modifier.size(32.dp)
+                        modifier = Modifier.size(18.dp)
                     )
                 }
             }

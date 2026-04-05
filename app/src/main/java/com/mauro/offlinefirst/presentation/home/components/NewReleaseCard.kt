@@ -72,26 +72,6 @@ fun NewReleaseCard(
                 overflow = TextOverflow.Ellipsis
             )
             Spacer(modifier = Modifier.height(2.dp))
-            Text(
-                text = formatReleaseDate(release.releaseDate),
-                style = MaterialTheme.typography.bodySmall.copy(
-                    color = Color.White.copy(alpha = 0.45f)
-                ),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
         }
-    }
-}
-
-private val NewReleaseInputFormatter: DateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE
-private val NewReleaseOutputFormatter: DateTimeFormatter =
-    DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.ENGLISH)
-
-private fun formatReleaseDate(releaseDate: String): String {
-    return try {
-        LocalDate.parse(releaseDate, NewReleaseInputFormatter).format(NewReleaseOutputFormatter)
-    } catch (_: DateTimeParseException) {
-        releaseDate
     }
 }
