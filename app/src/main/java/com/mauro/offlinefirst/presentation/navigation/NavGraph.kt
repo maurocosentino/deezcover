@@ -99,7 +99,8 @@ fun NavGraph(
                     navController.navigate(Screen.Charts.route)
                 },
                 playerViewModel = playerViewModel,
-                contentPadding = contentPadding
+                contentPadding = contentPadding,
+                navController = navController
             )
         }
 
@@ -132,12 +133,20 @@ fun NavGraph(
 
         composable(
             route = Screen.Charts.route,
+            arguments = listOf(
+                navArgument("scrollTo") {
+                    type = NavType.StringType
+                    defaultValue = ""
+                }
+            ),
             enterTransition = { EnterTransition.None },
             exitTransition = { ExitTransition.None },
             popEnterTransition = { EnterTransition.None },
             popExitTransition = { ExitTransition.None }
-        ) {
+        ) { backStackEntry ->
+            val scrollTo = backStackEntry.arguments?.getString("scrollTo").orEmpty()
             ChartsScreen(
+                scrollTo = scrollTo,
                 onSongClick = { songId ->
                     navController.navigate(Screen.AlbumDetail.createRoute(songId = songId))
                 },

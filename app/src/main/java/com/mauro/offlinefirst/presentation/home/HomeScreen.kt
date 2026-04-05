@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.navigation.NavController
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Sync
 import androidx.compose.material3.CircularProgressIndicator
@@ -58,6 +59,7 @@ import com.mauro.offlinefirst.presentation.home.components.MoreFeaturedSection
 import com.mauro.offlinefirst.presentation.home.components.NewReleasesSection
 import com.mauro.offlinefirst.presentation.home.components.PreviewAlbumsSection
 import com.mauro.offlinefirst.presentation.home.components.PreviewTracksSection
+import com.mauro.offlinefirst.presentation.navigation.Screen
 import com.mauro.offlinefirst.presentation.player.PlayerState
 import com.mauro.offlinefirst.presentation.player.PlayerViewModel
 import com.mauro.offlinefirst.ui.theme.ErrorRed
@@ -75,7 +77,8 @@ fun HomeScreen(
     onChartsClick: () -> Unit,
     viewModel: HomeViewModel = hiltViewModel(),
     playerViewModel: PlayerViewModel,
-    contentPadding: PaddingValues = PaddingValues(0.dp)
+    contentPadding: PaddingValues = PaddingValues(0.dp),
+    navController: NavController? = null
 ) {
     val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
     LaunchedEffect(lifecycleOwner) {
@@ -228,6 +231,9 @@ fun HomeScreen(
                                         }
                                     },
                                     onChartsClick = onChartsClick,
+                                    onChartsTracksClick = {
+                                        navController?.navigate(Screen.Charts.createRoute(scrollTo = "tracks"))
+                                    },
                                     onPreviewAlbumClick = { album ->
                                         viewModel.navigateToAlbum(
                                             albumId = album.id,
@@ -264,6 +270,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.homeContentSection(
     onArtistClick: (Artist) -> Unit,
     onPlayClick: (Song) -> Unit,
     onChartsClick: () -> Unit,
+    onChartsTracksClick: () -> Unit,
     onPreviewAlbumClick: (Album) -> Unit,
     onPreviewSongClick: (Song) -> Unit
 ) {
@@ -316,7 +323,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.homeContentSection(
                 playerState = playerState,
                 onPlayClick = onPlayClick,
                 onSongClick = onPreviewSongClick,
-                onViewMoreClick = onChartsClick
+                onViewMoreClick = onChartsTracksClick
             )
         }
     }

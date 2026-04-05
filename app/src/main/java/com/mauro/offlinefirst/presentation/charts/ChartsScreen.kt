@@ -20,7 +20,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -48,6 +50,7 @@ private val ChartsSectionSpacing = 12.dp
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChartsScreen(
+    scrollTo: String = "",
     onSongClick: (String) -> Unit,
     onAlbumClick: (String) -> Unit,
     playerViewModel: PlayerViewModel,
@@ -56,6 +59,13 @@ fun ChartsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val playerUiState by playerViewModel.uiState.collectAsState()
+    val listState = rememberLazyListState()
+
+    LaunchedEffect(scrollTo) {
+        if (scrollTo == "tracks") {
+            listState.animateScrollToItem(1)
+        }
+    }
 
     AppBackground {
         Scaffold(
@@ -107,6 +117,7 @@ fun ChartsScreen(
 
                 else -> {
                     LazyColumn(
+                        state = listState,
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(innerPadding),
