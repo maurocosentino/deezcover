@@ -8,8 +8,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.mauro.offlinefirst.R
 
-val AldotheApacheFamily = FontFamily(
-    Font(R.font.aldothe_apache)
+
+val BoldFontFree = FontFamily(
+    Font(R.font.theboldfont_freeversion)
 )
 
 val PlusJakartaSansFamily = FontFamily(

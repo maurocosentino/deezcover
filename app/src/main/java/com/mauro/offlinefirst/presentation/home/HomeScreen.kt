@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -54,7 +55,8 @@ import com.mauro.offlinefirst.presentation.navigation.Screen
 import com.mauro.offlinefirst.presentation.player.PlayerState
 import com.mauro.offlinefirst.presentation.player.PlayerViewModel
 import com.mauro.offlinefirst.ui.theme.ErrorRed
-import com.mauro.offlinefirst.ui.theme.AldotheApacheFamily
+import com.mauro.offlinefirst.ui.theme.BoldFontFree
+
 private val HomeSectionSpacing = 12.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -96,7 +98,7 @@ fun HomeScreen(
                                 painter = painterResource(R.drawable.deezer_logo),
                                 contentDescription = null,
                                 tint = Color.White,
-                                modifier = Modifier.size(26.dp)
+                                modifier = Modifier.size(26.dp).offset(y = (-3).dp)
                             )
                             Text(
                                 text = stringResource(R.string.brand_name),
@@ -104,7 +106,7 @@ fun HomeScreen(
                                 color = Color.White,
                                 fontWeight = FontWeight.SemiBold,
                                 style = MaterialTheme.typography.headlineSmall,
-                                fontFamily = AldotheApacheFamily,
+                                fontFamily = BoldFontFree,
                                 letterSpacing = 1.5.sp
                             )
                         }

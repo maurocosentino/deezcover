@@ -86,7 +86,7 @@ fun MiniPlayer(
             bottomEnd = 8.dp
         ),
         colors = CardDefaults.cardColors(
-            Color(0xED0D0D0D)
+            Color(0xF717181D)
         ),
         elevation = CardDefaults.cardElevation(0.dp),
         border = BorderStroke(0.5.dp, Color.White.copy(alpha = 0.08f))
