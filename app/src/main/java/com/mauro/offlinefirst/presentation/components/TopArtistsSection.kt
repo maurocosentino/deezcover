@@ -60,12 +60,12 @@ private fun ArtistCard(
     onClick: () -> Unit
 ) {
     Column(
-        modifier = Modifier.width(160.dp),
+        modifier = Modifier.width(180.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         Box(
             modifier = Modifier
-                .size(160.dp)
+                .size(180.dp)
                 .clip(CircleShape)
                 .clickable(onClick = onClick)
         ) {
@@ -90,7 +90,7 @@ private fun ArtistCard(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.width(170.dp)
+                modifier = Modifier.width(190.dp)
             )
 
             Text(
@@ -101,7 +101,7 @@ private fun ArtistCard(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.width(170.dp)
+                modifier = Modifier.width(190.dp)
             )
         }
     }
