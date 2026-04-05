@@ -76,10 +76,10 @@ fun NavGraph(
     ) {
         composable(
             route = Screen.Home.route,
-            enterTransition = { fadeIn(animationSpec = tween(NavigationAnimationDurationMs)) },
-            exitTransition = { forwardExitTransition() },
-            popEnterTransition = { backwardEnterTransition() },
-            popExitTransition = { fadeOut(animationSpec = tween(NavigationAnimationDurationMs)) }
+            enterTransition = { EnterTransition.None },
+            exitTransition = { ExitTransition.None },
+            popEnterTransition = { EnterTransition.None },
+            popExitTransition = { ExitTransition.None }
         ) {
             HomeScreen(
                 onSongClick  = { songId ->
@@ -105,10 +105,10 @@ fun NavGraph(
 
         composable(
             route = Screen.Search.route,
-            enterTransition = { fadeIn(animationSpec = tween(NavigationAnimationDurationMs)) },
-            exitTransition = { forwardExitTransition() },
-            popEnterTransition = { backwardEnterTransition() },
-            popExitTransition = { fadeOut(animationSpec = tween(NavigationAnimationDurationMs)) }
+            enterTransition = { EnterTransition.None },
+            exitTransition = { ExitTransition.None },
+            popEnterTransition = { EnterTransition.None },
+            popExitTransition = { ExitTransition.None }
         ) {
             SearchScreen(
                 onSongClick = { songId ->
@@ -132,10 +132,10 @@ fun NavGraph(
 
         composable(
             route = Screen.Charts.route,
-            enterTransition = { fadeIn(animationSpec = tween(NavigationAnimationDurationMs)) },
-            exitTransition = { fadeOut(animationSpec = tween(NavigationAnimationDurationMs)) },
-            popEnterTransition = { fadeIn(animationSpec = tween(NavigationAnimationDurationMs)) },
-            popExitTransition = { fadeOut(animationSpec = tween(NavigationAnimationDurationMs)) }
+            enterTransition = { EnterTransition.None },
+            exitTransition = { ExitTransition.None },
+            popEnterTransition = { EnterTransition.None },
+            popExitTransition = { ExitTransition.None }
         ) {
             ChartsScreen(
                 onSongClick = { songId ->
