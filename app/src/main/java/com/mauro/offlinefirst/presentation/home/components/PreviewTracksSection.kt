@@ -10,8 +10,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.PauseCircle
-import androidx.compose.material.icons.filled.PlayCircleOutline
 import androidx.compose.material.icons.outlined.Pause
 import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material3.Icon
@@ -34,7 +32,9 @@ import com.mauro.offlinefirst.R
 import com.mauro.offlinefirst.domain.model.Song
 import com.mauro.offlinefirst.presentation.components.SectionHeader
 import com.mauro.offlinefirst.presentation.player.PlayerState
-import com.mauro.offlinefirst.ui.theme.DeezerColor
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
 
 @Composable
 fun PreviewTracksSection(
@@ -53,25 +53,36 @@ fun PreviewTracksSection(
     ) {
         SectionHeader(
             title = stringResource(R.string.home_top_tracks),
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
             onViewMoreClick = onViewMoreClick
         )
 
-        Column(
-            modifier = Modifier.padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp),
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = Color(0xFF1A1A1A)),
+            elevation = CardDefaults.cardElevation(0.dp)
         ) {
-            previewSongs.forEachIndexed { index, song ->
-                PreviewTrackRow(
-                    song = song,
-                    rank = index + 1,
-                    isPlaying = currentPlayingId == song.id && playerState == PlayerState.PLAYING,
-                    onPlayClick = { onPlayClick(song) },
-                    onClick = { onSongClick(song) }
-                )
+            Column(
+                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                previewSongs.forEachIndexed { index, song ->
+                    PreviewTrackRow(
+                        song = song,
+                        rank = index + 1,
+                        isPlaying = currentPlayingId == song.id && playerState == PlayerState.PLAYING,
+                        onPlayClick = { onPlayClick(song) },
+                        onClick = { onSongClick(song) }
+                    )
+                    if (index < previewSongs.lastIndex) {
+                        HorizontalDivider(color = Color.White.copy(alpha = 0.06f))
+                    }
+                }
             }
         }
-
     }
 }
 

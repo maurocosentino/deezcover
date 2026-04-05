@@ -125,19 +125,9 @@ fun HomeScreen(
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = Color.Transparent,
+                        containerColor = Color(0xED0D0D0D),
                         scrolledContainerColor = Color.Transparent
                     ),
-                    actions = {
-                        IconButton(onClick = { viewModel.syncAll() }) {
-                            Icon(
-                                imageVector = Icons.Outlined.Sync,
-                                contentDescription = stringResource(R.string.sync),
-                                tint = Color.White,
-                                modifier = if (uiState.isRefreshing) Modifier.rotate(syncRotation) else Modifier
-                            )
-                        }
-                    }
                 )
             }
         ) { paddingValues ->
