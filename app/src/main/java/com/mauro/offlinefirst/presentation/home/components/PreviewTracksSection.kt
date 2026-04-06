@@ -53,7 +53,7 @@ fun PreviewTracksSection(
     ) {
         SectionHeader(
             title = stringResource(R.string.home_top_tracks),
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+            modifier = Modifier.padding(vertical = 8.dp),
             onViewMoreClick = onViewMoreClick
         )
 

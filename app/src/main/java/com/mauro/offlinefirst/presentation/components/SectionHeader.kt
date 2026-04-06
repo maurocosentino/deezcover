@@ -29,17 +29,16 @@ fun SectionHeader(
     if (onViewMoreClick == null) {
         Text(
             text     = title,
-            style    = MaterialTheme.typography.titleMedium.copy(
+            style = MaterialTheme.typography.titleMedium.copy(
                 fontWeight = FontWeight.Bold,
-                fontSize   = 18.sp,
+                fontSize   = 21.sp,
                 color      = Color.White
             ),
             modifier = modifier.padding(horizontal = 12.dp)
         )
     } else {
         Row(
-            modifier = modifier
-                .fillMaxWidth(),
+            modifier = modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -47,9 +46,10 @@ fun SectionHeader(
                 text = title,
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp,
+                    fontSize = 21.sp,  // era 18.sp
                     color = Color.White
-                )
+                ),
+                modifier = Modifier.padding(start = 12.dp)
             )
             IconButton(onClick = onViewMoreClick) {
                 Icon(

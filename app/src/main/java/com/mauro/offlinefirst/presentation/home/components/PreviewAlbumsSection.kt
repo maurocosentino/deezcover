@@ -27,7 +27,7 @@ fun PreviewAlbumsSection(
     ) {
         SectionHeader(
             title = stringResource(R.string.home_top_albums),
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+            modifier = Modifier.padding(vertical = 8.dp),
             onViewMoreClick = onViewMoreClick
         )
 
