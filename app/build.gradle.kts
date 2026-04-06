@@ -94,4 +94,5 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
 
     testImplementation("androidx.arch.core:core-testing:2.2.0")
+    implementation("androidx.core:core-splashscreen:1.0.1")
 }

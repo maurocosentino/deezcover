@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <style name="Theme.Androidofflinefirst" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <style name="Theme.Androidofflinefirst.SplashScreen" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">#0E1215</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/deezer_logo</item>
+        <item name="postSplashScreenTheme">@style/Theme.Androidofflinefirst</item>
+    </style>
 </resources>
