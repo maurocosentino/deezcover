@@ -1,5 +1,8 @@
 package com.mauro.offlinefirst.presentation.home.components
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -7,7 +10,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Pause
@@ -32,9 +34,7 @@ import com.mauro.offlinefirst.R
 import com.mauro.offlinefirst.domain.model.Song
 import com.mauro.offlinefirst.presentation.components.SectionHeader
 import com.mauro.offlinefirst.presentation.player.PlayerState
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.HorizontalDivider
+import com.mauro.offlinefirst.ui.theme.FeaturedAccent
 
 @Composable
 fun PreviewTracksSection(
@@ -57,29 +57,17 @@ fun PreviewTracksSection(
             onViewMoreClick = onViewMoreClick
         )
 
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 12.dp),
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.03f)),
-            elevation = CardDefaults.cardElevation(0.dp)
+        Column(
+            modifier = Modifier.padding(horizontal = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            Column(
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                previewSongs.forEachIndexed { index, song ->
-                    PreviewTrackRow(
-                        song = song,
-                        isPlaying = currentPlayingId == song.id && playerState == PlayerState.PLAYING,
-                        onPlayClick = { onPlayClick(song) },
-                        onClick = { onSongClick(song) }
-                    )
-                    if (index < previewSongs.lastIndex) {
-                        HorizontalDivider(color = Color.White.copy(alpha = 0.06f))
-                    }
-                }
+            previewSongs.forEachIndexed { index, song ->
+                PreviewTrackRow(
+                    song = song,
+                    isPlaying = currentPlayingId == song.id && playerState == PlayerState.PLAYING,
+                    onPlayClick = { onPlayClick(song) },
+                    onClick = { onSongClick(song) }
+                )
             }
         }
     }
@@ -95,8 +83,15 @@ private fun PreviewTrackRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick),
-        verticalAlignment = Alignment.CenterVertically
+            .clip(RoundedCornerShape(16.dp))
+            .background(color = Color.White.copy(alpha = 0.03f))
+            .border( border = BorderStroke(
+                0.3.dp,
+                FeaturedAccent
+            ))
+            .clickable(onClick = onClick)
+            .padding(10.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         AsyncImage(
             model = song.albumArt,
