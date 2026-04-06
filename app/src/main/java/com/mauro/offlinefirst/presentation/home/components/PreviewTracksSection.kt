@@ -72,7 +72,6 @@ fun PreviewTracksSection(
                 previewSongs.forEachIndexed { index, song ->
                     PreviewTrackRow(
                         song = song,
-                        rank = index + 1,
                         isPlaying = currentPlayingId == song.id && playerState == PlayerState.PLAYING,
                         onPlayClick = { onPlayClick(song) },
                         onClick = { onSongClick(song) }
@@ -89,7 +88,6 @@ fun PreviewTracksSection(
 @Composable
 private fun PreviewTrackRow(
     song: Song,
-    rank: Int,
     isPlaying: Boolean,
     onPlayClick: () -> Unit,
     onClick: () -> Unit
@@ -100,13 +98,6 @@ private fun PreviewTrackRow(
             .clickable(onClick = onClick),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
-            text = rank.toString(),
-            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-            color = Color.White.copy(alpha = 0.3f),
-            textAlign = TextAlign.Center,
-            modifier = Modifier.width(32.dp)
-        )
         AsyncImage(
             model = song.albumArt,
             contentDescription = song.title,

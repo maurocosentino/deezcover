@@ -8,8 +8,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 
-private val GradientTop = Color(0xCC0D1B2A)
-private val GradientMiddle = Color(0xB30B1218)
+private val GradientTop = Color(0xF2062328)
+private val GradientMiddle = Color(0xBA0B1D1D)
 private val GradientBottom = Color(0x99000000)
 
 val AppBackgroundBrush: Brush
