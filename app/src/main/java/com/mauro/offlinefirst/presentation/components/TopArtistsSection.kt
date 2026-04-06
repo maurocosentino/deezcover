@@ -1,17 +1,21 @@
 package com.mauro.offlinefirst.presentation.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.mauro.offlinefirst.domain.model.Artist
 import com.mauro.offlinefirst.presentation.utils.formatFanCount
+import com.mauro.offlinefirst.ui.theme.CardSurface
 
 @Composable
 fun TopArtistsSection(
@@ -66,7 +71,8 @@ private fun ArtistCard(
         Box(
             modifier = Modifier
                 .size(180.dp)
-                .clip(CircleShape)
+                .clip(RoundedCornerShape(28.dp))
+                .background(CardSurface)
                 .clickable(onClick = onClick)
         ) {
             AsyncImage(
