@@ -129,11 +129,10 @@ fun ChartsScreen(
                     ) {
                         item {
                             Column(
-//                                verticalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
                                 SectionHeader(
                                     title = stringResource(R.string.home_top_albums),
-                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 8.dp)
+                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 12.dp)
                                 )
                                 AlbumsGrid(
                                     albums = uiState.albums.take(10),

@@ -55,6 +55,7 @@ import com.mauro.offlinefirst.presentation.player.PlayerState
 import com.mauro.offlinefirst.presentation.player.PlayerViewModel
 import com.mauro.offlinefirst.ui.theme.ErrorRed
 import com.mauro.offlinefirst.ui.theme.BoldFontFree
+import com.mauro.offlinefirst.ui.theme.DeezerColor
 
 private val HomeSectionSpacing = 12.dp
 
@@ -104,20 +105,23 @@ fun HomeScreen(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
+
                             Icon(
                                 painter = painterResource(R.drawable.deezer_logo),
                                 contentDescription = null,
-                                tint = Color.White,
-                                modifier = Modifier.size(26.dp).offset(y = (-3).dp)
+                                tint = Color.Unspecified,
+                                modifier = Modifier
+                                    .size(24.dp)
+                                    .offset(y = (-3).dp)
                             )
                             Text(
                                 text = stringResource(R.string.brand_name),
-                                fontSize = 24.sp,
+                                fontSize = 18.sp,
                                 color = Color.White,
                                 fontWeight = FontWeight.SemiBold,
                                 style = MaterialTheme.typography.headlineSmall,
                                 fontFamily = BoldFontFree,
-                                letterSpacing = 1.5.sp
+                                letterSpacing = 1.2.sp
                             )
                         }
                     },

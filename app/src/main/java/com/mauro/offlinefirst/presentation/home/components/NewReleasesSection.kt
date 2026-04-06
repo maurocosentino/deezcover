@@ -32,7 +32,7 @@ fun NewReleasesSection(
 
     SectionHeader(
         title = title,
-        modifier = modifier.padding(vertical = 8.dp)
+        modifier = modifier.padding(vertical = 14.dp)
     )
 
     if (isLoading && releases.isEmpty()) {

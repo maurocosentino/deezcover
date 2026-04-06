@@ -47,7 +47,7 @@ fun ChartsTracksSection(
     ) {
         SectionHeader(
             title = stringResource(R.string.home_top_tracks),
-            modifier = Modifier.padding(horizontal = 6.dp, vertical = 8.dp)
+            modifier = Modifier.padding(horizontal = 6.dp, vertical = 14.dp)
         )
 
         songs.take(10).chunked(2).forEach { pair ->

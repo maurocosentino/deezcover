@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -48,7 +47,6 @@ import coil.compose.AsyncImage
 import com.mauro.offlinefirst.R
 import com.mauro.offlinefirst.domain.model.Song
 import com.mauro.offlinefirst.ui.theme.DeezerColor
-import com.mauro.offlinefirst.ui.theme.GradientDeep
 import com.mauro.offlinefirst.ui.theme.MiniPlayerSurface
 import com.mauro.offlinefirst.ui.theme.NavBarSelectedItem
 import com.mauro.offlinefirst.ui.theme.PlayerSurface
@@ -202,7 +200,7 @@ fun MiniPlayer(
                     IconButton(
                         onClick = onPlayPauseClick,
                         modifier = Modifier
-                            .background(DeezerColor.copy(0.9f), CircleShape)
+                            .background(DeezerColor, CircleShape)
                             .size(38.dp)
                     ) {
                         Icon(

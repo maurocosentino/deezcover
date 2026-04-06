@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.PlayCircle
 import androidx.compose.material.icons.outlined.Pause
 import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material3.Icon
@@ -26,7 +28,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -34,6 +35,7 @@ import com.mauro.offlinefirst.R
 import com.mauro.offlinefirst.domain.model.Song
 import com.mauro.offlinefirst.presentation.components.SectionHeader
 import com.mauro.offlinefirst.presentation.player.PlayerState
+import com.mauro.offlinefirst.ui.theme.DeezerColor
 import com.mauro.offlinefirst.ui.theme.FeaturedAccent
 
 @Composable
@@ -125,9 +127,9 @@ private fun PreviewTrackRow(
         }
         IconButton(onClick = onPlayClick) {
             Icon(
-                imageVector = if (isPlaying) Icons.Outlined.Pause else Icons.Outlined.PlayArrow,
+                imageVector = if (isPlaying) Icons.Outlined.Pause else Icons.Default.PlayArrow,
                 contentDescription = null,
-                tint = Color.White.copy(alpha = 0.3f)
+                tint = DeezerColor.copy(0.9f)
             )
         }
     }
