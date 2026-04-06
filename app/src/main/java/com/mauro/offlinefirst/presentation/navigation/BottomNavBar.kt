@@ -33,6 +33,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.mauro.offlinefirst.ui.theme.DeezerColor
+import com.mauro.offlinefirst.ui.theme.NavBarBackground
+import com.mauro.offlinefirst.ui.theme.NavBarPill
+import com.mauro.offlinefirst.ui.theme.NavBarSelectedItem
 
 enum class BottomNavTab {
     Home,
@@ -73,7 +76,7 @@ fun BottomNavBar(
                 Brush.verticalGradient(
                     colors = listOf(
                         Color.Transparent,
-                        Color(0xD3000000)
+                        NavBarBackground
                     )
                 )
             )
@@ -86,7 +89,7 @@ fun BottomNavBar(
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
                 .background(
-                    Color(0xFF1A1A1A),
+                    NavBarPill,
                     RoundedCornerShape(
                         topStart = 8.dp,
                         topEnd = 8.dp,
@@ -137,7 +140,7 @@ private fun androidx.compose.foundation.layout.RowScope.BottomNavItem(
         Box(
             modifier = Modifier
                 .background(
-                    if (selected) Color(0xFF2A2A2A) else Color.Transparent,
+                    if (selected) NavBarSelectedItem else Color.Transparent,
                     RoundedCornerShape(50.dp)
                 )
                 .padding(horizontal = 16.dp, vertical = 6.dp),

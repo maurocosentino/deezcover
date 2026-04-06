@@ -55,6 +55,7 @@ import com.mauro.offlinefirst.presentation.components.PlaybackControls
 import com.mauro.offlinefirst.presentation.components.topTracksSection
 import com.mauro.offlinefirst.presentation.player.PlayerViewModel
 import com.mauro.offlinefirst.ui.theme.ErrorRed
+import com.mauro.offlinefirst.ui.theme.GradientBottom
 import com.mauro.offlinefirst.ui.theme.GradientDeep
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
@@ -63,8 +64,8 @@ import java.util.Locale
 private val ArtistDetailBackground = Brush.verticalGradient(
     colorStops = arrayOf(
         0.0f to GradientDeep,
-        0.4f to Color(0xFF000000),
-        1.0f to Color(0xFF000715)
+        0.4f to GradientBottom,
+        1.0f to GradientBottom
     )
 )
 

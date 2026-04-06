@@ -36,6 +36,7 @@ import com.mauro.offlinefirst.R
 import com.mauro.offlinefirst.domain.model.NewRelease
 import com.mauro.offlinefirst.presentation.components.SectionHeader
 import com.mauro.offlinefirst.ui.theme.DeezerColor
+import com.mauro.offlinefirst.ui.theme.FeaturedAccent
 
 @Composable
 fun FeaturedSection(
@@ -71,7 +72,7 @@ fun FeaturedSection(
                     elevation = CardDefaults.cardElevation(0.dp),
                     border = BorderStroke(
                         0.5.dp,
-                        Color(0x1707FFDA)
+                        FeaturedAccent
                     )
                 ) {
                     Row(

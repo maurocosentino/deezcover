@@ -60,14 +60,17 @@ import com.mauro.offlinefirst.presentation.utils.formatSongCount
 import com.mauro.offlinefirst.presentation.components.rememberArtworkRequest
 import com.mauro.offlinefirst.presentation.components.resolveArtworkUrl
 import com.mauro.offlinefirst.presentation.player.PlayerViewModel
+import com.mauro.offlinefirst.ui.theme.AlbumGradientMid
+import com.mauro.offlinefirst.ui.theme.AlbumGradientTop
+import com.mauro.offlinefirst.ui.theme.GradientBottom
 import com.mauro.offlinefirst.ui.theme.GradientDeep
 import com.mauro.offlinefirst.ui.theme.PlayerSurface
 
 private val AlbumDetailBackground = Brush.verticalGradient(
     colorStops = arrayOf(
-        0.0f to Color(0xFF0D1B2A),
-        0.4f to Color(0xFF080F18),
-        1.0f to Color(0xFF000000)
+        0.0f to AlbumGradientTop,
+        0.4f to AlbumGradientMid,
+        1.0f to GradientBottom
     )
 )
 @RequiresApi(Build.VERSION_CODES.O)
