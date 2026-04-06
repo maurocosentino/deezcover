@@ -30,6 +30,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.mauro.offlinefirst.R
 import com.mauro.offlinefirst.ui.theme.DeezerColor
 import com.mauro.offlinefirst.ui.theme.SearchFieldBackground
@@ -67,7 +68,8 @@ fun SearchBar(
                     Modifier.padding(start = 8.dp, end = 8.dp, top = 16.dp, bottom = 0.dp),
                     style = MaterialTheme.typography.headlineSmall,
                     color = Color.White,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    fontSize   = 21.sp,
                 )
                 Text(
                     text = stringResource(R.string.search_subtitle),

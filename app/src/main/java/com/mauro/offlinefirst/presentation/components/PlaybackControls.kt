@@ -15,6 +15,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.mauro.offlinefirst.ui.theme.DeezerColor
+import com.mauro.offlinefirst.ui.theme.NavBarSelectedItem
 
 @Composable
 fun PlaybackControls(
@@ -30,12 +31,12 @@ fun PlaybackControls(
             onClick = onPlayClick,
             modifier = Modifier
                 .clip(CircleShape)
-                .background(DeezerColor)
+                .background(NavBarSelectedItem.copy(0.9f))
         ) {
             Icon(
                 imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
                 contentDescription = if (isPlaying) "Pause" else "Play",
-                tint = Color.White
+                tint = DeezerColor
             )
         }
     }

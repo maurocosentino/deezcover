@@ -116,7 +116,7 @@ fun MiniPlayer(
                 error = artworkPlaceholder,
                 fallback = artworkPlaceholder,
                 modifier = Modifier
-                    .size(40.dp)
+                    .size(48.dp)
                     .clip(RoundedCornerShape(10.dp))
                     .background(PlayerSurface)
             )
@@ -155,14 +155,14 @@ fun MiniPlayer(
                 IconButton(
                     onClick = onShuffleClick,
                     modifier = Modifier
-                        .background(NavBarSelectedItem.copy(0.6f), CircleShape)
+                        .background(Color.Transparent, CircleShape)
                         .size(38.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Shuffle,
                         contentDescription = "Shuffle",
                         tint = shuffleTint,
-                        modifier = Modifier.size(20.dp)
+                        modifier = Modifier.size(24.dp)
                     )
                 }
                 IconButton(
