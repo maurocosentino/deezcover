@@ -6,7 +6,6 @@ import com.mauro.offlinefirst.data.local.LastPlayedDataSource
 import com.mauro.offlinefirst.data.player.PlayerManager
 import com.mauro.offlinefirst.domain.model.Song
 import com.mauro.offlinefirst.domain.repository.SongRepository
-import com.mauro.offlinefirst.presentation.albumdetail.PlayerState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

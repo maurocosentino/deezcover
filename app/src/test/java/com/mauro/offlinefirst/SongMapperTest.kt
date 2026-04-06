@@ -3,9 +3,9 @@ package com.mauro.offlinefirst
 import com.mauro.offlinefirst.data.local.entity.SongEntity
 import com.mauro.offlinefirst.data.mapper.SongMapper.toDomain
 import com.mauro.offlinefirst.data.mapper.SongMapper.toEntity
-import com.mauro.offlinefirst.data.remote.dto.DeezerAlbumDto
 import com.mauro.offlinefirst.data.remote.dto.DeezerArtistDto
 import com.mauro.offlinefirst.data.remote.dto.SongDto
+import com.mauro.offlinefirst.data.remote.dto.SongAlbumDto
 import junit.framework.TestCase.assertEquals
 import org.junit.Test
 
@@ -17,7 +17,7 @@ class SongMapperTest {
             id = 1L,
             title = "Who",
             artist = DeezerArtistDto(name = "Jimin"),
-            albumArt = DeezerAlbumDto(
+            albumArt = SongAlbumDto(
                 coverMedium = "https://cover.url",
                 albumTitle = "Muse",
                 albumId = 10L
@@ -38,7 +38,7 @@ class SongMapperTest {
             id = 123L,
             title = "Who",
             artist = DeezerArtistDto(name = "Jimin"),
-            albumArt = DeezerAlbumDto(
+            albumArt = SongAlbumDto(
                 coverMedium = "https://cover.url",
                 albumTitle = "Muse",
                 albumId = 10L
@@ -59,7 +59,7 @@ class SongMapperTest {
             id = 1L,
             title = "Who",
             artist = DeezerArtistDto(name = "Jimin"),
-            albumArt = DeezerAlbumDto(
+            albumArt = SongAlbumDto(
                 coverMedium = "https://cover.url",
                 albumTitle = "Muse",
                 albumId = 10L
@@ -106,7 +106,7 @@ class SongMapperTest {
             id = 1L,
             title = "Who",
             artist = DeezerArtistDto(name = "Jimin"),
-            albumArt = DeezerAlbumDto(
+            albumArt = SongAlbumDto(
                 coverMedium = "https://cover-medium.url",
                 coverBig = "https://cover-big.url",
                 coverXl = "https://cover-xl.url",

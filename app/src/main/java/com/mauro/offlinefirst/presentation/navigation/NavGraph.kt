@@ -76,10 +76,10 @@ fun NavGraph(
     ) {
         composable(
             route = Screen.Home.route,
-            enterTransition = { fadeIn(animationSpec = tween(NavigationAnimationDurationMs)) },
-            exitTransition = { forwardExitTransition() },
-            popEnterTransition = { backwardEnterTransition() },
-            popExitTransition = { fadeOut(animationSpec = tween(NavigationAnimationDurationMs)) }
+            enterTransition = { EnterTransition.None },
+            exitTransition = { ExitTransition.None },
+            popEnterTransition = { EnterTransition.None },
+            popExitTransition = { ExitTransition.None }
         ) {
             HomeScreen(
                 onSongClick  = { songId ->
@@ -95,17 +95,21 @@ fun NavGraph(
                         Screen.ArtistDetail.createRoute(artistId, artistName, artistImageUrl)
                     )
                 },
+                onChartsClick = {
+                    navController.navigate(Screen.Charts.route)
+                },
                 playerViewModel = playerViewModel,
-                contentPadding = contentPadding
+                contentPadding = contentPadding,
+                navController = navController
             )
         }
 
         composable(
             route = Screen.Search.route,
-            enterTransition = { fadeIn(animationSpec = tween(NavigationAnimationDurationMs)) },
-            exitTransition = { forwardExitTransition() },
-            popEnterTransition = { backwardEnterTransition() },
-            popExitTransition = { fadeOut(animationSpec = tween(NavigationAnimationDurationMs)) }
+            enterTransition = { EnterTransition.None },
+            exitTransition = { ExitTransition.None },
+            popEnterTransition = { EnterTransition.None },
+            popExitTransition = { ExitTransition.None }
         ) {
             SearchScreen(
                 onSongClick = { songId ->
@@ -129,12 +133,20 @@ fun NavGraph(
 
         composable(
             route = Screen.Charts.route,
-            enterTransition = { fadeIn(animationSpec = tween(NavigationAnimationDurationMs)) },
-            exitTransition = { fadeOut(animationSpec = tween(NavigationAnimationDurationMs)) },
-            popEnterTransition = { fadeIn(animationSpec = tween(NavigationAnimationDurationMs)) },
-            popExitTransition = { fadeOut(animationSpec = tween(NavigationAnimationDurationMs)) }
-        ) {
+            arguments = listOf(
+                navArgument("scrollTo") {
+                    type = NavType.StringType
+                    defaultValue = ""
+                }
+            ),
+            enterTransition = { EnterTransition.None },
+            exitTransition = { ExitTransition.None },
+            popEnterTransition = { EnterTransition.None },
+            popExitTransition = { ExitTransition.None }
+        ) { backStackEntry ->
+            val scrollTo = backStackEntry.arguments?.getString("scrollTo").orEmpty()
             ChartsScreen(
+                scrollTo = scrollTo,
                 onSongClick = { songId ->
                     navController.navigate(Screen.AlbumDetail.createRoute(songId = songId))
                 },

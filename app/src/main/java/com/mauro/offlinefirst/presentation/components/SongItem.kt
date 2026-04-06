@@ -16,6 +16,8 @@ import androidx.compose.material.icons.filled.Album
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.PauseCircle
 import androidx.compose.material.icons.filled.PlayCircleOutline
+import androidx.compose.material.icons.outlined.Pause
+import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -37,9 +39,8 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.mauro.offlinefirst.R
 import com.mauro.offlinefirst.domain.model.Song
-import com.mauro.offlinefirst.presentation.albumdetail.PlayerState
-
-private val AccentCyan = Color(0xFF00C8FF)
+import com.mauro.offlinefirst.presentation.player.PlayerState
+import com.mauro.offlinefirst.ui.theme.DeezerColor
 
 @Composable
 fun SongItem(
@@ -53,8 +54,8 @@ fun SongItem(
     modifier: Modifier = Modifier
 ) {
     val isActive     = isPlaying && playerState == PlayerState.PLAYING
-    val titleColor   = if (isActive) AccentCyan else Color.White
-    val artistColor  = if (isActive) AccentCyan.copy(alpha = 0.7f) else Color.White.copy(alpha = 0.55f)
+    val titleColor   = if (isActive) DeezerColor else Color.White
+    val artistColor  = if (isActive) DeezerColor.copy(alpha = 0.7f) else Color.White.copy(alpha = 0.55f)
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -124,21 +125,21 @@ fun SongItem(
                 isPlaying && playerState == PlayerState.LOADING -> {
                     CircularProgressIndicator(
                         modifier = Modifier.size(18.dp),
-                        color = AccentCyan,
+                        color = DeezerColor,
                         strokeWidth = 2.dp
                     )
                 }
                 isActive -> {
                     Icon(
-                        imageVector = Icons.Default.PauseCircle,
+                        imageVector = Icons.Outlined.Pause,
                         contentDescription = stringResource(R.string.pause),
-                        tint = AccentCyan,
+                        tint = DeezerColor,
                         modifier = Modifier.size(22.dp)
                     )
                 }
                 else -> {
                     Icon(
-                        imageVector = Icons.Default.PlayCircleOutline,
+                        imageVector = Icons.Outlined.PlayArrow,
                         contentDescription = stringResource(R.string.play),
                         tint = Color.White.copy(alpha = 0.3f),
                         modifier = Modifier.size(22.dp)

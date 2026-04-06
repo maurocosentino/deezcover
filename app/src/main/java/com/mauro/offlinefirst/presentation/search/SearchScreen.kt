@@ -1,6 +1,5 @@
 package com.mauro.offlinefirst.presentation.search
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -20,22 +19,22 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.changedToUp
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.mauro.offlinefirst.R
 import com.mauro.offlinefirst.domain.model.SearchHistoryItem
-import com.mauro.offlinefirst.presentation.home.components.OfflineBanner
-import com.mauro.offlinefirst.presentation.home.components.SearchBar
+import com.mauro.offlinefirst.presentation.components.AppBackground
+import com.mauro.offlinefirst.presentation.components.OfflineBanner
 import com.mauro.offlinefirst.presentation.player.PlayerViewModel
+import com.mauro.offlinefirst.presentation.search.components.SearchBar
+import com.mauro.offlinefirst.ui.theme.ErrorRed
 
-private val GradientTop = Color(0xFF000000)
-private val GradientMiddle = Color(0xFF000409)
-private val GradientBottom = Color(0xFF000715)
 private val SearchSectionSpacing = 12.dp
 
 @Composable
@@ -83,12 +82,14 @@ fun SearchScreen(
             )
         )
     }
+    val labelArtist = stringResource(R.string.label_artist)
+
     val addArtistToHistory: (String, String, String) -> Unit = { id, title, imageUrl ->
         viewModel.addToHistory(
             SearchHistoryItem(
                 id = id,
                 title = title,
-                subtitle = "Artista",
+                subtitle = labelArtist,
                 imageUrl = imageUrl,
                 type = "artist",
                 timestamp = System.currentTimeMillis()
@@ -108,7 +109,7 @@ fun SearchScreen(
         )
     }
 
-    Box(
+    AppBackground(
         modifier = Modifier
             .fillMaxSize()
             .pointerInput(focusManager) {
@@ -121,15 +122,6 @@ fun SearchScreen(
                     }
                 }
             }
-            .background(
-                Brush.verticalGradient(
-                    colorStops = arrayOf(
-                        0.0f to GradientTop,
-                        0.4f to GradientMiddle,
-                        1.0f to GradientBottom
-                    )
-                )
-            )
     ) {
         Scaffold(
             containerColor = Color.Transparent
@@ -165,7 +157,7 @@ fun SearchScreen(
                             Text(
                                 text = uiState.errorMessage!!,
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = Color(0xFFFF6B6B)
+                                color = ErrorRed
                             )
                         }
                     }

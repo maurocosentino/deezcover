@@ -2,7 +2,7 @@ package com.mauro.offlinefirst.data.remote.dto
 
 import com.google.gson.annotations.SerializedName
 
-data class DeezerAlbumDto(
+data class SongAlbumDto(
     @SerializedName("cover_small") val coverSmall: String? = null,
     @SerializedName("cover_medium") val coverMedium: String? = null,
     @SerializedName("cover_big") val coverBig: String? = null,

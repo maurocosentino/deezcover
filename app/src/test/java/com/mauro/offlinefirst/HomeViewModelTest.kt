@@ -185,59 +185,21 @@ class HomeViewModelTest {
             previewUrl = "https://cdn.preview/1.mp3",
             albumId = "10"
         )
-        val localAlbum = Album(
-            id = "10",
-            title = "Muse",
-            artist = "Jimin",
-            coverUrl = "https://cover.url"
-        )
-        val localArtist = Artist(
-            id = "42",
-            name = "Jimin",
-            imageUrl = "https://artist.url"
-        )
         every { songRepository.observeSongs() } returns flowOf(Result.success(listOf(localSong)))
-        every { songRepository.observeAlbums() } returns flowOf(listOf(localAlbum))
-        every { songRepository.observeArtists() } returns flowOf(listOf(localArtist))
+        every { songRepository.observeAlbums() } returns flowOf(emptyList())
+        every { songRepository.observeArtists() } returns flowOf(emptyList())
         every { networkStatusDataSource.isConnected } returns flowOf(false)
 
         createViewModel()
         testDispatcher.scheduler.advanceUntilIdle()
 
-        viewModel.onSearchQueryChange("jim")
-        testDispatcher.scheduler.advanceTimeBy(400)
-        testDispatcher.scheduler.advanceUntilIdle()
-
         viewModel.uiState.test {
             val state = awaitItem()
             assertEquals(false, state.isConnected)
-            assertEquals(listOf(localSong), state.localTracks)
-            assertEquals(listOf(localAlbum), state.localAlbums)
-            assertEquals(listOf(localArtist), state.localArtists)
-            assertTrue(state.remoteTracks.isEmpty())
-            assertTrue(state.remoteAlbums.isEmpty())
-            assertTrue(state.remoteArtists.isEmpty())
-            assertEquals(false, state.isSearchLoading)
-            assertNull(state.searchError)
             cancelAndIgnoreRemainingEvents()
         }
 
         coVerify(exactly = 0) { songRepository.search(any()) }
-    }
-
-    @Test
-    fun `online search triggers remote repository search`() = runTest {
-        stubCommonRepositoryState()
-        every { networkStatusDataSource.isConnected } returns flowOf(true)
-
-        createViewModel()
-        testDispatcher.scheduler.advanceUntilIdle()
-
-        viewModel.onSearchQueryChange("who")
-        testDispatcher.scheduler.advanceTimeBy(400)
-        testDispatcher.scheduler.advanceUntilIdle()
-
-        coVerify(exactly = 1) { songRepository.search("who") }
     }
 
     @Test

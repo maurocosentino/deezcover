@@ -53,17 +53,26 @@ import coil.compose.AsyncImage
 import com.mauro.offlinefirst.R
 import com.mauro.offlinefirst.presentation.albumdetail.components.AlbumSongItem
 import com.mauro.offlinefirst.presentation.albumdetail.components.DeezerButton
+import com.mauro.offlinefirst.presentation.components.AppBackground
 import com.mauro.offlinefirst.presentation.components.PlaybackControls
-import com.mauro.offlinefirst.presentation.components.formatDate
-import com.mauro.offlinefirst.presentation.components.formatSongCount
+import com.mauro.offlinefirst.presentation.utils.formatDate
+import com.mauro.offlinefirst.presentation.utils.formatSongCount
 import com.mauro.offlinefirst.presentation.components.rememberArtworkRequest
 import com.mauro.offlinefirst.presentation.components.resolveArtworkUrl
 import com.mauro.offlinefirst.presentation.player.PlayerViewModel
+import com.mauro.offlinefirst.ui.theme.AlbumGradientMid
+import com.mauro.offlinefirst.ui.theme.AlbumGradientTop
+import com.mauro.offlinefirst.ui.theme.GradientBottom
+import com.mauro.offlinefirst.ui.theme.GradientDeep
+import com.mauro.offlinefirst.ui.theme.PlayerSurface
 
-private val GradientTop = Color(0xFF01051C)
-private val GradientMiddle = Color(0xFF000000)
-private val GradientBottom = Color(0xFF000715)
-
+private val AlbumDetailBackground = Brush.verticalGradient(
+    colorStops = arrayOf(
+        0.0f to AlbumGradientTop,
+        0.4f to AlbumGradientMid,
+        1.0f to GradientBottom
+    )
+)
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -94,19 +103,7 @@ fun AlbumDetailScreen(
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
         rememberTopAppBarState()
     )
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    colorStops = arrayOf(
-                        0.0f to GradientTop,
-                        0.4f to GradientMiddle,
-                        1.0f to GradientBottom
-                    )
-                )
-            )
-    ) {
+    AppBackground(background = AlbumDetailBackground) {
         Scaffold(
             containerColor = Color.Transparent,
             modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -153,7 +150,7 @@ fun AlbumDetailScreen(
                         fallback = artworkPlaceholder,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(Color(0xFF121826))
+                            .background(PlayerSurface)
                             .aspectRatio(1f)
                     )
 
@@ -315,7 +312,11 @@ fun AlbumDetailScreen(
                             }
                         }
 
-                        Spacer(modifier = Modifier.height(32.dp))
+                        Spacer(
+                            modifier = Modifier.height(
+                                contentPadding.calculateBottomPadding() + 10.dp
+                            )
+                        )
                     }
                 }
             } ?: if (uiState.isAlbumLoading) {

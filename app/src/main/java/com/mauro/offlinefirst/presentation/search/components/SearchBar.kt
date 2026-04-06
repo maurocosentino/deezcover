@@ -1,4 +1,4 @@
-package com.mauro.offlinefirst.presentation.home.components
+package com.mauro.offlinefirst.presentation.search.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -30,10 +30,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.mauro.offlinefirst.R
-
-private val SearchField = Color(0x3311181F)
-private val SearchAccent = Color(0xFF00C8FF)
+import com.mauro.offlinefirst.ui.theme.DeezerColor
+import com.mauro.offlinefirst.ui.theme.SearchFieldBackground
 
 @Composable
 fun SearchBar(
@@ -68,7 +68,8 @@ fun SearchBar(
                     Modifier.padding(start = 8.dp, end = 8.dp, top = 16.dp, bottom = 0.dp),
                     style = MaterialTheme.typography.headlineSmall,
                     color = Color.White,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    fontSize   = 21.sp,
                 )
                 Text(
                     text = stringResource(R.string.search_subtitle),
@@ -114,13 +115,13 @@ fun SearchBar(
                 shape = RoundedCornerShape(20.dp),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = SearchAccent.copy(alpha = 0.75f),
+                    focusedBorderColor = DeezerColor.copy(alpha = 0.75f),
                     unfocusedBorderColor = Color.White.copy(alpha = 0.10f),
-                    focusedContainerColor = SearchField,
-                    unfocusedContainerColor = SearchField,
+                    focusedContainerColor = SearchFieldBackground,
+                    unfocusedContainerColor = SearchFieldBackground,
                     focusedTextColor = Color.White,
                     unfocusedTextColor = Color.White,
-                    cursorColor = SearchAccent
+                    cursorColor = DeezerColor
                 ),
                 textStyle = MaterialTheme.typography.bodyLarge.copy(
                     fontWeight = FontWeight.Medium

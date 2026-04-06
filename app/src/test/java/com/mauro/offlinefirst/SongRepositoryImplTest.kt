@@ -7,11 +7,10 @@ import com.mauro.offlinefirst.data.local.dao.ArtistDao
 import com.mauro.offlinefirst.data.local.dao.SongDao
 import com.mauro.offlinefirst.data.local.entity.SongEntity
 import com.mauro.offlinefirst.data.remote.RemoteDataSource
-import com.mauro.offlinefirst.data.remote.dto.DeezerAlbumArtistDto
-import com.mauro.offlinefirst.data.remote.dto.DeezerAlbumDto
 import com.mauro.offlinefirst.data.remote.dto.DeezerAlbumDetailDto
 import com.mauro.offlinefirst.data.remote.dto.DeezerArtistDto
 import com.mauro.offlinefirst.data.remote.dto.SongDto
+import com.mauro.offlinefirst.data.remote.dto.SongAlbumDto
 import com.mauro.offlinefirst.data.repository.SongRepositoryImpl
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -91,7 +90,7 @@ class SongRepositoryImplTest {
                 id = 1L,
                 title = "Who",
                 artist = DeezerArtistDto(name = "Jimin"),
-                albumArt = DeezerAlbumDto(
+                albumArt = SongAlbumDto(
                     coverMedium = "https://cover.url",
                     albumTitle = "Muse",
                     albumId = 10L
@@ -116,7 +115,7 @@ class SongRepositoryImplTest {
                 id = 1L,
                 title = "Who",
                 artist = DeezerArtistDto(name = "Jimin"),
-                albumArt = DeezerAlbumDto(
+                albumArt = SongAlbumDto(
                     coverMedium = "https://cover-medium.url",
                     coverBig = "https://cover-big.url",
                     coverXl = "https://cover-xl.url",
@@ -133,7 +132,8 @@ class SongRepositoryImplTest {
             title = "Muse",
             releaseDate = "2024-01-01",
             recordType = "album",
-            artist = DeezerAlbumArtistDto(
+            artist = DeezerArtistDto(
+                id = 42L,
                 name = "Jimin",
                 pictureXl = "https://artist-xl.url"
             )

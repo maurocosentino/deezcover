@@ -12,11 +12,3 @@ data class AlbumDetailUiState(
     val albumType: String = "Álbum",
     val albumReleaseDate: String = ""
 )
-
-enum class PlayerState {
-    IDLE,
-    LOADING,
-    PLAYING,
-    PAUSED,
-    ERROR
-}

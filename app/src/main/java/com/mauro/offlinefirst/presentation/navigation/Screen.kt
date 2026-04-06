@@ -5,7 +5,9 @@ import android.net.Uri
 sealed class Screen(val route: String) {
     object Home : Screen("home")
     object Search : Screen("search")
-    object Charts : Screen("charts")
+    object Charts : Screen("charts?scrollTo={scrollTo}") {
+        fun createRoute(scrollTo: String = "") = "charts?scrollTo=$scrollTo"
+    }
     object AlbumDetail : Screen("album_detail?songId={songId}&albumId={albumId}") {
         fun createRoute(songId: String = "", albumId: String? = null): String {
             val encodedSongId = Uri.encode(songId)

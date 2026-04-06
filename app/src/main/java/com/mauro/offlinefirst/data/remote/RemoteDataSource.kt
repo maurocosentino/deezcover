@@ -46,23 +46,26 @@ class RemoteDataSource constructor(
     suspend fun fetchSongs(): List<SongDto> {
         return executeWithTransportFallback(
             operation = "fetchSongs",
-            block = { service -> service.getSongs().tracks }
+            block = { service -> service.getSongs().data }
         )
     }
     suspend fun fetchAlbumTracks(albumId: String): List<SongDto> {
         return executeWithTransportFallback(
             operation = "fetchAlbumTracks:$albumId",
-            block = { service -> service.getAlbumTracks(albumId).tracks }
+            block = { service -> service.getAlbumTracks(albumId).data }
         )
     }
     suspend fun fetchChartAlbums(): List<AlbumDto> {
         return executeWithTransportFallback(
             operation = "fetchChartAlbums",
-            block = { service -> service.getChartAlbums().albums }
+            block = { service -> service.getChartAlbums().data }
         )
     }
     suspend fun fetchChartArtists(): List<DeezerArtistDto> {
-        return apiService.getChartArtists().artists
+        return executeWithTransportFallback(
+            operation = "fetchChartArtists",
+            block = { service -> service.getChartArtists().data }
+        )
     }
     suspend fun fetchAlbumDetail(albumId: String): DeezerAlbumDetailDto {
         return executeWithTransportFallback(
@@ -74,7 +77,7 @@ class RemoteDataSource constructor(
     suspend fun fetchArtistTopTracks(artistId: String): List<SongDto> {
         return executeWithTransportFallback(
             operation = "fetchArtistTopTracks:$artistId",
-            block = { service -> service.getArtistTopTracks(artistId).tracks }
+            block = { service -> service.getArtistTopTracks(artistId).data }
         )
     }
 
@@ -88,21 +91,21 @@ class RemoteDataSource constructor(
     suspend fun searchTracks(query: String, limit: Int): List<SongDto> {
         return executeWithTransportFallback(
             operation = "searchTracks:$query",
-            block = { service -> service.searchTracks(query = query, limit = limit).tracks }
+            block = { service -> service.searchTracks(query = query, limit = limit).data }
         )
     }
 
     suspend fun searchAlbums(query: String, limit: Int): List<AlbumDto> {
         return executeWithTransportFallback(
             operation = "searchAlbums:$query",
-            block = { service -> service.searchAlbums(query = query, limit = limit).albums }
+            block = { service -> service.searchAlbums(query = query, limit = limit).data }
         )
     }
 
     suspend fun searchArtists(query: String, limit: Int): List<DeezerArtistDto> {
         return executeWithTransportFallback(
             operation = "searchArtists:$query",
-            block = { service -> service.searchArtists(query = query, limit = limit).artists }
+            block = { service -> service.searchArtists(query = query, limit = limit).data }
         )
     }
 
