@@ -116,7 +116,7 @@ private fun androidx.compose.foundation.layout.RowScope.BottomNavItem(
     selected: Boolean
 ) {
     val iconTint = if (selected) DeezerColor else Color.White.copy(alpha = 0.5f)
-    val labelColor = if (selected) Color.White else Color.White.copy(alpha = 0.5f)
+    val labelColor = if (selected) DeezerColor else Color.White.copy(alpha = 0.5f)
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
     val scale by animateFloatAsState(

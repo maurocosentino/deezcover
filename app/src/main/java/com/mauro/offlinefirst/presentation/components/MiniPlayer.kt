@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Pause
@@ -49,6 +50,7 @@ import com.mauro.offlinefirst.domain.model.Song
 import com.mauro.offlinefirst.ui.theme.DeezerColor
 import com.mauro.offlinefirst.ui.theme.GradientDeep
 import com.mauro.offlinefirst.ui.theme.MiniPlayerSurface
+import com.mauro.offlinefirst.ui.theme.NavBarSelectedItem
 import com.mauro.offlinefirst.ui.theme.PlayerSurface
 import kotlinx.coroutines.delay
 
@@ -91,7 +93,7 @@ fun MiniPlayer(
             containerColor = MiniPlayerSurface
         ),
         elevation = CardDefaults.cardElevation(0.dp),
-        border = BorderStroke(0.5.dp, Color.White.copy(alpha = 0.08f))
+        border = BorderStroke(1.dp, MiniPlayerSurface.copy(alpha = 0.8f))
     ) {
         Row(
             modifier = Modifier
@@ -150,7 +152,12 @@ fun MiniPlayer(
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(onClick = onShuffleClick) {
+                IconButton(
+                    onClick = onShuffleClick,
+                    modifier = Modifier
+                        .background(NavBarSelectedItem.copy(0.6f), CircleShape)
+                        .size(38.dp)
+                ) {
                     Icon(
                         imageVector = Icons.Default.Shuffle,
                         contentDescription = "Shuffle",
@@ -158,11 +165,16 @@ fun MiniPlayer(
                         modifier = Modifier.size(20.dp)
                     )
                 }
-                IconButton(onClick = onPreviousClick) {
+                IconButton(
+                    onClick = onPreviousClick,
+                    modifier = Modifier
+                        .background(NavBarSelectedItem.copy(0.6f), CircleShape)
+                        .size(38.dp)
+                ) {
                     Icon(
                         imageVector = Icons.Default.SkipPrevious,
                         contentDescription = "Previous",
-                        tint = Color.White,
+                        tint = DeezerColor,
                         modifier = Modifier.size(20.dp)
                     )
                 }
@@ -176,37 +188,41 @@ fun MiniPlayer(
 
                     val progress by animateFloatAsState(
                         targetValue = rawProgress,
-                        animationSpec = tween(
-                            durationMillis = 600,
-                            easing = LinearEasing
-                        ),
+                        animationSpec = tween(durationMillis = 600, easing = LinearEasing),
                         label = "mini_player_progress"
                     )
                     if (isPlaying) {
                         CircularProgressIndicator(
                             progress = { progress },
-                            modifier = Modifier.size(36.dp),
+                            modifier = Modifier.size(48.dp),
                             color = DeezerColor,
                             strokeWidth = 2.dp
                         )
                     }
                     IconButton(
                         onClick = onPlayPauseClick,
-                        modifier = Modifier.size(36.dp)
+                        modifier = Modifier
+                            .background(DeezerColor.copy(0.9f), CircleShape)
+                            .size(38.dp)
                     ) {
                         Icon(
                             imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
                             contentDescription = if (isPlaying) "Pause" else "Play",
-                            tint = Color.White,
-                            modifier = Modifier.size(18.dp)
+                            tint = NavBarSelectedItem,
+                            modifier = Modifier.size(24.dp)
                         )
                     }
                 }
-                IconButton(onClick = onNextClick) {
+                IconButton(
+                    onClick = onNextClick,
+                    modifier = Modifier
+                        .background(NavBarSelectedItem.copy(0.6f), CircleShape)
+                        .size(38.dp)
+                ) {
                     Icon(
                         imageVector = Icons.Default.SkipNext,
                         contentDescription = "Next",
-                        tint = Color.White,
+                        tint = DeezerColor,
                         modifier = Modifier.size(20.dp)
                     )
                 }
