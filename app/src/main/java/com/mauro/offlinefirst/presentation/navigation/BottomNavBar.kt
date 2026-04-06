@@ -26,7 +26,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -49,11 +48,24 @@ fun BottomNavBar(
     onHomeClick: () -> Unit,
     onSearchClick: () -> Unit,
     onSearchDoubleTap: () -> Unit,
+    onHomeDoubleTap: () -> Unit,
+    isExactlyOnHome: Boolean,
     onChartsClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val items = listOf(
-        BottomNavItemData(BottomNavTab.Home, Icons.Default.Home, "Inicio", onHomeClick),
+        BottomNavItemData(
+            BottomNavTab.Home,
+            Icons.Default.Home,
+            "Inicio",
+            onClick = {
+                if (isExactlyOnHome) {
+                    onHomeDoubleTap()
+                } else {
+                    onHomeClick()
+                }
+            }
+        ),
         BottomNavItemData(
             BottomNavTab.Search,
             Icons.Default.Search,

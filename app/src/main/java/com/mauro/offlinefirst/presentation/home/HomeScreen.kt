@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.navigation.NavController
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -20,7 +21,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -68,8 +68,20 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
     playerViewModel: PlayerViewModel,
     contentPadding: PaddingValues = PaddingValues(0.dp),
-    navController: NavController? = null
+    navController: NavController? = null,
+    homeScrollToTopKey: Int = 0,
+    onScrollToTopConsumed: () -> Unit = {},
 ) {
+    val listState = rememberLazyListState()
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+
+    LaunchedEffect(homeScrollToTopKey) {
+        if (homeScrollToTopKey > 0) {
+            listState.animateScrollToItem(0)
+            scrollBehavior.state.heightOffset = 0f
+            onScrollToTopConsumed()
+        }
+    }
     val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
     LaunchedEffect(lifecycleOwner) {
         lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
@@ -80,7 +92,6 @@ fun HomeScreen(
     val uiState by viewModel.uiState.collectAsState()
     val playerUiState by playerViewModel.uiState.collectAsState()
 
-    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     AppBackground {
         Scaffold(
             containerColor = Color.Transparent,
@@ -166,6 +177,7 @@ fun HomeScreen(
                     else -> {
                         Box(modifier = Modifier.fillMaxSize()) {
                             LazyColumn(
+                                state = listState,
                                 modifier = Modifier.fillMaxSize(),
                                 contentPadding = PaddingValues(bottom = 200.dp),
                                 verticalArrangement = Arrangement.spacedBy(HomeSectionSpacing)

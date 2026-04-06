@@ -22,6 +22,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.mauro.offlinefirst.presentation.navigation.NavGraph
@@ -71,6 +72,7 @@ class MainActivity : ComponentActivity() {
                     Screen.Charts.route -> BottomNavTab.Charts
                     else -> BottomNavTab.Home
                 }
+                var homeScrollToTopKey by remember { mutableStateOf(0) }
 
                 Scaffold(
                     contentWindowInsets = WindowInsets(0, 0, 0, 0),
@@ -113,6 +115,7 @@ class MainActivity : ComponentActivity() {
 
                             BottomNavBar(
                                 selectedTab = selectedTab,
+                                isExactlyOnHome = currentDestination?.route == Screen.Home.route,
                                 onHomeClick = {
                                     navController.navigate(Screen.Home.route) {
                                         popUpTo(Screen.Home.route) {
@@ -133,6 +136,7 @@ class MainActivity : ComponentActivity() {
                                 onSearchDoubleTap = {
                                     searchFocusRequestKey++
                                 },
+                                onHomeDoubleTap = { homeScrollToTopKey++ },
                                 onChartsClick = {
                                     navController.navigate(Screen.Charts.route) {
                                         launchSingleTop = true
@@ -149,7 +153,9 @@ class MainActivity : ComponentActivity() {
                     NavGraph(
                         navController = navController,
                         contentPadding = paddingValues,
-                        searchFocusRequestKey = searchFocusRequestKey
+                        homeScrollToTopKey = homeScrollToTopKey,
+                        searchFocusRequestKey = searchFocusRequestKey,
+                        onScrollToTopConsumed = { homeScrollToTopKey = 0 }
                     )
                 }
             }

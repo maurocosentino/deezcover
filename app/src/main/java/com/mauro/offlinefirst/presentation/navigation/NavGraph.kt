@@ -65,7 +65,9 @@ private fun backwardExitTransition(): ExitTransition {
 fun NavGraph(
     navController: NavHostController,
     contentPadding: PaddingValues,
-    searchFocusRequestKey: Int
+    searchFocusRequestKey: Int,
+    homeScrollToTopKey: Int,
+    onScrollToTopConsumed: () -> Unit
 ) {
     val activity = LocalContext.current as ComponentActivity
     val playerViewModel: PlayerViewModel = hiltViewModel(activity)
@@ -100,6 +102,8 @@ fun NavGraph(
                 },
                 playerViewModel = playerViewModel,
                 contentPadding = contentPadding,
+                homeScrollToTopKey = homeScrollToTopKey,
+                onScrollToTopConsumed = onScrollToTopConsumed,
                 navController = navController
             )
         }
