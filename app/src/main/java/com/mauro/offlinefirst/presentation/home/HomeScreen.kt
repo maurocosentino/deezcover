@@ -46,8 +46,7 @@ import com.mauro.offlinefirst.presentation.components.AppBackground
 import com.mauro.offlinefirst.presentation.components.OfflineBanner
 import com.mauro.offlinefirst.presentation.components.TopArtistsSection
 import com.mauro.offlinefirst.presentation.home.components.EmptyState
-import com.mauro.offlinefirst.presentation.home.components.FeaturedAlbumBanner
-import com.mauro.offlinefirst.presentation.home.components.MoreFeaturedSection
+import com.mauro.offlinefirst.presentation.home.components.FeaturedSection
 import com.mauro.offlinefirst.presentation.home.components.NewReleasesSection
 import com.mauro.offlinefirst.presentation.home.components.PreviewAlbumsSection
 import com.mauro.offlinefirst.presentation.home.components.PreviewTracksSection
@@ -258,15 +257,6 @@ private fun androidx.compose.foundation.lazy.LazyListScope.homeContentSection(
     onPreviewAlbumClick: (Album) -> Unit,
     onPreviewSongClick: (Song) -> Unit
 ) {
-    item {
-        FeaturedAlbumBanner(
-            featuredAlbums = featuredAlbums,
-            onAlbumClick = { albumId ->
-                featuredAlbums.firstOrNull { it.albumId.toString() == albumId }
-                    ?.let { onFeaturedClick(it) }
-            }
-        )
-    }
 
     if (newReleases.isNotEmpty() || isNewReleasesLoading) {
         item {
@@ -313,7 +303,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.homeContentSection(
     }
 
     item {
-        MoreFeaturedSection(
+        FeaturedSection(
             featuredAlbums = featuredAlbums,
             onAlbumClick = { albumId ->
                 featuredAlbums.firstOrNull { it.albumId.toString() == albumId }

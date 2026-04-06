@@ -38,20 +38,20 @@ import com.mauro.offlinefirst.presentation.components.SectionHeader
 import com.mauro.offlinefirst.ui.theme.DeezerColor
 
 @Composable
-fun MoreFeaturedSection(
+fun FeaturedSection(
     featuredAlbums: List<NewRelease>,
     onAlbumClick: (String) -> Unit
 ) {
     Log.d("MoreFeatured", "size: ${featuredAlbums.size}")
-    val moreFeaturedAlbums = featuredAlbums.drop(1).take(5)
+    val moreFeaturedAlbums = featuredAlbums.drop(0).take(5)
     if (moreFeaturedAlbums.isEmpty()) return
 
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         SectionHeader(
-            title = stringResource(R.string.home_more_featured),
-            modifier = Modifier.padding(horizontal = 5.dp, vertical = 8.dp)
+            title = stringResource(R.string.home_featured),
+            modifier = Modifier.padding(vertical = 8.dp)
         )
 
         LazyRow(
