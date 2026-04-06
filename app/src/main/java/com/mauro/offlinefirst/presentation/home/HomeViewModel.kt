@@ -87,10 +87,9 @@ class HomeViewModel @Inject constructor(
             performSync()
         }
     }
-
     private suspend fun performSync() {
         Log.i(TAG, "syncAll:start")
-        _uiState.update { it.copy(isRefreshing = true, errorMessage = null) }
+        _uiState.update { it.copy(errorMessage = null) }
 
         try {
             syncRepositories()
@@ -108,7 +107,7 @@ class HomeViewModel @Inject constructor(
             }
         } finally {
             Log.i(TAG, "syncAll:finish")
-            _uiState.update { it.copy(isRefreshing = false, isLoading = false) }
+            _uiState.update { it.copy(isLoading = false)}
         }
     }
     private suspend fun syncRepositories() = coroutineScope {

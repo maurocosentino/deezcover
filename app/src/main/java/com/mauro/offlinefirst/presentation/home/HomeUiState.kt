@@ -13,7 +13,6 @@ data class HomeUiState(
     val topArtists: List<Artist> = emptyList(),
 
     val isLoading: Boolean = false,
-    val isRefreshing: Boolean = false,
     val isNewReleasesLoading: Boolean = false,
 
     val errorMessage: String? = null,

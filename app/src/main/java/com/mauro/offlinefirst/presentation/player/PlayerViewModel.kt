@@ -189,7 +189,6 @@ class PlayerViewModel @Inject constructor(
             }
         }
     }
-
     private fun restoreLastPlayedSong() {
         viewModelScope.launch {
             if (_uiState.value.currentSong != null) {
