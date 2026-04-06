@@ -76,7 +76,8 @@ class MainActivity : ComponentActivity() {
                     contentWindowInsets = WindowInsets(0, 0, 0, 0),
                     bottomBar = {
                         Column {
-                            playerUiState.currentSong?.let { song ->
+                            if (!playerUiState.isRestoring) {
+                                playerUiState.currentSong?.let { song ->
                                 val miniPlayerAlbumArt = song.albumArt.ifBlank {
                                     playerUiState.currentQueue
                                         .firstOrNull { it.albumArt.isNotBlank() }
@@ -108,7 +109,7 @@ class MainActivity : ComponentActivity() {
                                         .padding(top = 8.dp)
                                         .padding(bottom = 4.dp)
                                 )
-                            }
+                            }}
 
                             BottomNavBar(
                                 selectedTab = selectedTab,

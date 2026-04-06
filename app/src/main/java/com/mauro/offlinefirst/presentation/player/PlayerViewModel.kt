@@ -25,7 +25,8 @@ data class PlayerUiState(
     val currentPlayingId: String? = null,
     val playerState: PlayerState = PlayerState.IDLE,
     val currentPositionMs: Long = 0L,
-    val totalDurationMs: Long = 0L
+    val totalDurationMs: Long = 0L,
+    val isRestoring: Boolean = true
 )
 
 @HiltViewModel
@@ -144,9 +145,7 @@ class PlayerViewModel @Inject constructor(
 
     fun stopPlayback() {
         playerManager.stop()
-        clearQueue()
     }
-
     fun releasePlayer() {
         playerManager.release()
     }
@@ -193,9 +192,20 @@ class PlayerViewModel @Inject constructor(
 
     private fun restoreLastPlayedSong() {
         viewModelScope.launch {
-            if (_uiState.value.currentSong != null) return@launch
-            val savedId = lastPlayedDataSource.lastPlayedSongId.first() ?: return@launch
-            val song = songRepository.getSongById(savedId) ?: return@launch
+            if (_uiState.value.currentSong != null) {
+                _uiState.update { it.copy(isRestoring = false) }
+                return@launch
+            }
+            val savedId = lastPlayedDataSource.lastPlayedSongId.first()
+            if (savedId == null) {
+                _uiState.update { it.copy(isRestoring = false) }
+                return@launch
+            }
+            val song = songRepository.getSongById(savedId)
+            if (song == null) {
+                _uiState.update { it.copy(isRestoring = false) }
+                return@launch
+            }
             _uiState.update {
                 it.copy(
                     currentSong = song,
@@ -203,7 +213,8 @@ class PlayerViewModel @Inject constructor(
                     originalQueue = listOf(song),
                     currentIndex = 0,
                     playerState = PlayerState.PAUSED,
-                    isPlaying = false
+                    isPlaying = false,
+                    isRestoring = false
                 )
             }
         }
