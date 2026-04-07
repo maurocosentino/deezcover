@@ -45,7 +45,8 @@ Room updates → UI reacts automatically
 ## 🚀 Features
 
 * 🎵 Real music data from Deezer Chart API
-* 📦 Full offline support (no internet required)
+* 📦 Offline support — metadata and artwork available without internet
+* 🔈 Audio preview requires an active connection (Deezer API limitation))
 * 🔍 Search by title or artist
 * 🔄 Pull to refresh
 * 📡 Live connectivity status
@@ -125,6 +126,10 @@ GET https://api.deezer.com/chart/0/tracks
 * ✅ Production-ready
 * ✅ Clean Architecture
 * ✅ Offline-first fully implemented
+
+---
+## 📥 Download
+[⬇ Download latest APK](https://github.com/maurocosentino/deezcover/releases/latest)
 
 ---
 
