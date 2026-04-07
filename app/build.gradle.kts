@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "com.mauro.offlinefirst"
+    namespace = "com.mauro.deezcover"
     compileSdk = 36
 
     defaultConfig {

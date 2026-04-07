@@ -1,0 +1,63 @@
+package com.mauro.deezcover.presentation.home.components
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import com.mauro.deezcover.domain.model.NewRelease
+import com.mauro.deezcover.presentation.components.SectionHeader
+import com.mauro.deezcover.ui.theme.DeezerColor
+
+@Composable
+fun NewReleasesSection(
+    releases: List<NewRelease>,
+    isLoading: Boolean,
+    title: String,
+    onReleaseClick: (NewRelease) -> Unit,
+    modifier: Modifier = Modifier,
+    loadingIndicatorColor: Color = DeezerColor
+) {
+    if (releases.isEmpty() && !isLoading) return
+
+    SectionHeader(
+        title = title,
+        modifier = modifier.padding(vertical = 14.dp)
+    )
+
+    if (isLoading && releases.isEmpty()) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(150.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(
+                color = loadingIndicatorColor,
+                modifier = Modifier.size(24.dp)
+            )
+        }
+    } else {
+        LazyRow(
+            contentPadding = PaddingValues(horizontal = 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(items = releases.take(15), key = { it.albumId }) { release ->
+                NewReleaseCard(
+                    release = release,
+                    onClick = { onReleaseClick(release) }
+                )
+            }
+        }
+    }
+}

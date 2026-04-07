@@ -22,5 +22,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "android-offline-first"
+rootProject.name = "Deezcover"
 include(":app")
