@@ -39,4 +39,9 @@
     <string name="artist_fans">%1$s seguidores</string>
     <string name="pause">Pausar</string>
     <string name="play">Reproducir</string>
+    <string name="shuffle">Mezclar</string>
+    <string name="previous">Anterior</string>
+    <string name="next">Siguiente</string>
+    <string name="view_more">Ver más</string>
+    <string name="charts_title">Lo más escuchado</string>
 </resources>
