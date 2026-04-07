@@ -1,18 +1,35 @@
-# Android Offline First
+# Deezcover
+
+<p align="center">
+  <img src="banner.png" alt="Deezcover Banner" />
+</p>
 
 An Android music app that demonstrates **offline-first architecture** using the **Deezer** public API.
 
-## Architecture
+---
 
-Clean Architecture with the following layers:
+## Preview
 
-- **UI** — Jetpack Compose
-- **ViewModel** — StateFlow + UiState
-- **Repository** — Single source of truth, offline-first logic
-- **Local** — Room + Flow
-- **Remote** — Retrofit + Deezer API
+<p align="center">
+  <img src="preview.gif" width="320" alt="Demo"/>
+</p>
 
-## Offline-First Flow
+---
+
+## 🏗 Architecture
+
+Clean Architecture with a clear separation of concerns:
+
+* **UI** — Jetpack Compose
+* **ViewModel** — StateFlow + UiState
+* **Repository** — Single source of truth, offline-first logic
+* **Local** — Room + Flow
+* **Remote** — Retrofit + Deezer API
+
+---
+
+## 🔄 Offline-First Flow
+
 ```
 Room emits local data immediately
       ↓
@@ -23,65 +40,97 @@ API syncs in background
 Room updates → UI reacts automatically
 ```
 
-## Features
+---
 
-- 🎵 Real music data from Deezer chart API
-- 📦 Offline support — works without internet
-- 🔍 Search by title or artist
-- 🔄 Pull to refresh
-- 📡 Live connectivity indicator
-- 🖼️ Album art with Coil
-- 🎯 Song detail screen with Deezer link
+## 🚀 Features
 
-## Preview
+* 🎵 Real music data from Deezer Chart API
+* 📦 Full offline support (no internet required)
+* 🔍 Search by title or artist
+* 🔄 Pull to refresh
+* 📡 Live connectivity status
+* 🖼️ Album artwork with Coil
+* 🎯 Song detail screen with Deezer link
 
-<img src="preview.gif" width="320" alt="Demo"/>
+---
 
+## 🧰 Tech Stack
 
-## Tech Stack
+| Layer      | Technology               |
+| ---------- | ------------------------ |
+| UI         | Jetpack Compose          |
+| State      | StateFlow / UiState      |
+| DI         | Hilt                     |
+| Local DB   | Room                     |
+| Networking | Retrofit + Gson          |
+| Images     | Coil                     |
+| Navigation | Navigation Compose       |
+| Testing    | JUnit4 + Mockk + Turbine |
 
-| Layer | Technology |
-|---|---|
-| UI | Jetpack Compose |
-| State | StateFlow / UiState |
-| DI | Hilt |
-| Local DB | Room |
-| Networking | Retrofit + Gson |
-| Images | Coil |
-| Navigation | Navigation Compose |
-| Testing | JUnit4 + Mockk + Turbine |
+---
 
-## Project Structure
+## 📁 Project Structure
+
 ```
-com.mauro.offlinefirst/
+com.mauro.deezcover/
 ├── data/
-│   ├── local/        # Room, DAO, Entities
-│   ├── remote/       # Retrofit, DTOs
-│   ├── mapper/       # Layer converters
-│   └── repository/   # Offline-first implementation
+│   ├── local/        # Room (DB, DAO, Entities)
+│   ├── remote/       # Retrofit + DTOs
+│   ├── repository/   # Offline-first implementation
+│   ├── mapper/       # Data ↔ Domain mapping
+│   ├── network/      # Connectivity handling
+│   └── player/       # Media3 / ExoPlayer integration
 ├── domain/
-│   ├── model/        # Domain models
-│   └── repository/   # Repository interface
+│   ├── model/        # Core business models
+│   ├── repository/   # Contracts (interfaces)
+│   └── usecase/      # Business logic
 ├── presentation/
-│   ├── songlist/     # List screen + ViewModel
-│   ├── songdetail/   # Detail screen + ViewModel
-│   └── navigation/   # NavGraph + Routes
-└── di/               # Hilt modules
+│   ├── home/         # Home screen (charts, releases)
+│   ├── search/       # Search + history
+│   ├── albumdetail/  # Album details
+│   ├── artistdetail/ # Artist details
+│   ├── player/       # Player UI & state
+│   ├── components/   # Reusable UI components
+│   └── navigation/   # NavGraph & routes
+├── ui/
+│   └── theme/        # Design system
+├── di/               # Hilt modules
+├── MainActivity.kt   # Entry point
+└── DeezcoverApp.kt   # Application class
 ```
 
-## Tests
 
-- `SongMapperTest` — mapping and field conversion
-- `SongRepositoryImplTest` — offline-first data flow
-- `SongListViewModelTest` — UI state management
+---
 
-## API
+## 🧪 Tests
 
-This app uses the [Deezer API](https://developers.deezer.com/api) — no authentication required.
+* `SongMapperTest` — mapping validation
+* `SongRepositoryImplTest` — offline-first flow
+* `HomeViewModelTest` — UI state handling
+
+---
+
+## 🌐 API
+
+This app uses the **Deezer API** (no authentication required):
+
 ```
 GET https://api.deezer.com/chart/0/tracks
 ```
 
-## Author
+---
 
-[Mauro Cosentino](https://github.com/maurocosentino)
+## 📌 Status
+
+* ✅ Production-ready
+* ✅ Clean Architecture
+* ✅ Offline-first fully implemented
+
+---
+
+## 👨‍💻 Author
+
+**Mauro Cosentino**
+
+* GitHub: https://github.com/maurocosentino
+
