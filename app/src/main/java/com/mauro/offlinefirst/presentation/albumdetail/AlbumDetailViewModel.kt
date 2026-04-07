@@ -130,7 +130,6 @@ class AlbumDetailViewModel @Inject constructor(
                     )
                 }
             } catch (exception: Exception) {
-                exception.printStackTrace()
                 _uiState.update { it.copy(isAlbumLoading = false) }
             } finally {
                 if (loadingAlbumId == albumId) {

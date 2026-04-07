@@ -15,7 +15,5 @@ class OfflineFirstApp : Application() {
             Log.e("OfflineFirstApp", "Uncaught exception on thread=${thread.name}", throwable)
             previousHandler?.uncaughtException(thread, throwable)
         }
-
-        Log.i("OfflineFirstApp", "Application started")
     }
 }

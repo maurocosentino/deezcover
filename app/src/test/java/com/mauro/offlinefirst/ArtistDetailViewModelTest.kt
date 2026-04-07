@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import com.mauro.offlinefirst.domain.model.Artist
 import com.mauro.offlinefirst.domain.model.Song
 import com.mauro.offlinefirst.domain.repository.SongRepository
+import com.mauro.offlinefirst.domain.usecase.PrepareAlbumNavigationUseCase
 import com.mauro.offlinefirst.presentation.artistdetail.ArtistDetailViewModel
 import io.mockk.coEvery
 import io.mockk.mockk
@@ -26,12 +27,14 @@ class ArtistDetailViewModelTest {
     private val testDispatcher = StandardTestDispatcher()
 
     private lateinit var songRepository: SongRepository
+    private lateinit var prepareAlbumNavigationUseCase: PrepareAlbumNavigationUseCase
     private lateinit var viewModel: ArtistDetailViewModel
 
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
         songRepository = mockk()
+        prepareAlbumNavigationUseCase = mockk()
     }
 
     @After
@@ -78,6 +81,7 @@ class ArtistDetailViewModelTest {
     private fun createViewModel() {
         viewModel = ArtistDetailViewModel(
             songRepository = songRepository,
+            prepareAlbumNavigationUseCase = prepareAlbumNavigationUseCase,
             savedStateHandle = SavedStateHandle(
                 mapOf(
                     "artistId" to "artist-1",

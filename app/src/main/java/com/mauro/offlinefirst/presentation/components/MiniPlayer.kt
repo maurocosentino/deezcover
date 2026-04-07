@@ -41,6 +41,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -158,7 +159,7 @@ fun MiniPlayer(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Shuffle,
-                        contentDescription = "Shuffle",
+                        contentDescription = stringResource(R.string.shuffle),
                         tint = shuffleTint,
                         modifier = Modifier.size(24.dp)
                     )
@@ -171,7 +172,7 @@ fun MiniPlayer(
                 ) {
                     Icon(
                         imageVector = Icons.Default.SkipPrevious,
-                        contentDescription = "Previous",
+                        contentDescription = stringResource(R.string.previous),
                         tint = DeezerColor,
                         modifier = Modifier.size(20.dp)
                     )
@@ -205,7 +206,11 @@ fun MiniPlayer(
                     ) {
                         Icon(
                             imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                            contentDescription = if (isPlaying) "Pause" else "Play",
+                            contentDescription = if (isPlaying) {
+                                stringResource(R.string.pause)
+                            } else {
+                                stringResource(R.string.play)
+                            },
                             tint = NavBarSelectedItem,
                             modifier = Modifier.size(24.dp)
                         )
@@ -219,7 +224,7 @@ fun MiniPlayer(
                 ) {
                     Icon(
                         imageVector = Icons.Default.SkipNext,
-                        contentDescription = "Next",
+                        contentDescription = stringResource(R.string.next),
                         tint = DeezerColor,
                         modifier = Modifier.size(20.dp)
                     )

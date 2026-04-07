@@ -1,4 +1,4 @@
-package com.mauro.offlinefirst.presentation.utils
+package com.mauro.offlinefirst.utils
 
 import java.util.Locale
 

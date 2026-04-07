@@ -26,8 +26,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.mauro.offlinefirst.domain.model.Artist
-import com.mauro.offlinefirst.presentation.utils.formatFanCount
 import com.mauro.offlinefirst.ui.theme.CardSurface
+import com.mauro.offlinefirst.utils.formatFanCount
 
 @Composable
 fun TopArtistsSection(

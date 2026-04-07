@@ -1,6 +1,4 @@
 package com.mauro.offlinefirst.data.repository
-
-import android.util.Log
 import com.mauro.offlinefirst.data.local.dao.AlbumDao
 import com.mauro.offlinefirst.data.local.dao.ArtistDao
 import com.mauro.offlinefirst.data.local.dao.SongDao
@@ -32,10 +30,6 @@ class SongRepositoryImpl @Inject constructor(
     private val artistDao: ArtistDao,
     private val remoteDataSource: RemoteDataSource
 ) : SongRepository {
-
-    companion object {
-        private const val TAG = "SongRepository"
-    }
 
     private fun mergeSongWithExisting(
         incoming: SongEntity,
@@ -85,8 +79,7 @@ class SongRepositoryImpl @Inject constructor(
                 artistWithFanCount.toEntity(sortOrder = index)
             }
             artistDao.replaceArtists(entities)
-        } catch (exception: Exception) {
-            exception.printStackTrace()
+        } catch (_: Exception) {
         }
     }
 
@@ -102,30 +95,24 @@ class SongRepositoryImpl @Inject constructor(
     }
 
     override suspend fun syncSongs() {
-        Log.i(TAG, "syncSongs:start")
         val remoteSongs = try {
             remoteDataSource.fetchSongs()
         } catch (exception: Exception) {
             if (songDao.countChartSongs() == 0) {
-                Log.w(TAG, "syncSongs:remote unavailable, seeding fallback catalog", exception)
                 remoteDataSource.fallbackChartSongs()
             } else {
-                Log.w(TAG, "syncSongs:remote unavailable, keeping existing chart songs", exception)
                 return
             }
         }
-        Log.i(TAG, "syncSongs:fetched count=${remoteSongs.size}")
 
         val entities = remoteSongs.mapIndexed { index, dto ->
             dto.toEntity(isFromChart = true).copy(sortOrder = index)
         }
 
         songDao.replaceChartSongs(entities)
-        Log.i(TAG, "syncSongs:stored count=${entities.size}")
     }
 
     override suspend fun saveAlbumTracks(tracks: List<Song>) {
-        Log.d(TAG, "saveAlbumTracks:start count=${tracks.size}")
         val songEntities = tracks.map { it.toEntity() }
         val mergedTracks = songEntities.map { track ->
             mergeSongWithExisting(
@@ -134,7 +121,6 @@ class SongRepositoryImpl @Inject constructor(
             )
         }
         songDao.upsertSongs(mergedTracks)
-        Log.d(TAG, "saveAlbumTracks:stored count=${mergedTracks.size}")
     }
 
     override suspend fun shouldSync(): Boolean {
@@ -150,15 +136,12 @@ class SongRepositoryImpl @Inject constructor(
     }
 
     override suspend fun syncAlbums() {
-        Log.i(TAG, "syncAlbums:start")
         val albums = try {
             remoteDataSource.fetchChartAlbums()
         } catch (exception: Exception) {
             if (albumDao.countAlbums() == 0) {
-                Log.w(TAG, "syncAlbums:remote unavailable, seeding fallback catalog", exception)
                 remoteDataSource.fallbackChartAlbums()
             } else {
-                Log.w(TAG, "syncAlbums:remote unavailable, keeping existing albums", exception)
                 return
             }
         }
@@ -172,7 +155,6 @@ class SongRepositoryImpl @Inject constructor(
             )
         }
         albumDao.replaceAlbums(entities)
-        Log.i(TAG, "syncAlbums:stored count=${entities.size}")
     }
 
     override suspend fun fetchChartAlbums(): List<Album> {
@@ -180,24 +162,24 @@ class SongRepositoryImpl @Inject constructor(
             dto.toDomain()
         }
     }
-    override suspend fun fetchAlbumTracks(albumId: String, albumArt: String, albumTitle: String): List<Song> {
+    override suspend fun fetchAlbumTracks(
+        albumId: String,
+        albumArt: String,
+        albumTitle: String
+    ): List<Song> {
         try {
-            Log.d(TAG, "fetchAlbumTracks:start albumId=$albumId")
             val tracks = try {
                 remoteDataSource.fetchAlbumTracks(albumId)
             } catch (exception: Exception) {
                 val existingSongs = songDao.getAlbumSongs(albumId)
                 if (existingSongs.isNotEmpty()) {
-                    Log.w(TAG, "fetchAlbumTracks:using cached album songs albumId=$albumId count=${existingSongs.size}", exception)
                     return existingSongs.map { it.toDomain() }
                 }
-                Log.w(TAG, "fetchAlbumTracks:using fallback catalog albumId=$albumId", exception)
                 remoteDataSource.fallbackAlbumTracks(albumId)
             }
             val albumDetail = try {
                 remoteDataSource.fetchAlbumDetail(albumId)
             } catch (exception: Exception) {
-                Log.w(TAG, "fetchAlbumTracks:using fallback album detail albumId=$albumId", exception)
                 remoteDataSource.fallbackAlbumDetail(albumId)
             }
             val artistImageUrl = albumDetail.artist.bestImageUrl()
@@ -215,13 +197,10 @@ class SongRepositoryImpl @Inject constructor(
                 )
             }
             songDao.upsertSongs(entities)
-            Log.d(TAG, "fetchAlbumTracks:stored albumId=$albumId count=${entities.size}")
             return entities.map { it.toDomain() }
         } catch (e: Exception) {
-            Log.e(TAG, "fetchAlbumTracks:remote failed albumId=$albumId", e)
             val existingSongs = songDao.getAlbumSongs(albumId)
             if (existingSongs.isNotEmpty()) {
-                Log.w(TAG, "fetchAlbumTracks:using cached albumId=$albumId count=${existingSongs.size}")
                 return existingSongs.map { it.toDomain() }
             }
             throw e
@@ -229,11 +208,9 @@ class SongRepositoryImpl @Inject constructor(
     }
 
     override suspend fun fetchArtistTopTracks(artistId: String): List<Song> {
-        Log.d(TAG, "fetchArtistTopTracks:start artistId=$artistId")
         return try {
             remoteDataSource.fetchArtistTopTracks(artistId)
-        } catch (exception: Exception) {
-            Log.w(TAG, "fetchArtistTopTracks:using fallback catalog artistId=$artistId", exception)
+        } catch (_: Exception) {
             remoteDataSource.fallbackArtistTopTracks(artistId)
         }.map { dto ->
             dto.toEntity(isFromChart = false).toDomain()
@@ -241,11 +218,9 @@ class SongRepositoryImpl @Inject constructor(
     }
 
     override suspend fun fetchArtistDetail(artistId: String): Artist {
-        Log.d(TAG, "fetchArtistDetail:start artistId=$artistId")
         return try {
             remoteDataSource.fetchArtistDetail(artistId)
-        } catch (exception: Exception) {
-            Log.w(TAG, "fetchArtistDetail:using fallback catalog artistId=$artistId", exception)
+        } catch (_: Exception) {
             remoteDataSource.fallbackArtistDetail(artistId)
         }.toDomain()
     }
@@ -253,26 +228,22 @@ class SongRepositoryImpl @Inject constructor(
     override suspend fun search(query: String): SearchResult {
         val trimmedQuery = query.trim()
         if (trimmedQuery.isBlank()) return SearchResult()
-        Log.d(TAG, "search:start query=$trimmedQuery")
 
         val tracks = try {
             remoteDataSource.searchTracks(query = trimmedQuery, limit = 20)
-        } catch (exception: Exception) {
-            Log.w(TAG, "search:using fallback tracks query=$trimmedQuery", exception)
+        } catch (_: Exception) {
             remoteDataSource.fallbackSearchTracks(query = trimmedQuery, limit = 20)
         }
             .map { dto -> dto.toEntity(isFromChart = false).toDomain() }
         val albums = try {
             remoteDataSource.searchAlbums(query = trimmedQuery, limit = 10)
-        } catch (exception: Exception) {
-            Log.w(TAG, "search:using fallback albums query=$trimmedQuery", exception)
+        } catch (_: Exception) {
             remoteDataSource.fallbackSearchAlbums(query = trimmedQuery, limit = 10)
         }
             .map { dto -> dto.toDomain() }
         val artists = try {
             remoteDataSource.searchArtists(query = trimmedQuery, limit = 5)
-        } catch (exception: Exception) {
-            Log.w(TAG, "search:using fallback artists query=$trimmedQuery", exception)
+        } catch (_: Exception) {
             remoteDataSource.fallbackSearchArtists(query = trimmedQuery, limit = 5)
         }
             .map { dto -> dto.toDomain() }

@@ -1,6 +1,5 @@
 package com.mauro.offlinefirst
 
-import android.util.Log
 import app.cash.turbine.test
 import com.mauro.offlinefirst.data.local.dao.AlbumDao
 import com.mauro.offlinefirst.data.local.dao.ArtistDao
@@ -16,8 +15,6 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkStatic
-import io.mockk.unmockkStatic
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -39,19 +36,7 @@ class SongRepositoryImplTest {
         albumDao = mockk()
         artistDao = mockk()
         remoteDataSource = mockk()
-        mockkStatic(Log::class)
-        every { Log.i(any<String>(), any<String>()) } returns 0
-        every { Log.d(any<String>(), any<String>()) } returns 0
-        every { Log.w(any<String>(), any<String>()) } returns 0
-        every { Log.w(any<String>(), any<String>(), any()) } returns 0
-        every { Log.e(any<String>(), any<String>()) } returns 0
-        every { Log.e(any<String>(), any<String>(), any()) } returns 0
         repository = SongRepositoryImpl(songDao, albumDao, artistDao, remoteDataSource)
-    }
-
-    @org.junit.After
-    fun tearDown() {
-        unmockkStatic(Log::class)
     }
 
     @Test

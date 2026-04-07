@@ -1,6 +1,5 @@
 package com.mauro.offlinefirst
 
-import android.util.Log
 import app.cash.turbine.test
 import com.mauro.offlinefirst.data.network.NetworkStatusDataSource
 import com.mauro.offlinefirst.domain.model.Album
@@ -11,13 +10,12 @@ import com.mauro.offlinefirst.domain.model.Song
 import com.mauro.offlinefirst.domain.repository.SongRepository
 import com.mauro.offlinefirst.domain.usecase.GetFeaturedAlbumUseCase
 import com.mauro.offlinefirst.domain.usecase.GetNewReleasesUseCase
+import com.mauro.offlinefirst.domain.usecase.PrepareAlbumNavigationUseCase
 import com.mauro.offlinefirst.presentation.home.HomeViewModel
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkStatic
-import io.mockk.unmockkStatic
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
@@ -41,6 +39,7 @@ class HomeViewModelTest {
     private lateinit var networkStatusDataSource: NetworkStatusDataSource
     private lateinit var getNewReleasesUseCase: GetNewReleasesUseCase
     private lateinit var getFeaturedAlbumUseCase: GetFeaturedAlbumUseCase
+    private lateinit var prepareAlbumNavigationUseCase: PrepareAlbumNavigationUseCase
     private lateinit var viewModel: HomeViewModel
 
     @Before
@@ -50,27 +49,21 @@ class HomeViewModelTest {
         networkStatusDataSource = mockk()
         getNewReleasesUseCase = mockk()
         getFeaturedAlbumUseCase = mockk()
-        mockkStatic(Log::class)
-        every { Log.i(any<String>(), any<String>()) } returns 0
-        every { Log.d(any<String>(), any<String>()) } returns 0
-        every { Log.w(any<String>(), any<String>()) } returns 0
-        every { Log.w(any<String>(), any<String>(), any()) } returns 0
-        every { Log.e(any<String>(), any<String>()) } returns 0
-        every { Log.e(any<String>(), any<String>(), any()) } returns 0
+        prepareAlbumNavigationUseCase = mockk()
     }
 
     @After
     fun tearDown() {
-        unmockkStatic(Log::class)
         Dispatchers.resetMain()
     }
 
     private fun createViewModel() {
         viewModel = HomeViewModel(
-            songRepository,
+            prepareAlbumNavigationUseCase,
             networkStatusDataSource,
             getNewReleasesUseCase,
-            getFeaturedAlbumUseCase
+            getFeaturedAlbumUseCase,
+            songRepository
         )
     }
 
@@ -85,6 +78,7 @@ class HomeViewModelTest {
         coEvery { songRepository.syncArtists() } returns Unit
         coEvery { getNewReleasesUseCase.refresh() } returns Unit
         coEvery { songRepository.search(any()) } returns SearchResult()
+        coEvery { prepareAlbumNavigationUseCase(any(), any(), any()) } returns true
     }
 
     @Test

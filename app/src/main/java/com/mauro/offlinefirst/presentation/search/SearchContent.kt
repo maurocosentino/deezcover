@@ -44,7 +44,6 @@ import com.mauro.offlinefirst.presentation.components.TopAlbumsSection
 import com.mauro.offlinefirst.presentation.components.TopArtistsSection
 import com.mauro.offlinefirst.presentation.components.topTracksSection
 import com.mauro.offlinefirst.presentation.player.PlayerState
-import org.intellij.lang.annotations.JdkConstants
 
 fun LazyListScope.localSearchResultsSection(
     tracks: List<Song>,

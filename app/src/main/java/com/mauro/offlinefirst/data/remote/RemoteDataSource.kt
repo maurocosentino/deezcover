@@ -1,6 +1,4 @@
 package com.mauro.offlinefirst.data.remote
-
-import android.util.Log
 import com.mauro.offlinefirst.data.remote.api.MusicApiService
 import com.mauro.offlinefirst.data.remote.dto.AlbumDto
 import com.mauro.offlinefirst.data.remote.dto.DeezerAlbumDetailDto
@@ -16,25 +14,17 @@ class RemoteDataSource constructor(
     private val apiService: MusicApiService,
     private val cleartextApiService: MusicApiService
 ) {
-    companion object {
-        private const val TAG = "RemoteDataSource"
-    }
-
     private suspend fun <T> executeWithTransportFallback(
         operation: String,
         block: suspend (MusicApiService) -> T
     ): T {
         return try {
-            Log.d(TAG, "Request start: operation=$operation transport=https")
             block(apiService)
         } catch (exception: Exception) {
-            Log.w(TAG, "HTTPS request failed: operation=$operation", exception)
             if (exception.shouldUseBundledFallback()) {
                 try {
-                    Log.d(TAG, "Retrying with cleartext fallback: operation=$operation transport=http")
                     block(cleartextApiService)
                 } catch (cleartextException: Exception) {
-                    Log.w(TAG, "HTTP request failed: operation=$operation", cleartextException)
                     throw cleartextException
                 }
             } else {

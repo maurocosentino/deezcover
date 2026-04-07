@@ -1,6 +1,5 @@
 package com.mauro.offlinefirst.presentation.search
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mauro.offlinefirst.data.network.NetworkStatusDataSource
@@ -10,6 +9,7 @@ import com.mauro.offlinefirst.domain.model.SearchHistoryItem
 import com.mauro.offlinefirst.domain.model.Song
 import com.mauro.offlinefirst.domain.repository.SearchHistoryRepository
 import com.mauro.offlinefirst.domain.repository.SongRepository
+import com.mauro.offlinefirst.domain.usecase.PrepareAlbumNavigationUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,12 +30,9 @@ private const val SEARCH_DEBOUNCE_MS = 300L
 class SearchViewModel @Inject constructor(
     private val songRepository: SongRepository,
     private val networkStatusDataSource: NetworkStatusDataSource,
-    private val searchHistoryRepository: SearchHistoryRepository
+    private val searchHistoryRepository: SearchHistoryRepository,
+    private val prepareAlbumNavigationUseCase: PrepareAlbumNavigationUseCase
 ) : ViewModel() {
-
-    companion object {
-        private const val TAG = "SearchViewModel"
-    }
 
     private val _uiState = MutableStateFlow(SearchUiState())
     val uiState: StateFlow<SearchUiState> = _uiState.asStateFlow()
@@ -87,17 +84,11 @@ class SearchViewModel @Inject constructor(
         albumId: String,
         albumArt: String,
         albumTitle: String,
-        onReady: (String) -> Unit
+        onReady: () -> Unit
     ) {
         viewModelScope.launch {
-            try {
-                Log.d(TAG, "navigateToAlbum:start albumId=$albumId")
-                val tracks = songRepository.fetchAlbumTracks(albumId, albumArt, albumTitle)
-                if (tracks.isNotEmpty()) {
-                    onReady(tracks.first().id)
-                }
-            } catch (exception: Exception) {
-                Log.e(TAG, "navigateToAlbum:failed albumId=$albumId", exception)
+            if (prepareAlbumNavigationUseCase(albumId, albumArt, albumTitle)) {
+                onReady()
             }
         }
     }
@@ -121,7 +112,6 @@ class SearchViewModel @Inject constructor(
                         refreshLocalSearchResults()
                     },
                     onFailure = { exception ->
-                        Log.e(TAG, "observeSongs:onFailure", exception)
                         _uiState.update {
                             it.copy(isLoading = false, errorMessage = exception.message)
                         }

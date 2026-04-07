@@ -13,7 +13,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.mauro.offlinefirst.R
 import com.mauro.offlinefirst.ui.theme.DeezerColor
 import com.mauro.offlinefirst.ui.theme.NavBarSelectedItem
 
@@ -35,7 +37,11 @@ fun PlaybackControls(
         ) {
             Icon(
                 imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                contentDescription = if (isPlaying) "Pause" else "Play",
+                contentDescription = if (isPlaying) {
+                    stringResource(R.string.pause)
+                } else {
+                    stringResource(R.string.play)
+                },
                 tint = DeezerColor
             )
         }

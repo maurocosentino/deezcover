@@ -1,12 +1,12 @@
 package com.mauro.offlinefirst.presentation.home
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mauro.offlinefirst.data.network.NetworkStatusDataSource
 import com.mauro.offlinefirst.domain.repository.SongRepository
 import com.mauro.offlinefirst.domain.usecase.GetFeaturedAlbumUseCase
 import com.mauro.offlinefirst.domain.usecase.GetNewReleasesUseCase
+import com.mauro.offlinefirst.domain.usecase.PrepareAlbumNavigationUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
@@ -25,15 +25,12 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val songRepository: SongRepository,
+    private val prepareAlbumNavigationUseCase: PrepareAlbumNavigationUseCase,
     private val networkStatusDataSource: NetworkStatusDataSource,
     private val getNewReleasesUseCase: GetNewReleasesUseCase,
-    private val getFeaturedAlbumUseCase: GetFeaturedAlbumUseCase
+    private val getFeaturedAlbumUseCase: GetFeaturedAlbumUseCase,
+    private val songRepository: SongRepository
 ) : ViewModel() {
-
-    companion object {
-        private const val TAG = "HomeViewModel"
-    }
 
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
@@ -42,7 +39,6 @@ class HomeViewModel @Inject constructor(
     private var featuredAlbumJob: Job? = null
 
     init {
-        Log.i(TAG, "init:start")
         observeSongs()
         observeArtists()
         observeAlbums()
@@ -57,22 +53,19 @@ class HomeViewModel @Inject constructor(
             runCatching { songRepository.shouldSync() }
                 .onSuccess { shouldSync ->
                     if (shouldSync) {
-                        Log.i(TAG, "syncIfNeeded:triggered")
                         performSync()
                     }
                 }
-                .onFailure { exception ->
-                    Log.e(TAG, "syncIfNeeded:failed", exception)
-                }
+                .onFailure { _ -> }
         }
     }
+
     private fun observeConnectivity() {
         viewModelScope.launch {
             networkStatusDataSource.isConnected
                 .distinctUntilChanged()
                 .collect { isConnected ->
                     val wasOffline = !_uiState.value.isConnected
-                    Log.d(TAG, "observeConnectivity:isConnected=$isConnected wasOffline=$wasOffline")
                     _uiState.update { it.copy(isConnected = isConnected) }
 
                     if (isConnected && wasOffline) {
@@ -88,14 +81,11 @@ class HomeViewModel @Inject constructor(
         }
     }
     private suspend fun performSync() {
-        Log.i(TAG, "syncAll:start")
         _uiState.update { it.copy(errorMessage = null) }
 
         try {
             syncRepositories()
-            Log.i(TAG, "syncAll:success songs=${_uiState.value.songs.size} albums=${_uiState.value.chartAlbums.size}")
         } catch (e: Exception) {
-            Log.e(TAG, "syncAll:failed", e)
             _uiState.update {
                 it.copy(
                     errorMessage = if (it.songs.isEmpty() && it.chartAlbums.isEmpty()) {
@@ -106,13 +96,11 @@ class HomeViewModel @Inject constructor(
                 )
             }
         } finally {
-            Log.i(TAG, "syncAll:finish")
-            _uiState.update { it.copy(isLoading = false)}
+            _uiState.update { it.copy(isLoading = false) }
         }
     }
-    private suspend fun syncRepositories() = coroutineScope {
-        Log.d(TAG, "syncRepositories:start")
 
+    private suspend fun syncRepositories() = coroutineScope {
         val songs = async { songRepository.syncSongs() }
         val albums = async { songRepository.syncAlbums() }
         val artists = async { songRepository.syncArtists() }
@@ -120,8 +108,6 @@ class HomeViewModel @Inject constructor(
         val featuredAlbum = async { refreshFeaturedAlbum() }
 
         awaitAll(songs, albums, artists, newReleases, featuredAlbum)
-
-        Log.d(TAG, "syncRepositories:completed")
     }
 
     private fun observeSongs() {
@@ -132,7 +118,6 @@ class HomeViewModel @Inject constructor(
             songRepository.observeSongs().collect { result ->
                 result.fold(
                     onSuccess = { songs ->
-                        Log.d(TAG, "observeSongs:onSuccess count=${songs.size}")
                         _uiState.update {
                             it.copy(
                                 songs = songs,
@@ -142,7 +127,6 @@ class HomeViewModel @Inject constructor(
                         }
                     },
                     onFailure = { exception ->
-                        Log.e(TAG, "observeSongs:onFailure", exception)
                         _uiState.update {
                             it.copy(isLoading = false, errorMessage = exception.message)
                         }
@@ -155,7 +139,6 @@ class HomeViewModel @Inject constructor(
     private fun observeArtists() {
         viewModelScope.launch {
             songRepository.observeArtists().collect { artists ->
-                Log.d(TAG, "observeArtists:onSuccess count=${artists.size}")
                 _uiState.update { it.copy(topArtists = artists) }
             }
         }
@@ -163,7 +146,6 @@ class HomeViewModel @Inject constructor(
     private fun observeAlbums() {
         viewModelScope.launch {
             songRepository.observeAlbums().collect { albums ->
-                Log.d(TAG, "observeAlbums:onSuccess count=${albums.size}")
                 _uiState.update { it.copy(chartAlbums = albums) }
             }
         }
@@ -174,7 +156,6 @@ class HomeViewModel @Inject constructor(
 
         newReleasesJob = viewModelScope.launch {
             getNewReleasesUseCase().collect { releases ->
-                Log.d(TAG, "observeNewReleases:onSuccess count=${releases.size}")
                 _uiState.update {
                     it.copy(
                         newReleases = releases,
@@ -186,7 +167,6 @@ class HomeViewModel @Inject constructor(
         }
         newReleasesJob?.invokeOnCompletion { throwable ->
             if (throwable != null) {
-                Log.e(TAG, "observeNewReleases:onFailure", throwable)
                 _uiState.update {
                     it.copy(
                         isNewReleasesLoading = false,
@@ -202,10 +182,6 @@ class HomeViewModel @Inject constructor(
 
             featuredAlbumJob = viewModelScope.launch {
                 getFeaturedAlbumUseCase().collect { featuredAlbums ->
-                    Log.d(
-                        TAG,
-                        "observeFeaturedAlbum:onSuccess count=${featuredAlbums.size}"
-                    )
                     _uiState.update { it.copy(featuredAlbums = featuredAlbums) }
                 }
             }
@@ -229,7 +205,6 @@ class HomeViewModel @Inject constructor(
                 }
             }
             .onFailure { throwable ->
-                Log.e(TAG, "refreshNewReleases:onFailure", throwable)
                 _uiState.update {
                     it.copy(
                         isNewReleasesLoading = false,
@@ -239,22 +214,17 @@ class HomeViewModel @Inject constructor(
             }
     }
 
-    fun navigateToAlbum(albumId: String, albumArt: String, albumTitle: String, onReady: (String) -> Unit) {
+    fun navigateToAlbum(
+        albumId: String,
+        albumArt: String,
+        albumTitle: String,
+        onReady: () -> Unit
+    ) {
         viewModelScope.launch {
-            try {
-                Log.d(TAG, "navigateToAlbum:start albumId=$albumId")
-                val tracks = songRepository.fetchAlbumTracks(albumId, albumArt, albumTitle)
-                if (tracks.isNotEmpty()) {
-                    onReady(tracks.first().id)
-                }
-            } catch (e: Exception) {
-                Log.e(TAG, "navigateToAlbum:failed albumId=$albumId", e)
+            if (prepareAlbumNavigationUseCase(albumId, albumArt, albumTitle)) {
+                onReady()
             }
         }
-    }
-
-    override fun onCleared() {
-        super.onCleared()
     }
 }
 

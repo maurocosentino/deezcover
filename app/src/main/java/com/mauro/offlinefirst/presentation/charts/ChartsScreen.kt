@@ -74,7 +74,7 @@ fun ChartsScreen(
                 TopAppBar(
                     title = {
                         Text(
-                            text = "Lo más escuchado",
+                            text = stringResource(R.string.charts_title),
                             fontSize = 24.sp,
                             color = Color.White,
                             fontWeight = FontWeight.SemiBold,

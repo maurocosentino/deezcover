@@ -1,6 +1,4 @@
 package com.mauro.offlinefirst.presentation.home.components
-
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -43,8 +41,7 @@ fun FeaturedSection(
     featuredAlbums: List<NewRelease>,
     onAlbumClick: (String) -> Unit
 ) {
-    Log.d("MoreFeatured", "size: ${featuredAlbums.size}")
-    val moreFeaturedAlbums = featuredAlbums.drop(0).take(5)
+    val moreFeaturedAlbums = featuredAlbums.take(5)
     if (moreFeaturedAlbums.isEmpty()) return
 
     Column(

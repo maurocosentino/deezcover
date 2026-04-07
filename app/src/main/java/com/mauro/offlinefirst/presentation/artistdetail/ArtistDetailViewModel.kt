@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mauro.offlinefirst.domain.model.Song
 import com.mauro.offlinefirst.domain.repository.SongRepository
+import com.mauro.offlinefirst.domain.usecase.PrepareAlbumNavigationUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,6 +19,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ArtistDetailViewModel @Inject constructor(
     private val songRepository: SongRepository,
+    private val prepareAlbumNavigationUseCase: PrepareAlbumNavigationUseCase,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -68,15 +70,13 @@ class ArtistDetailViewModel @Inject constructor(
         if (song.albumId.isBlank()) return
 
         viewModelScope.launch {
-            try {
-                songRepository.fetchAlbumTracks(
+            if (prepareAlbumNavigationUseCase(
                     albumId = song.albumId,
                     albumArt = song.albumArt,
                     albumTitle = song.albumTitle
                 )
+            ) {
                 onReady()
-            } catch (exception: Exception) {
-                exception.printStackTrace()
             }
         }
     }

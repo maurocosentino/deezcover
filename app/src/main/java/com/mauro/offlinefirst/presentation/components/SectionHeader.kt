@@ -18,7 +18,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material.icons.outlined.ChevronRight
+import androidx.compose.ui.res.stringResource
+import com.mauro.offlinefirst.R
 
 @Composable
 fun SectionHeader(
@@ -54,7 +55,7 @@ fun SectionHeader(
             IconButton(onClick = onViewMoreClick) {
                 Icon(
                     imageVector = Icons.Default.ChevronRight,
-                    contentDescription = "Ver más",
+                    contentDescription = stringResource(R.string.view_more),
                     tint = Color.White.copy(alpha = 0.8f),
                     modifier = Modifier.size(28.dp)
                 )

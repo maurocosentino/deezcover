@@ -138,7 +138,7 @@ fun NavGraph(
         composable(
             route = Screen.Charts.route,
             arguments = listOf(
-                navArgument("scrollTo") {
+                navArgument(Screen.CHARTS_SCROLL_TO_ARG) {
                     type = NavType.StringType
                     defaultValue = ""
                 }
@@ -148,7 +148,9 @@ fun NavGraph(
             popEnterTransition = { EnterTransition.None },
             popExitTransition = { ExitTransition.None }
         ) { backStackEntry ->
-            val scrollTo = backStackEntry.arguments?.getString("scrollTo").orEmpty()
+            val scrollTo = backStackEntry.arguments
+                ?.getString(Screen.CHARTS_SCROLL_TO_ARG)
+                .orEmpty()
             ChartsScreen(
                 scrollTo = scrollTo,
                 onSongClick = { songId ->
@@ -167,11 +169,11 @@ fun NavGraph(
         composable(
             route = Screen.AlbumDetail.route,
             arguments = listOf(
-                navArgument("songId") {
+                navArgument(Screen.ALBUM_DETAIL_SONG_ID_ARG) {
                     type = NavType.StringType
                     defaultValue = ""
                 },
-                navArgument("albumId") {
+                navArgument(Screen.ALBUM_DETAIL_ALBUM_ID_ARG) {
                     type = NavType.StringType
                     nullable = true
                     defaultValue = ""
@@ -197,9 +199,9 @@ fun NavGraph(
         composable(
             route = Screen.ArtistDetail.route,
             arguments = listOf(
-                navArgument("artistId") { type = NavType.StringType },
-                navArgument("artistName") { type = NavType.StringType },
-                navArgument("artistImageUrl") { type = NavType.StringType }
+                navArgument(Screen.ARTIST_DETAIL_ID_ARG) { type = NavType.StringType },
+                navArgument(Screen.ARTIST_DETAIL_NAME_ARG) { type = NavType.StringType },
+                navArgument(Screen.ARTIST_DETAIL_IMAGE_ARG) { type = NavType.StringType }
             ),
             enterTransition = { forwardEnterTransition() },
             exitTransition = { forwardExitTransition() },

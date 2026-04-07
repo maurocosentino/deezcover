@@ -1,6 +1,4 @@
 package com.mauro.offlinefirst.data.repository
-
-import android.util.Log
 import com.mauro.offlinefirst.data.local.dao.NewReleaseDao
 import com.mauro.offlinefirst.data.mapper.NewReleaseMapper.toDomain
 import com.mauro.offlinefirst.data.mapper.NewReleaseMapper.toEntity
@@ -16,10 +14,6 @@ class NewReleaseRepositoryImpl @Inject constructor(
     private val remoteDataSource: RemoteDataSource
 ) : NewReleaseRepository {
 
-    companion object {
-        private const val TAG = "NewReleaseRepository"
-    }
-
     override fun observeNewReleases(pageIndex: Int): Flow<List<NewRelease>> {
         return newReleaseDao.observeNewReleasesByPage(pageIndex).map { entities ->
             entities.map { it.toDomain() }
@@ -27,22 +21,15 @@ class NewReleaseRepositoryImpl @Inject constructor(
     }
 
     override suspend fun syncNewReleases(pageIndex: Int) {
-        Log.d(TAG, "syncNewReleases:start pageIndex=$pageIndex")
         try {
             val releases = remoteDataSource.fetchNewReleases(pageIndex)
             val entities = releases.mapIndexed { index, dto ->
                 dto.toEntity(pageIndex = pageIndex, sortOrder = index)
             }
             newReleaseDao.replaceNewReleasesForPage(pageIndex, entities)
-            Log.d(TAG, "syncNewReleases:stored pageIndex=$pageIndex count=${entities.size}")
         } catch (exception: Exception) {
             val cachedCount = newReleaseDao.countNewReleasesByPage(pageIndex)
             if (cachedCount > 0) {
-                Log.w(
-                    TAG,
-                    "syncNewReleases:using cached pageIndex=$pageIndex count=$cachedCount",
-                    exception
-                )
                 return
             }
             throw exception
@@ -52,8 +39,7 @@ class NewReleaseRepositoryImpl @Inject constructor(
     override suspend fun fetchFeaturedAlbum(): List<NewRelease> {
         return try {
             remoteDataSource.fetchFeaturedAlbumSelection().map { it.toDomain() }
-        } catch (exception: Exception) {
-            Log.w(TAG, "fetchFeaturedAlbum:failed", exception)
+        } catch (_: Exception) {
             emptyList()
         }
     }

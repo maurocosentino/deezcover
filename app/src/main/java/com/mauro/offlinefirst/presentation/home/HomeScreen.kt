@@ -209,7 +209,7 @@ fun HomeScreen(
                                             albumId = release.albumId.toString(),
                                             albumArt = release.coverXlUrl ?: release.coverUrl,
                                             albumTitle = release.title,
-                                            onReady = { _ ->
+                                            onReady = {
                                                 onAlbumClick(release.albumId.toString())
                                             }
                                         )

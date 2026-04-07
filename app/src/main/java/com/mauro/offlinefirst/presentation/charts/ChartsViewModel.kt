@@ -1,9 +1,9 @@
 package com.mauro.offlinefirst.presentation.charts
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mauro.offlinefirst.domain.repository.SongRepository
+import com.mauro.offlinefirst.domain.usecase.PrepareAlbumNavigationUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,12 +14,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ChartsViewModel @Inject constructor(
-    private val songRepository: SongRepository
+    private val songRepository: SongRepository,
+    private val prepareAlbumNavigationUseCase: PrepareAlbumNavigationUseCase
 ) : ViewModel() {
-
-    companion object {
-        private const val TAG = "ChartsViewModel"
-    }
 
     private val _uiState = MutableStateFlow(ChartsUiState())
     val uiState: StateFlow<ChartsUiState> = _uiState.asStateFlow()
@@ -33,17 +30,11 @@ class ChartsViewModel @Inject constructor(
         albumId: String,
         albumArt: String,
         albumTitle: String,
-        onReady: (String) -> Unit
+        onReady: () -> Unit
     ) {
         viewModelScope.launch {
-            try {
-                Log.d(TAG, "navigateToAlbum:start albumId=$albumId")
-                val tracks = songRepository.fetchAlbumTracks(albumId, albumArt, albumTitle)
-                if (tracks.isNotEmpty()) {
-                    onReady(tracks.first().id)
-                }
-            } catch (exception: Exception) {
-                Log.e(TAG, "navigateToAlbum:failed albumId=$albumId", exception)
+            if (prepareAlbumNavigationUseCase(albumId, albumArt, albumTitle)) {
+                onReady()
             }
         }
     }
@@ -57,7 +48,6 @@ class ChartsViewModel @Inject constructor(
             songRepository.observeSongs().collect { result ->
                 result.fold(
                     onSuccess = { songs ->
-                        Log.d(TAG, "observeSongs:onSuccess count=${songs.size}")
                         _uiState.update {
                             it.copy(
                                 songs = songs,
@@ -67,7 +57,6 @@ class ChartsViewModel @Inject constructor(
                         }
                     },
                     onFailure = { exception ->
-                        Log.e(TAG, "observeSongs:onFailure", exception)
                         _uiState.update {
                             it.copy(isLoading = false, errorMessage = exception.message)
                         }
@@ -80,7 +69,6 @@ class ChartsViewModel @Inject constructor(
     private fun observeAlbums() {
         viewModelScope.launch {
             songRepository.observeAlbums().collect { albums ->
-                Log.d(TAG, "observeAlbums:onSuccess count=${albums.size}")
                 _uiState.update { it.copy(albums = albums) }
             }
         }
